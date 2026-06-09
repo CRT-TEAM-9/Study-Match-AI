@@ -1,0 +1,75 @@
+SYSTEM ARCHITECTURE & FLOWCHARTS
+
+1. HIGH-LEVEL SYSTEM ARCHITECTURE
+
+  +-------------------------------------------------------------+
+  |                        USER INTERFACE                       |
+  |             (Streamlit / Gradio Chat Interface)              |
+  +------------------------------+------------------------------+
+                                 |
+                      User Prompts & Responses
+                                 |
+  +------------------------------v------------------------------+
+  |                       LLM ORCHESTRATOR                      |
+  |               (System Prompt Processing Engine)             |
+  +--------------+-------------------------------+--------------+
+                 |                               |
+    Read/Write Sample Profiles          Triggers Calculation
+                 |                               |
+  +--------------v---------------+ +-------------v--------------+
+  |       PROFILE DATABASE       | |       MATCHING ENGINE       |
+  |   (students_db.json file)    | |  (Calculates Comp Scores   |
+  |                              | |  & Explains Group Logic)   |
+  +------------------------------+ +-----------------------------+
+
+
+2. CORE APPLICATION FLOWCHART
+
+[ START ]
+   |
+   v
+User Opens Chatbot Interface
+   |
+   v
+Bot Prompts User: Choose "Register" or "Find Match"
+   |
+   +-----------------------+-----------------------+
+   |                                               |
+[ REGISTER MODE ]                           [ FIND MATCH MODE ]
+   |                                               |
+   v                                               v
+Conversational Q&A Loop                     Is User Profile Registered?
+(Asks details step-by-step)                         |
+   |                                       +-------+-------+
+   v                                       |               |
+All data collected?                       YES              NO
+   |          |                            |               |
+  NO         YES                           |               v
+   |          |                            |       Prompt to Register First
+   v          v                            |               |
+Ask Next   Save Profile to JSON            v               v
+Question   Database                        Load user data  Loop back to Register
+   |          |                            from JSON
+   +---<------+                            |
+                                           v
+                                   Execute Matching Engine
+                                   (Strengths, Time, Goals)
+                                           |
+                                           v
+                                 Any compatible matches?
+                                     |          |
+                                    YES         NO
+                                     |          |
+                                     |          v
+                                     |     Display "No Match Found"
+                                     |     Suggest broadening criteria
+                                     |          |
+                                     v          v
+                            Calculate Compatibility Score (%)
+                                     |
+                                     v
+                             Display Match Cards with "Why"
+                             & check for Group Formations (3+)
+                                     |
+                                     v
+                                  [ END ]

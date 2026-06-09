@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Directory - StudyMatch AI</title>
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+    <!-- Load Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Load Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <script>
+        // Inline theme manager to prevent white flash
+        function applyTheme() {
+            const theme = localStorage.getItem("theme") || "system";
+            let isDark = false;
+            let themeLabel = "";
+            let themeIcon = "desktop_windows";
+            
+            if (theme === "dark") {
+                isDark = true;
+                themeLabel = "Dark";
+                themeIcon = "dark_mode";
+            } else if (theme === "light") {
+                isDark = false;
+                themeLabel = "Light";
+                themeIcon = "light_mode";
+            } else {
+                isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+                themeLabel = "System (" + (isDark ? "Dark" : "Light") + ")";
+                themeIcon = "desktop_windows";
+            }
+            
+            if (isDark) {
+                document.documentElement.classList.add("dark");
+            } else {
+                document.documentElement.classList.remove("dark");
+            }
+            
+            const updateUI = () => {
+                const icon = document.getElementById("theme-icon");
+                const text = document.getElementById("theme-text");
+                if (icon) icon.textContent = themeIcon;
+                if (text) text.textContent = themeLabel;
+            };
+            
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", updateUI);
+            } else {
+                updateUI();
+            }
+        }
+        function toggleTheme() {
+            const theme = localStorage.getItem("theme") || "system";
+            let nextTheme = "light";
+            if (theme === "system") {
+                nextTheme = "light";
+            } else if (theme === "light") {
+                nextTheme = "dark";
+            } else if (theme === "dark") {
+                nextTheme = "system";
+            }
+            localStorage.setItem("theme", nextTheme);
+            applyTheme();
+        }
+        
+        // Listen for system theme changes
+        window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+            if ((localStorage.getItem("theme") || "system") === "system") {
+                applyTheme();
+            }
+        });
+        
+        applyTheme();
+    </script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "var(--color-primary)",
+                        "secondary": "var(--color-secondary)",
+                        "tertiary": "var(--color-tertiary)",
+                        "surface": "var(--color-surface)",
+                        "background": "var(--color-background)",
+                        "outline-variant": "var(--color-outline-variant)",
+                        "on-surface-variant": "var(--color-on-surface-variant)",
+                        "surface-container-high": "var(--color-surface-container-high)",
+                        "surface-container-low": "var(--color-surface-container-low)",
+                        "surface-container-lowest": "var(--color-surface-container-lowest)",
+                        "surface-container-highest": "var(--color-surface-container-highest)",
+                        "surface-variant": "var(--color-surface-variant)",
+                        "surface-bright": "var(--color-surface-bright)",
+                        "on-primary": "var(--color-on-primary)",
+                        "on-secondary": "var(--color-on-secondary)",
+                        "primary-fixed": "var(--color-primary-fixed)",
+                        "on-primary-fixed": "var(--color-on-primary-fixed)"
+                    },
+                    spacing: {
+                        "xs": "4px",
+                        "sm": "8px",
+                        "md": "16px",
+                        "lg": "24px",
+                        "xl": "32px",
+                        "max-width": "1280px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "40px",
+                        "gutter": "20px"
+                    },
+                    fontFamily: {
+                        "Inter": ["Inter", "sans-serif"],
+                        "Geist": ["Geist", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* CSS custom properties for Light/Dark themes */
+        :root {
+            --color-primary: #000a1e;
+            --color-secondary: #006c49;
+            --color-tertiary: #000a22;
+            --color-surface: #f8f9ff;
+            --color-background: #f8f9ff;
+            --color-outline-variant: #c4c6cf;
+            --color-on-surface-variant: #44474e;
+            --color-surface-container-high: #dce9ff;
+            --color-surface-container-low: #eff4ff;
+            --color-surface-container-lowest: #ffffff;
+            --color-surface-container-highest: #d3e4fe;
+            --color-surface-variant: #d3e4fe;
+            --color-surface-bright: #f8f9ff;
+            --color-on-primary: #ffffff;
+            --color-on-secondary: #ffffff;
+            --color-primary-fixed: #d6e3ff;
+            --color-on-primary-fixed: #001b3d;
+        }
+        :root.dark {
+            --color-primary: #aec7f6;
+            --color-secondary: #4edea3;
+            --color-tertiary: #adc6ff;
+            --color-surface: #0b1c30;
+            --color-background: #000a1e;
+            --color-outline-variant: #44474e;
+            --color-on-surface-variant: #c4c6cf;
+            --color-surface-container-high: #213145;
+            --color-surface-container-low: #0f233a;
+            --color-surface-container-lowest: #071324;
+            --color-surface-container-highest: #2d476f;
+            --color-surface-variant: #2d476f;
+            --color-surface-bright: #0f233a;
+            --color-on-primary: #071324;
+            --color-on-secondary: #002113;
+            --color-primary-fixed: #002147;
+            --color-on-primary-fixed: #d6e3ff;
+        }
+        /* Contrast overrides for dark mode standard text */
+        .dark .text-gray-900 { color: #f8f9ff !important; }
+        .dark .text-gray-800 { color: #f8f9ff !important; }
+        .dark .text-gray-700 { color: #eff4ff !important; }
+        .dark .text-gray-600 { color: #c4c6cf !important; }
+        .dark .text-gray-500 { color: #9aa0a6 !important; }
+        
+        .fill-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+        .table-scroll::-webkit-scrollbar {
+            height: 6px;
+            width: 6px;
+        }
+        .table-scroll::-webkit-scrollbar-thumb {
+            background-color: #c4c6cf;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-Inter transition-colors duration-200">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-surface sticky top-0 z-50 border-b border-outline-variant w-full h-16 flex justify-between items-center px-margin-mobile md:px-margin-desktop">
+        <div class="flex items-center gap-lg">
+            <a class="font-Inter text-headline-md font-bold text-primary flex items-center gap-sm text-2xl" href="/index.html">
+                <span class="material-symbols-outlined text-secondary fill-icon text-[28px]">school</span>
+                StudyMatch AI
+            </a>
+            <!-- Nav Tabs -->
+            <nav class="hidden md:flex items-center gap-md ml-lg">
+                <a href="/chatbot.html" class="text-sm font-semibold text-on-surface hover:text-primary px-sm py-xs rounded">Matchmaker</a>
+                <a href="/dashboard.html" class="text-sm font-bold text-primary bg-surface-variant px-sm py-xs rounded border border-outline-variant/30">Database</a>
+            </nav>
+        </div>
+        <div class="flex items-center gap-md">
+            <button onclick="toggleTheme()" class="h-10 px-3 rounded-full bg-surface-variant hover:bg-outline-variant/30 flex items-center gap-2 text-primary transition-colors border border-outline-variant/30" title="Toggle Theme (System / Light / Dark)">
+                <span class="material-symbols-outlined text-[20px]" id="theme-icon">desktop_windows</span>
+                <span class="text-xs font-semibold" id="theme-text">System</span>
+            </button>
+            <a href="/chatbot.html?objective=register" class="hidden md:flex bg-primary text-on-primary px-lg py-[10px] rounded hover:opacity-90 transition-all text-sm items-center gap-sm font-bold">Create Profile</a>
+            <div class="flex items-center gap-sm">
+                <span id="user-display-name" class="text-sm font-semibold text-primary hidden md:inline">Student</span>
+                <div class="w-10 h-10 rounded-full bg-surface-variant border border-outline-variant overflow-hidden flex-shrink-0">
+                    <img id="user-avatar" alt="Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAaWpT7Rd7ve76MWmBgfDlHrBGYqlRZ3Hag58hyQDW4DUTcXFVBiVoT3VTy2mlakkS-5l-7AFjyGI7UEKw05Bdh7eYL4IZ-EFc2HqoqZrG4UgeuBXcUtxaLRaXjRuxbCcS5Wn-oug8gV05b7X4Cc5JUiYyCM2L_AFG5QrUktB3Z96wfyUGhfsDQnfS0NpUfvBMpCUEbLMrq7QD1uJPyb4fBkVu2Zf6sBLVaNzC9Rhla_qnX61plWcUhxEIRwRcQLEmqVhNicxr_0s4"/>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace Layout -->
+    <div class="flex-grow flex w-full">
+
+        <!-- Left Sidebar Navigation -->
+        <aside class="w-64 border-r border-outline-variant bg-surface flex flex-col justify-between p-md hidden md:flex flex-shrink-0">
+            <div class="flex flex-col gap-lg">
+                <div class="flex flex-col gap-xs">
+                    <span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider px-sm text-gray-500">Navigation</span>
+                    <nav class="flex flex-col gap-xs mt-sm">
+                        <a class="flex items-center gap-sm px-sm py-sm rounded bg-surface-variant border border-outline-variant/30 text-primary font-bold text-sm" href="/dashboard.html">
+                            <span class="material-symbols-outlined">dashboard</span>
+                            Dashboard
+                        </a>
+                        <a class="flex items-center gap-sm px-sm py-sm rounded hover:bg-surface-variant transition-colors text-on-surface text-sm font-semibold text-gray-600" href="/chatbot.html">
+                            <span class="material-symbols-outlined">person_search</span>
+                            Find Partner
+                        </a>
+                    </nav>
+                </div>
+                <div class="border-t border-outline-variant/50 pt-lg">
+                    <a href="/register.html" class="mt-sm bg-transparent border border-primary text-primary px-md py-[10px] rounded-xl hover:bg-surface-variant transition-colors text-sm font-bold w-full flex justify-center items-center gap-sm">Register Profile</a>
+                </div>
+            </div>
+
+            <!-- Bottom Sidebar Links -->
+            <div class="flex flex-col gap-xs border-t border-outline-variant/50 pt-md">
+                <button onclick="logout()" class="flex items-center gap-sm px-sm py-sm rounded hover:bg-surface-variant transition-colors text-red-700 w-full text-left font-bold text-sm">
+                    <span class="material-symbols-outlined">logout</span>
+                    Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Right Main Panel Container -->
+        <main class="flex-grow p-lg md:p-xl flex flex-col gap-xl">
+            <!-- Header Section -->
+            <div>
+                <h1 class="text-3xl font-bold text-primary tracking-tight">Student Directory</h1>
+                <p class="text-sm text-on-surface-variant mt-xs">Browse registered student profiles and see their capabilities.</p>
+            </div>
+
+            <!-- Stats metric cards row -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter w-full">
+                <!-- Card 1 -->
+                <div class="bg-surface-bright border border-outline-variant rounded-xl p-lg flex flex-col gap-sm shadow-[0px_4px_12px_rgba(0,33,71,0.02)]">
+                    <div class="flex justify-between items-start">
+                        <span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider text-gray-500">Active Students</span>
+                        <div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-primary">
+                            <span class="material-symbols-outlined text-[20px]">groups</span>
+                        </div>
+                    </div>
+                    <div class="flex items-end gap-md">
+                        <span id="stat-students" class="text-4xl font-bold text-primary font-display-lg">--</span>
+                        <span class="text-xs font-semibold text-secondary-container bg-secondary px-sm py-[2px] rounded mb-1 text-white flex items-center gap-[2px]">
+                            <span class="material-symbols-outlined text-[12px] font-bold">trending_up</span> +12%
+                        </span>
+                    </div>
+                </div>
+                <!-- Card 2 -->
+                <div class="bg-surface-bright border border-outline-variant rounded-xl p-lg flex flex-col gap-sm shadow-[0px_4px_12px_rgba(0,33,71,0.02)]">
+                    <div class="flex justify-between items-start">
+                        <span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider text-gray-500">Successful Matches</span>
+                        <div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-primary">
+                            <span class="material-symbols-outlined text-[20px]">handshake</span>
+                        </div>
+                    </div>
+                    <div class="flex items-end gap-md">
+                        <span id="stat-matches" class="text-4xl font-bold text-primary font-display-lg">--</span>
+                    </div>
+                </div>
+                <!-- Card 3 -->
+                <div class="bg-surface-bright border border-outline-variant rounded-xl p-lg flex flex-col gap-sm shadow-[0px_4px_12px_rgba(0,33,71,0.02)]">
+                    <div class="flex justify-between items-start">
+                        <span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider text-gray-500">Formed Study Groups</span>
+                        <div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-primary">
+                            <span class="material-symbols-outlined text-[20px]">diversity_3</span>
+                        </div>
+                    </div>
+                    <div class="flex items-end gap-md">
+                        <span id="stat-groups" class="text-4xl font-bold text-primary font-display-lg">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table & Search Block Wrapper -->
+            <div class="flex flex-col gap-md border border-outline-variant rounded-xl bg-surface-container-lowest p-lg shadow-[0px_4px_12px_rgba(0,33,71,0.02)]">
+                
+                <!-- Controls Row -->
+                <div class="flex flex-col sm:flex-row gap-sm items-center justify-between w-full">
+                    <!-- Search Input container -->
+                    <div class="relative flex-1 w-full sm:max-w-md">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px] text-gray-400">search</span>
+                        <input id="search-input" class="w-full pl-10 pr-md py-sm bg-surface rounded border border-outline-variant focus:border-on-tertiary-container focus:ring-2 focus:ring-on-tertiary-container focus:ring-offset-0 text-base placeholder:text-gray-400 outline-none transition-all h-10" placeholder="Search students, branches, subjects..." type="text"/>
+                    </div>
+                    <div class="flex items-center gap-xs">
+                        <button onclick="clearSearch()" id="clear-search-btn" class="hidden bg-red-50 text-red-700 border border-red-200 px-sm py-sm rounded hover:bg-red-100 transition-colors h-10 w-10 flex items-center justify-center" title="Clear Search">
+                            <span class="material-symbols-outlined text-[20px]">close</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Main Directory Table Container -->
+                <div class="overflow-x-auto table-scroll w-full border border-outline-variant/30 rounded-lg">
+                    <table class="w-full text-left border-collapse min-w-[900px]">
+                        <thead>
+                            <tr class="bg-surface text-sm text-on-surface-variant border-b border-outline-variant text-gray-600 font-semibold h-12">
+                                <th class="p-md whitespace-nowrap pl-4">Student Name</th>
+                                <th class="p-md whitespace-nowrap">Year & Branch</th>
+                                <th class="p-md">Strong Subjects</th>
+                                <th class="p-md">Needs Help In</th>
+                                <th class="p-md whitespace-nowrap">Study Style</th>
+                                <th class="p-md whitespace-nowrap pr-4">Goal</th>
+                            </tr>
+                        </thead>
+                        <tbody id="directory-tbody" class="text-sm divide-y divide-outline-variant/30 text-gray-800">
+                            <!-- Dynamic Table Rows -->
+                            <tr>
+                                <td colspan="6" class="p-lg text-center text-gray-500">Loading student directory...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Footer / Pagination Section -->
+                <div class="flex items-center justify-between border-t border-outline-variant/30 pt-md text-xs text-on-surface-variant font-medium text-gray-500">
+                    <span id="pagination-text">Showing 0-0 of 0 students</span>
+                    <div class="flex gap-xs">
+                        <button class="px-sm py-xs border border-outline-variant rounded bg-surface hover:bg-surface-variant transition-colors disabled:opacity-50 text-xs" disabled>Previous</button>
+                        <button class="px-sm py-xs border border-outline-variant rounded bg-surface hover:bg-surface-variant transition-colors disabled:opacity-50 text-xs" disabled>Next</button>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-surface-container-low border-t border-outline-variant py-lg px-margin-mobile md:px-margin-desktop mt-auto">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-md max-w-max-width mx-auto">
+            <div class="flex items-center gap-sm">
+                <span class="material-symbols-outlined text-primary fill-icon">school</span>
+                <span class="font-Inter text-headline-sm font-semibold text-primary font-bold text-lg">StudyMatch AI</span>
+            </div>
+            <div class="text-label-sm text-on-surface-variant text-xs">
+                © 2026 StudyMatch AI. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Check Session Authentication
+        const sessionUser = localStorage.getItem("logged_in_user");
+        if (!sessionUser) {
+            window.location.href = "/login.html";
+        }
+        const loggedInUser = JSON.parse(sessionUser);
+
+        const AVATARS = {
+            "default": "https://lh3.googleusercontent.com/aida-public/AB6AXuAaWpT7Rd7ve76MWmBgfDlHrBGYqlRZ3Hag58hyQDW4DUTcXFVBiVoT3VTy2mlakkS-5l-7AFjyGI7UEKw05Bdh7eYL4IZ-EFc2HqoqZrG4UgeuBXcUtxaLRaXjRuxbCcS5Wn-oug8gV05b7X4Cc5JUiYyCM2L_AFG5QrUktB3Z96wfyUGhfsDQnfS0NpUfvBMpCUEbLMrq7QD1uJPyb4fBkVu2Zf6sBLVaNzC9Rhla_qnX61plWcUhxEIRwRcQLEmqVhNicxr_0s4",
+            "Aarav Sharma": "https://lh3.googleusercontent.com/aida-public/AB6AXuC47hAeFbFWvWEcnFQF_x1_IoTMwooACagZUjHoNyFR_qx_g_hL-9LRserDCsSkPtapue1b9q3ZKQDqw9fo4DOZ7B7I6WTChT1RJ2dY1s5bWY5Fzh-yFAltSfLUxGuhQICPJ8ujcJ1D1HoPT4llrRti3x20z6GGDCJrtuZOWVudNapEXC1ZLAzN7_xhPhMb_7VYNzZjg-CJ3fAstiwZrpPCkdQ1T_9fmspQXhDf9qxi-88vAzzBK9iYB5rUK9QZ5AMPVi27pVG6Q2A",
+            "Priya Patel": "https://lh3.googleusercontent.com/aida-public/AB6AXuAZKNhBYpKdoSGngg3aCnp1LSPmkJ6YpP_x6GSqkQ8QTClu1IYXiiGprd_1CVAn5xWiks3rmkWUj_t8-i42HR79lTi_CiHaScFfo5kzGP6sr5o0Bk-8wfZwTXmEptXDRfaGW-5HjBCXK5__Hy5rZ_yJZIoqbmKpyJZW6-oPYNclPgYLQSfDTWXAsSYaL6ZVn5QCzQJRecgV2gVG89KZDl3fa9LszQXz-9m0cvs4kQDPKGF65oaYwxJ1Wkpie16VgucyYtaKB5Vm3_U",
+            "Rohan Mehta": "https://lh3.googleusercontent.com/aida-public/AB6AXuAaWpT7Rd7ve76MWmBgfDlHrBGYqlRZ3Hag58hyQDW4DUTcXFVBiVoT3VTy2mlakkS-5l-7AFjyGI7UEKw05Bdh7eYL4IZ-EFc2HqoqZrG4UgeuBXcUtxaLRaXjRuxbCcS5Wn-oug8gV05b7X4Cc5JUiYyCM2L_AFG5QrUktB3Z96wfyUGhfsDQnfS0NpUfvBMpCUEbLMrq7QD1uJPyb4fBkVu2Zf6sBLVaNzC9Rhla_qnX61plWcUhxEIRwRcQLEmqVhNicxr_0s4",
+            "Sneha Reddy": "https://lh3.googleusercontent.com/aida-public/AB6AXuAaBXqYQ-gCgI2BKBVjjjbwIk0c1DUwsbyVBr5FGlyHUZkjQdUUqskrWm0eeVb60vZyUWGN22hKEUQdfjG1PiL73YC9yUaLnkRkEorcW5sFcFS0_xJI8FPw9Onc8RaHo7tDcSYfOMRHesLSOyPDoAyCsJmZ75f_YZyQgPkz44uNHhALl_S_IhUO1P-VfGAlwmaFGXRMoFbmnT7iBXCKkgpleB86qefYRFJLgSiJpS1z-QuWQGSQjdhkSGdMLGkmJrVOQ2jykYXhy1M",
+            "Karan Singh": "https://lh3.googleusercontent.com/aida-public/AB6AXuByI2CrqF6v_Qonz_KzXio14XggGQDQOMSBhqlze3pMtrQ6TVh67gH6vtAYsNf-RPvbqoUbf7eRX4AhHEAsH1oKD5GXs2gE5lcnZeJjL-wQ38zuVmg16bk4gvSK1_rbNi9T0tgwgasHKdRfYL6ihSu6V64EIuoj-DPC7JA7NdMXGoMndCPtRpvYM_AG-JJSFqWDZm7E76zcsg2RTb8FvgzaJiqIWlKJ94UGjWGwJ7YM5Hczh3KYtsS6k5l4_ACHXfNlNpMmCrDMbOI",
+            "Ananya Gupta": "https://lh3.googleusercontent.com/aida-public/AB6AXuDVdu4t4irUugvmeKbo6aB7_jT0QRTkww5fSbYFu4F8bhtM9pW7RgfOUibbCChT2dcDigkSsYz_enU6g_Doc2O54QZEGnf-GvVWzfCFcDDpJJRs0c-TTSVCRQl7KoyWxc0RZxn-0gZ3_VyvITVzBhyYwZRzms6t-oogkEnJExwRI4PUmiKjmOy-NhHhebkJh6ISih_qnaWPS28H2oJo7UFxVhTMFXYH8CY-PH5v_0INaV1C0KKUaptpjuTJWwazA9vmOdS_4y_aths",
+            "Vikram Joshi": "https://lh3.googleusercontent.com/aida-public/AB6AXuA1YGDGKuTK-AIme04k5hXKrRSqlRlu_bLsjv3TncTJWKQ7uzjO7FQK8O8tSMFiOowL3qyj2eOGfd3pndXrwDFEI_WbK5UrzwfNS22HT5gTTXCC08usLyngDBywJWX_LNqdHeakeI28_AbOXHCAQMDqQDrgWoReLe_dd44sb7YBdGmuoHaNRZPVQd8zMM-LhFjGfH4v1hwAe3XkbDnctICbNXE2dPzjPN582XH6C9xnZYwXXhvz8lRNVuwuAB4Md_put2KoNoXE8h8",
+            "Diya Nair": "https://lh3.googleusercontent.com/aida-public/AB6AXuBZONl9Pnc2rAVoXq_UNWoqaMSNu3LcjIR2kE9MKcwjtRUQvrKeVT-rNYO3cWYqwejPGgnrrxsjpAtTN7KbFLSSfbU6vm8Za95SxdFhhW4R2BUW40CCafbxoAfQFYq2Uv38G2X67tJpGqIW47E69DOWHLh7uMPbladUalVvUBjW1gQYa59ZTh4OPOLPFcY0GslCW9zkB1yWzCPzKZ2azCLP4Bg8FgLAyCwUM8hBeTHGTaForUYq4M2mt8CmmSgrO5Diecz84rHSYuM"
+        };
+
+        function getAvatar(name) {
+            return AVATARS[name] || AVATARS["default"];
+        }
+
+        let allStudentsList = [];
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            // Update user details
+            document.getElementById("user-display-name").textContent = loggedInUser.name;
+            document.getElementById("user-avatar").src = getAvatar(loggedInUser.name);
+
+            // Load metrics
+            try {
+                const statRes = await fetch("/api/stats");
+                if (statRes.ok) {
+                    const stats = await statRes.json();
+                    document.getElementById("stat-students").textContent = stats.total_students;
+                    document.getElementById("stat-matches").textContent = stats.total_matches;
+                    document.getElementById("stat-groups").textContent = stats.total_groups;
+                }
+            } catch (err) {
+                console.error("Stats load error", err);
+            }
+
+            // Load students directory
+            await loadDirectory();
+
+            // Setup search listener
+            const searchInput = document.getElementById("search-input");
+            const clearBtn = document.getElementById("clear-search-btn");
+
+            searchInput.addEventListener("input", () => {
+                const query = searchInput.value.toLowerCase().strip ? searchInput.value.toLowerCase().trim() : searchInput.value.toLowerCase();
+                if (query) {
+                    clearBtn.classList.remove("hidden");
+                } else {
+                    clearBtn.classList.add("hidden");
+                }
+                filterDirectory(query);
+            });
+        });
+
+        async function loadDirectory() {
+            const tbody = document.getElementById("directory-tbody");
+            try {
+                const res = await fetch("/api/students");
+                if (res.ok) {
+                    allStudentsList = await res.json();
+                    renderTable(allStudentsList);
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="6" class="p-lg text-center text-red-500">Failed to fetch student list.</td></tr>`;
+                }
+            } catch (err) {
+                console.error("Directory fetch error", err);
+                tbody.innerHTML = `<tr><td colspan="6" class="p-lg text-center text-red-500">Failed to connect to backend directory.</td></tr>`;
+            }
+        }
+
+        function renderTable(students) {
+            const tbody = document.getElementById("directory-tbody");
+            const pagText = document.getElementById("pagination-text");
+            
+            if (students.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-lg text-center text-gray-500">No students matching criteria found.</td></tr>`;
+                pagText.textContent = `Showing 0-0 of ${allStudentsList.length} students`;
+                return;
+            }
+
+            tbody.innerHTML = "";
+            students.forEach(s => {
+                const name = s.name;
+                const initials = name.split(" ").map(w => w[0]).join("").substring(0,2).toUpperCase();
+                
+                // Strong tags
+                const strongTags = s.subjects_strong_in.map(subj => 
+                    `<span class="bg-[#d6e3ff] text-[#001b3d] px-2 py-0.5 rounded-full text-xs font-semibold mr-1 mb-1 inline-block">${subj}</span>`
+                ).join("");
+                
+                // Help tags
+                const helpTags = s.subjects_needing_help_in.map(subj => 
+                    `<span class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full text-xs font-semibold border border-outline-variant mr-1 mb-1 inline-block">${subj}</span>`
+                ).join("");
+
+                // Study style icon
+                let styleIcon = "forum";
+                if (s.study_style === "reading") styleIcon = "menu_book";
+                else if (s.study_style === "practice-problems") styleIcon = "co_present";
+                else if (s.study_style === "visual") styleIcon = "headphones";
+
+                const styleDisplay = s.study_style.charAt(0).toUpperCase() + s.study_style.slice(1);
+                const goalDisplay = s.goal.charAt(0).toUpperCase() + s.goal.slice(1);
+
+                const row = document.createElement("tr");
+                row.className = "hover:bg-surface-container-low transition-colors border-b border-outline-variant/30 h-14";
+                row.innerHTML = `
+                    <td class="p-md pl-4">
+                        <div class="flex items-center gap-sm">
+                            <div class="w-8 h-8 rounded-full bg-[#d6e3ff] text-[#001b3d] flex items-center justify-center text-xs font-bold flex-shrink-0">
+                                ${initials}
+                            </div>
+                            <span class="font-semibold text-gray-900">${name}</span>
+                        </div>
+                    </td>
+                    <td class="p-md">
+                        <div class="flex flex-col">
+                            <span class="font-medium text-gray-900">${s.year}</span>
+                            <span class="text-xs text-on-surface-variant font-semibold text-gray-500">${s.branch}</span>
+                        </div>
+                    </td>
+                    <td class="p-md max-w-[200px]">${strongTags}</td>
+                    <td class="p-md max-w-[200px]">${helpTags}</td>
+                    <td class="p-md">
+                        <span class="flex items-center gap-xs text-xs font-semibold text-gray-700">
+                            <span class="material-symbols-outlined text-[16px] text-gray-500">${styleIcon}</span>
+                            ${styleDisplay}
+                        </span>
+                    </td>
+                    <td class="p-md pr-4 font-semibold text-gray-700">${goalDisplay}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            pagText.textContent = `Showing 1-${students.length} of ${students.length} students`;
+        }
+
+        function filterDirectory(query) {
+            if (!query) {
+                renderTable(allStudentsList);
+                return;
+            }
+
+            const filtered = allStudentsList.filter(s => {
+                const strongSubjs = s.subjects_strong_in.join(" ").toLowerCase();
+                const helpSubjs = s.subjects_needing_help_in.join(" ").toLowerCase();
+                return (
+                    s.name.toLowerCase().includes(query) ||
+                    s.year.toLowerCase().includes(query) ||
+                    s.branch.toLowerCase().includes(query) ||
+                    s.study_style.toLowerCase().includes(query) ||
+                    s.goal.toLowerCase().includes(query) ||
+                    strongSubjs.includes(query) ||
+                    helpSubjs.includes(query)
+                );
+            });
+
+            renderTable(filtered);
+        }
+
+        function clearSearch() {
+            const searchInput = document.getElementById("search-input");
+            searchInput.value = "";
+            document.getElementById("clear-search-btn").classList.add("hidden");
+            renderTable(allStudentsList);
+        }
+
+        function logout() {
+            localStorage.removeItem("logged_in_user");
+            window.location.href = "/index.html";
+        }
+    </script>
+</body>
+</html>

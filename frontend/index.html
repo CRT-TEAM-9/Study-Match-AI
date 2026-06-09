@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyMatch AI - Find Your Perfect Study Peer</title>
+    <!-- Load Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Load Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#000a1e",
+                        "secondary": "#006c49",
+                        "tertiary": "#000a22",
+                        "surface": "#f8f9ff",
+                        "background": "#f8f9ff",
+                        "outline-variant": "#c4c6cf",
+                        "on-surface-variant": "#44474e",
+                        "surface-container-high": "#dce9ff",
+                        "surface-container-low": "#eff4ff",
+                        "on-primary": "#ffffff",
+                        "on-secondary": "#ffffff"
+                    },
+                    spacing: {
+                        "xs": "4px",
+                        "sm": "8px",
+                        "md": "16px",
+                        "lg": "24px",
+                        "xl": "32px",
+                        "max-width": "1280px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "40px",
+                        "gutter": "20px"
+                    },
+                    fontFamily: {
+                        "Inter": ["Inter", "sans-serif"],
+                        "Geist": ["Geist", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .bg-grid-pattern {
+            background-image: linear-gradient(to right, #E2E8F0 1px, transparent 1px), 
+                              linear-gradient(to bottom, #E2E8F0 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        .fill-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-Inter">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-surface sticky top-0 z-50 border-b border-outline-variant w-full h-16 flex justify-between items-center px-margin-mobile md:px-margin-desktop">
+        <div class="flex items-center gap-lg">
+            <a class="font-Inter text-headline-md font-bold text-primary flex items-center gap-sm text-2xl" href="#">
+                <span class="material-symbols-outlined text-secondary fill-icon text-[28px]">school</span>
+                StudyMatch AI
+            </a>
+        </div>
+        <div class="flex items-center gap-md">
+            <!-- Dynamic Nav Buttons -->
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+        <!-- Hero Section -->
+        <section class="relative pt-xl pb-24 md:pt-32 md:pb-40 overflow-hidden bg-grid-pattern w-full">
+            <div class="max-w-max-width mx-auto px-margin-mobile md:px-margin-desktop">
+                <div class="grid md:grid-cols-2 gap-xl items-center">
+                    <div class="flex flex-col items-start gap-lg">
+                        <div class="inline-flex items-center gap-sm px-sm py-xs bg-surface-container-high rounded-full border border-outline-variant">
+                            <span class="material-symbols-outlined text-secondary text-[16px] fill-icon">bolt</span>
+                            <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider text-xs font-semibold">AI-Powered Matching</span>
+                        </div>
+                        <h1 class="text-4xl md:text-5xl text-primary max-w-2xl font-bold tracking-tight leading-tight">
+                            Find Your Perfect Study Peer, Instantly
+                        </h1>
+                        <p class="text-lg text-on-surface-variant max-w-xl mt-md">
+                            Leverage advanced conversational AI to discover compatible study partners based on your academic goals, learning style, and schedule. Elevate your university experience through targeted peer-to-peer collaboration.
+                        </p>
+                        <div class="flex flex-col sm:flex-row gap-md w-full sm:w-auto mt-lg">
+                            <!-- Dynamic CTA -->
+                        </div>
+                    </div>
+                    <div class="relative w-full aspect-square md:aspect-[4/3] rounded-xl overflow-hidden border border-outline-variant bg-surface shadow-[0px_12px_32px_rgba(0,0,0,0.05)]">
+                        <img alt="StudyMatch AI Illustration" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBZONl9Pnc2rAVoXq_UNWoqaMSNu3LcjIR2kE9MKcwjtRUQvrKeVT-rNYO3cWYqwejPGgnrrxsjpAtTN7KbFLSSfbU6vm8Za95SxdFhhW4R2BUW40CCafbxoAfQFYq2Uv38G2X67tJpGqIW47E69DOWHLh7uMPbladUalVvUBjW1gQYa59ZTh4OPOLPFcY0GslCW9zkB1yWzCPzKZ2azCLP4Bg8FgLAyCwUM8hBeTHGTaForUYq4M2mt8CmmSgrO5Diecz84rHSYuM"/>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Social Proof / Metrics Section -->
+        <section class="py-lg bg-surface-container-low border-y border-outline-variant w-full">
+            <div class="max-w-max-width mx-auto px-margin-mobile md:px-margin-desktop">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-lg">
+                    <div class="flex flex-col items-center justify-center p-md bg-surface border border-outline-variant rounded">
+                        <span class="text-4xl font-bold text-primary font-display-lg">--</span>
+                        <span class="text-xs text-on-surface-variant uppercase tracking-wider mt-xs font-semibold">Active Students</span>
+                    </div>
+                    <div class="flex flex-col items-center justify-center p-md bg-surface border border-outline-variant rounded">
+                        <span class="text-4xl font-bold text-secondary font-display-lg">--</span>
+                        <span class="text-xs text-on-surface-variant uppercase tracking-wider mt-xs font-semibold">Successful Matches</span>
+                    </div>
+                    <div class="flex flex-col items-center justify-center p-md bg-surface border border-outline-variant rounded">
+                        <span class="text-4xl font-bold text-primary font-display-lg">--</span>
+                        <span class="text-xs text-on-surface-variant uppercase tracking-wider mt-xs font-semibold">Formed Groups</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="py-xl md:py-32 bg-background w-full">
+            <div class="max-w-max-width mx-auto px-margin-mobile md:px-margin-desktop">
+                <div class="text-center mb-xl max-w-2xl mx-auto">
+                    <h2 class="text-3xl text-primary mb-sm font-bold tracking-tight">Structured Intelligence for Better Study Sessions</h2>
+                    <p class="text-base text-on-surface-variant mt-sm">Our platform uses rigorous data analysis to pair you with peers who complement your academic strengths and address your weaknesses.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-lg mt-xl">
+                    <!-- Feature 1 -->
+                    <div class="bg-surface border border-outline-variant p-lg rounded-lg hover:shadow-[0px_4px_12px_rgba(0,33,71,0.05)] transition-shadow group flex flex-col items-start">
+                        <div class="w-12 h-12 bg-surface-container-high rounded flex items-center justify-center mb-md text-primary">
+                            <span class="material-symbols-outlined text-[24px]">forum</span>
+                        </div>
+                        <h3 class="text-xl text-primary mb-xs font-semibold">Conversational Matching</h3>
+                        <p class="text-sm text-on-surface-variant mt-xs">
+                            Interact with our AI assistant to define your learning preferences. Natural language processing ensures a nuanced understanding of your exact academic needs.
+                        </p>
+                    </div>
+                    <!-- Feature 2 -->
+                    <div class="bg-surface border border-outline-variant p-lg rounded-lg hover:shadow-[0px_4px_12px_rgba(0,33,71,0.05)] transition-shadow group flex flex-col items-start">
+                        <div class="w-12 h-12 bg-surface-container-high rounded flex items-center justify-center mb-md text-secondary">
+                            <span class="material-symbols-outlined text-[24px]">analytics</span>
+                        </div>
+                        <h3 class="text-xl text-primary mb-xs font-semibold">Smart Analytics</h3>
+                        <p class="text-sm text-on-surface-variant mt-xs">
+                            View detailed compatibility scores before connecting. We analyze past performance, schedule overlap, and subject mastery to guarantee productive sessions.
+                        </p>
+                    </div>
+                    <!-- Feature 3 -->
+                    <div class="bg-surface border border-outline-variant p-lg rounded-lg hover:shadow-[0px_4px_12px_rgba(0,33,71,0.05)] transition-shadow group flex flex-col items-start">
+                        <div class="w-12 h-12 bg-surface-container-high rounded flex items-center justify-center mb-md text-primary">
+                            <span class="material-symbols-outlined text-[24px]">hub</span>
+                        </div>
+                        <h3 class="text-xl text-primary mb-xs font-semibold">Peer-to-Peer Networking</h3>
+                        <p class="text-sm text-on-surface-variant mt-xs">
+                            Establish secure, structured connections within your university ecosystem. Form specialized study groups or engage in targeted one-on-one tutoring.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="py-xl bg-surface-container-high w-full border-t border-outline-variant">
+            <div class="max-w-max-width mx-auto px-margin-mobile md:px-margin-desktop text-center flex flex-col items-center gap-md">
+                <h2 class="text-3xl text-primary font-bold tracking-tight">Join students already matching</h2>
+                <p class="text-sm text-on-surface-variant max-w-xl mt-xs">Create your profile in minutes. Connect with a study peer today and improve your learning outcomes.</p>
+                <div id="bottom-cta-container">
+                    <a href="/register.html" class="bg-primary text-on-primary font-label-md text-label-md px-xl py-md rounded hover:bg-primary-container transition-colors shadow-md font-bold mt-sm inline-block">Get Started Now</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-surface-container-low border-t border-outline-variant py-lg px-margin-mobile md:px-margin-desktop mt-auto">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-md max-w-max-width mx-auto">
+            <div class="flex items-center gap-sm">
+                <span class="material-symbols-outlined text-primary fill-icon">school</span>
+                <span class="font-Inter text-headline-sm font-semibold text-primary">StudyMatch AI</span>
+            </div>
+            <div class="text-label-sm text-on-surface-variant">
+                © 2026 StudyMatch AI. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            // Fetch stats
+            try {
+                const res = await fetch("/api/stats");
+                if (res.ok) {
+                    const stats = await res.json();
+                    document.querySelectorAll(".font-display-lg").forEach((el, index) => {
+                        if (index === 0) el.textContent = stats.total_students.toLocaleString();
+                        if (index === 1) el.textContent = stats.total_matches.toLocaleString();
+                        if (index === 2) el.textContent = stats.total_groups.toLocaleString();
+                    });
+                    // Update CTA subtext
+                    const h2 = document.querySelector("main section:nth-of-type(4) h2");
+                    if (h2) {
+                        h2.textContent = `Join ${stats.total_students.toLocaleString()}+ students already matching`;
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to load metrics", err);
+            }
+
+            // Session status check
+            const user = localStorage.getItem("logged_in_user");
+            const navRight = document.querySelector("header div.flex-end, header div.flex:not(.gap-lg)");
+            if (user && navRight) {
+                navRight.innerHTML = `
+                    <a href="/dashboard.html" class="text-primary px-md py-sm hover:bg-surface-variant rounded transition-colors hidden sm:block font-bold text-sm">Dashboard</a>
+                    <button onclick="logout()" class="bg-primary text-on-primary px-md py-sm rounded hover:bg-primary-container transition-colors shadow-md font-bold text-sm ml-sm">Sign Out</button>
+                `;
+                // Also update main hero links
+                const heroCTA = document.querySelector("main section div.flex-col");
+                if (heroCTA) {
+                    heroCTA.innerHTML = `
+                        <a href="/dashboard.html" class="bg-secondary text-on-secondary px-xl py-md rounded shadow-md hover:opacity-95 transition-opacity flex items-center justify-center gap-sm font-bold text-center">
+                            Go to Dashboard
+                            <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+                        </a>
+                    `;
+                }
+                const bottomCta = document.getElementById("bottom-cta-container");
+                if (bottomCta) {
+                    bottomCta.innerHTML = `
+                        <a href="/dashboard.html" class="bg-primary text-on-primary px-xl py-md rounded hover:bg-primary-container transition-colors shadow-md font-bold mt-sm inline-block">Go to Dashboard</a>
+                    `;
+                }
+            } else if (navRight) {
+                navRight.innerHTML = `
+                    <a href="/login.html" class="text-primary px-md py-sm hover:bg-surface-variant rounded transition-colors hidden sm:block font-bold text-sm">Sign In</a>
+                    <a href="/register.html" class="bg-primary text-on-primary px-md py-sm rounded hover:bg-primary-container transition-colors shadow-md font-bold text-center flex items-center justify-center text-sm ml-sm">Get Started</a>
+                `;
+                const heroCTA = document.querySelector("main section div.flex-col");
+                if (heroCTA) {
+                    heroCTA.innerHTML = `
+                        <a href="/register.html" class="bg-secondary text-on-secondary px-xl py-md rounded shadow-md hover:opacity-95 transition-opacity flex items-center justify-center gap-sm font-bold text-center">
+                            Find Your Match
+                            <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+                        </a>
+                        <a href="/register.html" class="bg-transparent border border-primary text-primary px-xl py-md rounded hover:bg-surface-variant transition-colors font-bold text-center flex items-center justify-center ml-sm">
+                            How it Works
+                        </a>
+                    `;
+                }
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem("logged_in_user");
+            window.location.reload();
+        }
+    </script>
+</body>
+</html>

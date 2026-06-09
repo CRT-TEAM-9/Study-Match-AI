@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - StudyMatch AI</title>
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+    <!-- Load Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Load Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <script>
+        // Inline theme manager to prevent white flash
+        function applyTheme() {
+            const theme = localStorage.getItem("theme") || "system";
+            let isDark = false;
+            let themeLabel = "";
+            let themeIcon = "desktop_windows";
+            
+            if (theme === "dark") {
+                isDark = true;
+                themeLabel = "Dark";
+                themeIcon = "dark_mode";
+            } else if (theme === "light") {
+                isDark = false;
+                themeLabel = "Light";
+                themeIcon = "light_mode";
+            } else {
+                isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+                themeLabel = "System (" + (isDark ? "Dark" : "Light") + ")";
+                themeIcon = "desktop_windows";
+            }
+            
+            if (isDark) {
+                document.documentElement.classList.add("dark");
+            } else {
+                document.documentElement.classList.remove("dark");
+            }
+            
+            const updateUI = () => {
+                const icon = document.getElementById("theme-icon");
+                const text = document.getElementById("theme-text");
+                if (icon) icon.textContent = themeIcon;
+                if (text) text.textContent = themeLabel;
+            };
+            
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", updateUI);
+            } else {
+                updateUI();
+            }
+        }
+        function toggleTheme() {
+            const theme = localStorage.getItem("theme") || "system";
+            let nextTheme = "light";
+            if (theme === "system") {
+                nextTheme = "light";
+            } else if (theme === "light") {
+                nextTheme = "dark";
+            } else if (theme === "dark") {
+                nextTheme = "system";
+            }
+            localStorage.setItem("theme", nextTheme);
+            applyTheme();
+        }
+        
+        // Listen for system theme changes
+        window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+            if ((localStorage.getItem("theme") || "system") === "system") {
+                applyTheme();
+            }
+        });
+        
+        applyTheme();
+    </script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "var(--color-primary)",
+                        "secondary": "var(--color-secondary)",
+                        "tertiary": "var(--color-tertiary)",
+                        "surface": "var(--color-surface)",
+                        "background": "var(--color-background)",
+                        "outline-variant": "var(--color-outline-variant)",
+                        "on-surface-variant": "var(--color-on-surface-variant)",
+                        "surface-container-high": "var(--color-surface-container-high)",
+                        "surface-container-low": "var(--color-surface-container-low)",
+                        "surface-container-lowest": "var(--color-surface-container-lowest)",
+                        "surface-variant": "var(--color-surface-variant)",
+                        "on-primary": "var(--color-on-primary)",
+                        "on-secondary": "var(--color-on-secondary)",
+                        "primary-container": "var(--color-primary-container)",
+                        "on-primary-container": "var(--color-on-primary-container)",
+                        "tertiary-container": "var(--color-tertiary-container)"
+                    },
+                    spacing: {
+                        "xs": "4px",
+                        "sm": "8px",
+                        "md": "16px",
+                        "lg": "24px",
+                        "xl": "32px",
+                        "max-width": "1280px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "40px",
+                        "gutter": "20px"
+                    },
+                    fontFamily: {
+                        "Inter": ["Inter", "sans-serif"],
+                        "Geist": ["Geist", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* CSS custom properties for Light/Dark themes */
+        :root {
+            --color-primary: #000a1e;
+            --color-secondary: #006c49;
+            --color-tertiary: #000a22;
+            --color-surface: #f8f9ff;
+            --color-background: #f8f9ff;
+            --color-outline-variant: #c4c6cf;
+            --color-on-surface-variant: #44474e;
+            --color-surface-container-high: #dce9ff;
+            --color-surface-container-low: #eff4ff;
+            --color-surface-container-lowest: #ffffff;
+            --color-surface-variant: #d3e4fe;
+            --color-on-primary: #ffffff;
+            --color-on-secondary: #ffffff;
+            --color-primary-container: #002147;
+            --color-on-primary-container: #708ab5;
+            --color-tertiary-container: #00204d;
+        }
+        :root.dark {
+            --color-primary: #aec7f6;
+            --color-secondary: #4edea3;
+            --color-tertiary: #adc6ff;
+            --color-surface: #0b1c30;
+            --color-background: #000a1e;
+            --color-outline-variant: #44474e;
+            --color-on-surface-variant: #c4c6cf;
+            --color-surface-container-high: #213145;
+            --color-surface-container-low: #0f233a;
+            --color-surface-container-lowest: #071324;
+            --color-surface-variant: #2d476f;
+            --color-on-primary: #071324;
+            --color-on-secondary: #002113;
+            --color-primary-container: #001b3d;
+            --color-on-primary-container: #708ab5;
+            --color-tertiary-container: #000a22;
+        }
+        /* Contrast overrides for dark mode standard text */
+        .dark .text-gray-800 { color: #f8f9ff !important; }
+        .dark .text-gray-700 { color: #eff4ff !important; }
+        .dark .text-gray-600 { color: #c4c6cf !important; }
+        .dark .text-gray-500 { color: #9aa0a6 !important; }
+        
+        .bg-pattern {
+            background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 32px 32px;
+        }
+        .fill-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-Inter transition-colors duration-200">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-surface border-b border-outline-variant w-full h-16 flex justify-between items-center px-margin-mobile md:px-margin-desktop">
+        <div class="flex items-center gap-lg">
+            <a class="font-Inter text-headline-md font-bold text-primary flex items-center gap-sm text-2xl" href="/index.html" target="_self">
+                <span class="material-symbols-outlined text-secondary fill-icon text-[28px]">school</span>
+                StudyMatch AI
+            </a>
+        </div>
+        <div class="flex items-center gap-md">
+            <button onclick="toggleTheme()" class="h-10 px-3 rounded-full bg-surface-variant hover:bg-outline-variant/30 flex items-center gap-2 text-primary transition-colors border border-outline-variant/30" title="Toggle Theme (System / Light / Dark)">
+                <span class="material-symbols-outlined text-[20px]" id="theme-icon">desktop_windows</span>
+                <span class="text-xs font-semibold" id="theme-text">System</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="flex-grow max-w-max-width mx-auto w-full px-margin-mobile md:px-margin-desktop py-lg grid grid-cols-1 md:grid-cols-12 gap-lg min-h-[calc(100vh-128px)]">
+        
+        <!-- Left Pane: Testimonial split (Col 1-5) -->
+        <div class="md:col-span-5 hidden md:flex flex-col justify-between p-lg bg-primary-container relative overflow-hidden rounded-xl text-on-primary min-h-[400px] md:h-full">
+            <div class="absolute inset-0 bg-pattern opacity-50 z-0 pointer-events-none"></div>
+            <div class="absolute top-0 right-0 w-[400px] h-[400px] bg-primary rounded-full blur-3xl opacity-30 -translate-y-1/2 translate-x-1/3 z-0 pointer-events-none"></div>
+            <div class="absolute bottom-0 left-0 w-[300px] h-[300px] bg-tertiary-container rounded-full blur-3xl opacity-40 translate-y-1/3 -translate-x-1/4 z-0 pointer-events-none"></div>
+            
+            <div class="z-10 flex items-center gap-sm">
+                <span class="material-symbols-outlined fill-icon text-[32px]">school</span>
+                <span class="text-xl font-bold tracking-tight">StudyMatch AI</span>
+            </div>
+            
+            <div class="z-10 max-w-lg my-xl">
+                <h1 class="text-3xl md:text-4xl text-on-primary mb-lg leading-tight font-bold tracking-tight">
+                    Join the Academic Nexus
+                </h1>
+                <blockquote class="mt-xl pl-lg border-l-4 border-secondary">
+                    <p class="text-lg text-on-primary-container italic mb-sm">
+                        "StudyMatch found me the perfect Calc III partner in minutes. We aligned on schedule, study style, and even our struggles with infinite series."
+                    </p>
+                    <footer class="text-sm text-on-primary-container opacity-80 flex items-center gap-sm mt-xs">
+                        <div class="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center text-primary overflow-hidden">
+                            <span class="material-symbols-outlined text-[20px]">person</span>
+                        </div>
+                        <span>Sarah J., Engineering Sophomore</span>
+                    </footer>
+                </blockquote>
+            </div>
+            
+            <div class="z-10">
+                <div class="flex gap-sm">
+                    <div class="w-12 h-1 bg-secondary rounded-full"></div>
+                    <div class="w-4 h-1 bg-on-primary-container opacity-30 rounded-full"></div>
+                    <div class="w-4 h-1 bg-on-primary-container opacity-30 rounded-full"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Pane: Registration Form (Col 6-12) -->
+        <div class="md:col-span-7 flex flex-col justify-start">
+            <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg shadow-[0px_4px_12px_rgba(0,33,71,0.02)]">
+                
+                <div class="mb-xl">
+                    <h2 class="text-2xl font-bold text-primary tracking-tight">Create Your Study Profile</h2>
+                    <p class="text-sm text-on-surface-variant mt-xs">Fill in your academic details to be mapped by the matchmaker.</p>
+                </div>
+
+                <!-- Error Notification container -->
+                <div id="error-box" class="hidden p-md bg-red-50 text-red-700 border border-red-300 rounded-lg text-sm text-left mb-md">
+                    <!-- Error text -->
+                </div>
+
+                <form id="register-form" class="flex flex-col gap-lg">
+                    <!-- Basic Details -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+                        <div class="flex flex-col gap-xs">
+                            <label class="text-sm text-primary font-medium" for="name">Full Name</label>
+                            <input class="w-full bg-surface rounded border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all py-sm px-md text-base" id="name" name="name" placeholder="Jane Doe" type="text" required />
+                        </div>
+                        <div class="flex flex-col gap-xs">
+                            <label class="text-sm text-primary font-medium" for="email">University Email</label>
+                            <input class="w-full bg-surface rounded border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all py-sm px-md text-base" id="email" name="email" placeholder="jane.doe@university.edu" type="email" required />
+                        </div>
+                    </div>
+
+                    <!-- Year & Branch -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+                        <div class="flex flex-col gap-xs">
+                            <label class="text-sm text-primary font-medium" for="year">Academic Year</label>
+                            <select class="w-full bg-surface rounded border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all py-sm px-md text-base" id="year" name="year" required>
+                                <option value="1st Year">1st Year</option>
+                                <option value="2nd Year">2nd Year</option>
+                                <option value="3rd Year">3rd Year</option>
+                                <option value="4th Year">4th Year</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col gap-xs">
+                            <label class="text-sm text-primary font-medium" for="branch">Branch / Major</label>
+                            <input class="w-full bg-surface rounded border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all py-sm px-md text-base" id="branch" name="branch" placeholder="Computer Science" type="text" required />
+                        </div>
+                    </div>
+
+                    <!-- Subjects -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+                        <div class="flex flex-col gap-xs">
+                            <label class="text-sm text-primary font-medium" for="subjects_strong">Strong Subjects (comma-separated)</label>
+                            <input class="w-full bg-surface rounded border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all py-sm px-md text-base" id="subjects_strong" name="subjects_strong" placeholder="Python, Data Structures" type="text" required />
+                        </div>
+                        <div class="flex flex-col gap-xs">
+                            <label class="text-sm text-primary font-medium" for="subjects_help">Subjects Needing Help In (comma-separated)</label>
+                            <input class="w-full bg-surface rounded border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all py-sm px-md text-base" id="subjects_help" name="subjects_help" placeholder="DBMS, Calculus III" type="text" required />
+                        </div>
+                    </div>
+
+                    <!-- Study Style & Goal -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+                        <div class="flex flex-col gap-xs">
+                            <label class="text-sm text-primary font-medium" for="study_style">Study Style</label>
+                            <select class="w-full bg-surface rounded border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all py-sm px-md text-base" id="study_style" name="study_style" required>
+                                <option value="visual">Visual (Diagrams & Flowcharts)</option>
+                                <option value="reading">Reading (Books & Summaries)</option>
+                                <option value="discussion">Discussion (Debates & Explaining)</option>
+                                <option value="practice-problems">Practice Problems (Solving tasks)</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col gap-xs">
+                            <label class="text-sm text-primary font-medium" for="goal">Study Goal</label>
+                            <select class="w-full bg-surface rounded border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all py-sm px-md text-base" id="goal" name="goal" required>
+                                <option value="exam prep">Exam Preparation</option>
+                                <option value="concept clarity">Concept Clarity</option>
+                                <option value="project work">Project Collaboration</option>
+                                <option value="competitive exam">Competitive Exams</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Communication Preference -->
+                    <div class="flex flex-col gap-xs">
+                        <label class="text-sm text-primary font-medium" for="comm">Communication Preference</label>
+                        <select class="w-full bg-surface rounded border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all py-sm px-md text-base" id="comm" name="comm" required>
+                            <option value="online">Online Only</option>
+                            <option value="in-person">In-Person Only</option>
+                            <option value="both">Both (Flexible)</option>
+                        </select>
+                    </div>
+
+                    <!-- Availability Days -->
+                    <div class="flex flex-col gap-xs">
+                        <span class="text-sm text-primary font-medium">Available Days</span>
+                        <div class="flex flex-wrap gap-sm mt-xs">
+                            <label class="inline-flex items-center gap-xs bg-surface px-sm py-xs border border-outline-variant rounded hover:bg-surface-variant cursor-pointer text-sm">
+                                <input type="checkbox" name="availability" value="Monday" class="rounded border-outline-variant text-primary focus:ring-primary"> Monday
+                            </label>
+                            <label class="inline-flex items-center gap-xs bg-surface px-sm py-xs border border-outline-variant rounded hover:bg-surface-variant cursor-pointer text-sm">
+                                <input type="checkbox" name="availability" value="Tuesday" class="rounded border-outline-variant text-primary focus:ring-primary"> Tuesday
+                            </label>
+                            <label class="inline-flex items-center gap-xs bg-surface px-sm py-xs border border-outline-variant rounded hover:bg-surface-variant cursor-pointer text-sm">
+                                <input type="checkbox" name="availability" value="Wednesday" class="rounded border-outline-variant text-primary focus:ring-primary"> Wednesday
+                            </label>
+                            <label class="inline-flex items-center gap-xs bg-surface px-sm py-xs border border-outline-variant rounded hover:bg-surface-variant cursor-pointer text-sm">
+                                <input type="checkbox" name="availability" value="Thursday" class="rounded border-outline-variant text-primary focus:ring-primary"> Thursday
+                            </label>
+                            <label class="inline-flex items-center gap-xs bg-surface px-sm py-xs border border-outline-variant rounded hover:bg-surface-variant cursor-pointer text-sm">
+                                <input type="checkbox" name="availability" value="Friday" class="rounded border-outline-variant text-primary focus:ring-primary"> Friday
+                            </label>
+                            <label class="inline-flex items-center gap-xs bg-surface px-sm py-xs border border-outline-variant rounded hover:bg-surface-variant cursor-pointer text-sm">
+                                <input type="checkbox" name="availability" value="Saturday" class="rounded border-outline-variant text-primary focus:ring-primary"> Saturday
+                            </label>
+                            <label class="inline-flex items-center gap-xs bg-surface px-sm py-xs border border-outline-variant rounded hover:bg-surface-variant cursor-pointer text-sm">
+                                <input type="checkbox" name="availability" value="Sunday" class="rounded border-outline-variant text-primary focus:ring-primary"> Sunday
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Study Times -->
+                    <div class="flex flex-col gap-xs">
+                        <span class="text-sm text-primary font-medium">Preferred Study Times</span>
+                        <div class="flex flex-wrap gap-sm mt-xs">
+                            <label class="inline-flex items-center gap-xs bg-surface px-sm py-xs border border-outline-variant rounded hover:bg-surface-variant cursor-pointer text-sm">
+                                <input type="checkbox" name="study_times" value="morning" class="rounded border-outline-variant text-primary focus:ring-primary"> Morning
+                            </label>
+                            <label class="inline-flex items-center gap-xs bg-surface px-sm py-xs border border-outline-variant rounded hover:bg-surface-variant cursor-pointer text-sm">
+                                <input type="checkbox" name="study_times" value="afternoon" class="rounded border-outline-variant text-primary focus:ring-primary"> Afternoon
+                            </label>
+                            <label class="inline-flex items-center gap-xs bg-surface px-sm py-xs border border-outline-variant rounded hover:bg-surface-variant cursor-pointer text-sm">
+                                <input type="checkbox" name="study_times" value="evening" class="rounded border-outline-variant text-primary focus:ring-primary"> Evening
+                            </label>
+                            <label class="inline-flex items-center gap-xs bg-surface px-sm py-xs border border-outline-variant rounded hover:bg-surface-variant cursor-pointer text-sm">
+                                <input type="checkbox" name="study_times" value="night" class="rounded border-outline-variant text-primary focus:ring-primary"> Night
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-primary text-on-primary py-sm rounded hover:bg-primary-container transition-colors shadow-[0px_4px_12px_rgba(0,33,71,0.05)] mt-md font-bold h-12 text-center flex items-center justify-center">Submit Profile</button>
+                </form>
+
+                <div class="text-center text-sm text-on-surface-variant mt-lg border-t border-outline-variant/30 pt-md">
+                    Already registered? <a href="/login.html" class="text-blue-700 font-bold hover:underline">Log in</a>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-surface-container-low border-t border-outline-variant py-lg px-margin-mobile md:px-margin-desktop mt-lg">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-md max-w-max-width mx-auto">
+            <div class="flex items-center gap-sm">
+                <span class="material-symbols-outlined text-primary fill-icon">school</span>
+                <span class="font-Inter text-headline-sm font-semibold text-primary text-lg font-bold">StudyMatch AI</span>
+            </div>
+            <div class="text-label-sm text-on-surface-variant text-xs">
+                © 2026 StudyMatch AI. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const form = document.getElementById("register-form");
+            const errorBox = document.getElementById("error-box");
+
+            form.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                errorBox.classList.add("hidden");
+
+                // Collect checkbox lists
+                const availability = Array.from(document.querySelectorAll("input[name='availability']:checked")).map(el => el.value);
+                const study_times = Array.from(document.querySelectorAll("input[name='study_times']:checked")).map(el => el.value);
+
+                if (availability.length === 0) {
+                    errorBox.textContent = "⚠️ Please select at least one available day.";
+                    errorBox.classList.remove("hidden");
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    return;
+                }
+
+                if (study_times.length === 0) {
+                    errorBox.textContent = "⚠️ Please select at least one preferred study time.";
+                    errorBox.classList.remove("hidden");
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    return;
+                }
+
+                // Split commas
+                const strongVal = document.getElementById("subjects_strong").value;
+                const helpVal = document.getElementById("subjects_help").value;
+                const subjects_strong_in = strongVal.split(",").map(s => s.trim()).filter(s => s);
+                const subjects_needing_help_in = helpVal.split(",").map(s => s.trim()).filter(s => s);
+
+                // Build registration JSON payload
+                const payload = {
+                    name: document.getElementById("name").value.trim(),
+                    email: document.getElementById("email").value.trim(),
+                    year: document.getElementById("year").value,
+                    branch: document.getElementById("branch").value.trim(),
+                    subjects_strong_in,
+                    subjects_needing_help_in,
+                    study_style: document.getElementById("study_style").value,
+                    preferred_study_time: study_times,
+                    availability_days: availability,
+                    goal: document.getElementById("goal").value,
+                    communication_preference: document.getElementById("comm").value
+                };
+
+                try {
+                    const res = await fetch("/api/register", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (res.ok) {
+                        const savedStudent = await res.json();
+                        localStorage.setItem("logged_in_user", JSON.stringify(savedStudent));
+                        window.location.href = "/dashboard.html";
+                    } else {
+                        const errorData = await res.json();
+                        errorBox.textContent = `⚠️ Registration failed: ${errorData.detail || "Invalid registration inputs"}`;
+                        errorBox.classList.remove("hidden");
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                } catch (err) {
+                    console.error("Registration request error", err);
+                    errorBox.textContent = "⚠️ Connection error. Server might be offline.";
+                    errorBox.classList.remove("hidden");
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

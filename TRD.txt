@@ -1,0 +1,45 @@
+TECHNICAL REQUIREMENT DOCUMENT (TRD)
+Project Name: Study Match AI
+
+1. DATA SCHEMA & KNOWLEDGE BASE
+The system data will be structured in a JSON file representing the complete student profile schema. 
+
+Fictional Student Profile JSON Sample Structure:
+{
+  "student_id": "STU001",
+  "name": "Jane Doe",
+  "year": "3rd Year",
+  "branch": "Computer Science",
+  "subjects_needing_help_in": ["DBMS", "Operating Systems"],
+  "subjects_strong_in": ["Data Structures", "Python"],
+  "study_style": "discussion", 
+  "preferred_study_time": ["evening", "night"],
+  "availability_days": ["Monday", "Wednesday", "Friday"],
+  "goal": "exam prep",
+  "communication_preference": "both"
+}
+
+* Valid Study Styles: visual, reading, discussion, practice-problems
+* Valid Goals: exam prep, concept clarity, project work, competitive exam
+
+2. MATCHMAKING ALGORITHM & WEIGHTS MATRIX
+To prevent random pairing, compatibility scores are calculated based on weighted logic conditions:
+
+- COMPLEMENTARY STRENGTHS (Weight: 40%)
+  Condition: Student A's 'subjects_needing_help_in' intersects with Student B's 'subjects_strong_in'.
+- TIME & DAY OVERLAP (Weight: 30%)
+  Condition: Shared items within 'preferred_study_time' AND 'availability_days'.
+- STUDY STYLE COMPATIBILITY (Weight: 15%)
+  Condition: Exact match or verified compatibility on 'study_style'.
+- SHARED GOAL TYPE (Weight: 15%)
+  Condition: Direct string match on 'goal' field (e.g., both pursuing "exam prep").
+
+3. ERROR HANDLING & EDGE CASES
+- No Matches Found: The chatbot must gently inform the user, state that no perfect matches exist, and actively suggest broadening their search criteria (e.g., opening up extra available days or study styles).
+- Incomplete Profiles: If a user drops out during conversational registration, the system must hold state and prompt for missing fields before updating the profile.
+- Duplicate Registration: If a matching unique identifier is detected, warn the user and offer a path to update their existing profile metrics.
+
+4. SUGGESTED TECH STACK
+- Frontend Chat Framework: Streamlit (using st.chat_message, st.session_state, and st.columns) or Gradio.
+- Core Backend Logic: Python-based data structures evaluating the JSON knowledge base.
+- LLM API Integration: Secure integration utilizing an LLM API. The API key must remain strictly protected inside a .env file and never committed to version control.

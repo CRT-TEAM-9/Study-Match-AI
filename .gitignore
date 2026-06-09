@@ -1,0 +1,94 @@
+# ====================================================================
+# Git Ignore Config - StudyMatch AI (Flask & Python Web App)
+# ====================================================================
+
+# Environment Variables & Secrets (CRITICAL: Never commit credentials)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.flaskenv
+*.key
+*.pem
+*.token
+
+# Python System Caches & Compiled Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Python Packaging & Distribution
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Local Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Databases, Logs & Temporary Files
+*.db
+*.sqlite
+*.sqlite3
+*.log
+*.bak
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# Testing & Coverage Metrics
+.pytest_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+htmlcov/
+
+# Editor / IDE Configurations
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+.project
+.pydevproject
+.settings/
+
+# Operating System Trash & Thumbnails
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Project Legacy configurations (Unused since Streamlit was removed)
+.streamlit/

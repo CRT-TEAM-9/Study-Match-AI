@@ -1,0 +1,25 @@
+PRODUCT REQUIREMENT DOCUMENT (PRD)
+Project Name: Study Match AI
+Industry: Education & Social
+
+1. PROJECT OVERVIEW & GOAL
+The Study Group Matchmaker Chatbot is an educational and social platform designed to solve a common challenge college students face: wanting to study with peers but not knowing who to connect with. The chatbot enables students to organically register their academic profiles through active conversation and intelligently matches them with highly compatible study partners or group formations based on logic rather than random pairings.
+
+2. TARGET AUDIENCE
+- College and university students seeking targeted peer-to-peer academic support.
+- Students preparing for exams, seeking concept clarity, or collaborating on specific project work.
+
+3. CORE FEATURES & SCOPE
+- Conversational Registration: The bot must collect complete student profiles dynamically through conversation instead of forcing a standard form dump.
+- Intelligent Matchmaking: An algorithm that pairs students based on complementary academic strengths, overlapping schedules, and shared goals.
+- Transparent Match Explanations: When displaying a match, the bot explicitly details exactly WHY the match is high-quality (e.g., matching available hours, complementary skills).
+- Group Formation Engine: Automatically suggests and creates a study group if 3 or more students share highly compatible needs, timelines, and study styles.
+- Dual-Mode User Interface: A modular UI featuring a "Register" flow (to collect data) and a "Find Study Partner" flow (to query existing data).
+
+4. USER EXPERIENCE & WORKFLOW
+- Registration Mode: The chatbot prompts for and collects Name, Year, Branch, Strong Subjects, Weak Subjects, Study Style, Availability, Goals, and Communication Preference.
+- Match Mode: The chatbot queries the database, executes the matching logic matrix, and outputs clean cards displaying compatibility scores, partner profiles, and explicit reasoning.
+
+5. OUT OF SCOPE (PHASE 1)
+- Real student data security architectures (All test entries must utilize fictional student profiles for privacy protection).
+- Direct in-app chatrooms, messaging endpoints, or calendar invitations between matched users.

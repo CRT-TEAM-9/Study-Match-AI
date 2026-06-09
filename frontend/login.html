@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - StudyMatch AI</title>
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+    <!-- Load Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Load Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <script>
+        // Inline theme manager to prevent white flash
+        function applyTheme() {
+            const theme = localStorage.getItem("theme") || "system";
+            let isDark = false;
+            let themeLabel = "";
+            let themeIcon = "desktop_windows";
+            
+            if (theme === "dark") {
+                isDark = true;
+                themeLabel = "Dark";
+                themeIcon = "dark_mode";
+            } else if (theme === "light") {
+                isDark = false;
+                themeLabel = "Light";
+                themeIcon = "light_mode";
+            } else {
+                isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+                themeLabel = "System (" + (isDark ? "Dark" : "Light") + ")";
+                themeIcon = "desktop_windows";
+            }
+            
+            if (isDark) {
+                document.documentElement.classList.add("dark");
+            } else {
+                document.documentElement.classList.remove("dark");
+            }
+            
+            const updateUI = () => {
+                const icon = document.getElementById("theme-icon");
+                const text = document.getElementById("theme-text");
+                if (icon) icon.textContent = themeIcon;
+                if (text) text.textContent = themeLabel;
+            };
+            
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", updateUI);
+            } else {
+                updateUI();
+            }
+        }
+        function toggleTheme() {
+            const theme = localStorage.getItem("theme") || "system";
+            let nextTheme = "light";
+            if (theme === "system") {
+                nextTheme = "light";
+            } else if (theme === "light") {
+                nextTheme = "dark";
+            } else if (theme === "dark") {
+                nextTheme = "system";
+            }
+            localStorage.setItem("theme", nextTheme);
+            applyTheme();
+        }
+        
+        // Listen for system theme changes
+        window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+            if ((localStorage.getItem("theme") || "system") === "system") {
+                applyTheme();
+            }
+        });
+        
+        applyTheme();
+    </script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "var(--color-primary)",
+                        "secondary": "var(--color-secondary)",
+                        "tertiary": "var(--color-tertiary)",
+                        "surface": "var(--color-surface)",
+                        "background": "var(--color-background)",
+                        "outline-variant": "var(--color-outline-variant)",
+                        "on-surface-variant": "var(--color-on-surface-variant)",
+                        "surface-container-high": "var(--color-surface-container-high)",
+                        "surface-container-low": "var(--color-surface-container-low)",
+                        "surface-container-lowest": "var(--color-surface-container-lowest)",
+                        "surface-variant": "var(--color-surface-variant)",
+                        "on-primary": "var(--color-on-primary)",
+                        "on-secondary": "var(--color-on-secondary)"
+                    },
+                    spacing: {
+                        "xs": "4px",
+                        "sm": "8px",
+                        "md": "16px",
+                        "lg": "24px",
+                        "xl": "32px",
+                        "max-width": "1280px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "40px",
+                        "gutter": "20px"
+                    },
+                    fontFamily: {
+                        "Inter": ["Inter", "sans-serif"],
+                        "Geist": ["Geist", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* CSS custom properties for Light/Dark themes */
+        :root {
+            --color-primary: #000a1e;
+            --color-secondary: #006c49;
+            --color-tertiary: #000a22;
+            --color-surface: #f8f9ff;
+            --color-background: #f8f9ff;
+            --color-outline-variant: #c4c6cf;
+            --color-on-surface-variant: #44474e;
+            --color-surface-container-high: #dce9ff;
+            --color-surface-container-low: #eff4ff;
+            --color-surface-container-lowest: #ffffff;
+            --color-surface-variant: #d3e4fe;
+            --color-on-primary: #ffffff;
+            --color-on-secondary: #ffffff;
+        }
+        :root.dark {
+            --color-primary: #aec7f6;
+            --color-secondary: #4edea3;
+            --color-tertiary: #adc6ff;
+            --color-surface: #0b1c30;
+            --color-background: #000a1e;
+            --color-outline-variant: #44474e;
+            --color-on-surface-variant: #c4c6cf;
+            --color-surface-container-high: #213145;
+            --color-surface-container-low: #0f233a;
+            --color-surface-container-lowest: #071324;
+            --color-surface-variant: #2d476f;
+            --color-on-primary: #071324;
+            --color-on-secondary: #002113;
+        }
+        /* Contrast overrides for dark mode standard text */
+        .dark .text-gray-800 { color: #f8f9ff !important; }
+        .dark .text-gray-700 { color: #eff4ff !important; }
+        .dark .text-gray-600 { color: #c4c6cf !important; }
+        .dark .text-gray-500 { color: #9aa0a6 !important; }
+        
+        .fill-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-Inter transition-colors duration-200">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-surface border-b border-outline-variant w-full h-16 flex justify-between items-center px-margin-mobile md:px-margin-desktop">
+        <div class="flex items-center gap-lg">
+            <a class="font-Inter text-headline-md font-bold text-primary flex items-center gap-sm text-2xl" href="/index.html" target="_self">
+                <span class="material-symbols-outlined text-secondary fill-icon text-[28px]">school</span>
+                StudyMatch AI
+            </a>
+        </div>
+        <div class="flex items-center gap-md">
+            <button onclick="toggleTheme()" class="h-10 px-3 rounded-full bg-surface-variant hover:bg-outline-variant/30 flex items-center gap-2 text-primary transition-colors border border-outline-variant/30" title="Toggle Theme (System / Light / Dark)">
+                <span class="material-symbols-outlined text-[20px]" id="theme-icon">desktop_windows</span>
+                <span class="text-xs font-semibold" id="theme-text">System</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex items-center justify-center py-20 px-margin-mobile">
+        <div class="w-full max-w-[460px] bg-surface-container-lowest border border-outline-variant rounded-xl p-xl shadow-[0px_12px_32px_rgba(0,0,0,0.05)] text-center flex flex-col gap-lg">
+            <div>
+                <span class="material-symbols-outlined text-secondary text-[40px] mb-xs">school</span>
+                <h1 class="text-3xl font-bold text-primary tracking-tight">Welcome Back</h1>
+                <p class="text-sm text-on-surface-variant mt-xs">Sign in to search student profiles and find matches.</p>
+            </div>
+
+            <!-- Error Notification container -->
+            <div id="error-box" class="hidden p-md bg-error-container text-on-error-container border border-error rounded-lg text-body-md text-left text-red-700 bg-red-50 border-red-300">
+                <!-- error message -->
+            </div>
+
+            <!-- Login Search Form -->
+            <form id="login-form" class="space-y-4 text-left">
+                <div>
+                    <label class="block text-sm font-semibold text-primary mb-xs" for="student_id">Enter Student ID or Name</label>
+                    <input class="w-full bg-surface rounded border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all py-sm px-md text-base" id="student_id" name="student_id" placeholder="e.g. STU001 or Aarav Sharma" type="text" required autocomplete="off" />
+                </div>
+                <button type="submit" class="w-full bg-primary text-on-primary text-sm py-sm rounded hover:bg-primary-container transition-colors shadow-sm font-bold mt-sm h-11">Sign In</button>
+            </form>
+
+            <div class="relative flex py-sm items-center">
+                <div class="flex-grow border-t border-outline-variant"></div>
+                <span class="flex-shrink-0 mx-md text-xs text-outline text-gray-400 font-semibold uppercase">Or Choose Account</span>
+                <div class="flex-grow border-t border-outline-variant"></div>
+            </div>
+
+            <!-- Demo Login Grid container -->
+            <div class="flex flex-col gap-md">
+                <p class="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-xs text-left">💡 Quick Login Profiles</p>
+                <div id="demo-logins" class="grid grid-cols-1 gap-sm max-h-[200px] overflow-y-auto pr-xs">
+                    <!-- Loaded dynamically -->
+                    <p class="text-sm text-gray-500 text-left">Loading database profiles...</p>
+                </div>
+            </div>
+
+            <div class="text-center text-sm text-on-surface-variant mt-sm border-t border-outline-variant/30 pt-md">
+                New to the platform? <a href="/register.html" class="text-blue-700 font-bold hover:underline">Create New Profile</a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-surface-container-low border-t border-outline-variant py-lg px-margin-mobile md:px-margin-desktop mt-auto">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-md max-w-max-width mx-auto">
+            <div class="flex items-center gap-sm">
+                <span class="material-symbols-outlined text-primary fill-icon">school</span>
+                <span class="font-Inter text-headline-sm font-semibold text-primary">StudyMatch AI</span>
+            </div>
+            <div class="text-label-sm text-on-surface-variant">
+                © 2026 StudyMatch AI. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const AVATARS = {
+            "default": "https://lh3.googleusercontent.com/aida-public/AB6AXuAaWpT7Rd7ve76MWmBgfDlHrBGYqlRZ3Hag58hyQDW4DUTcXFVBiVoT3VTy2mlakkS-5l-7AFjyGI7UEKw05Bdh7eYL4IZ-EFc2HqoqZrG4UgeuBXcUtxaLRaXjRuxbCcS5Wn-oug8gV05b7X4Cc5JUiYyCM2L_AFG5QrUktB3Z96wfyUGhfsDQnfS0NpUfvBMpCUEbLMrq7QD1uJPyb4fBkVu2Zf6sBLVaNzC9Rhla_qnX61plWcUhxEIRwRcQLEmqVhNicxr_0s4",
+            "Aarav Sharma": "https://lh3.googleusercontent.com/aida-public/AB6AXuC47hAeFbFWvWEcnFQF_x1_IoTMwooACagZUjHoNyFR_qx_g_hL-9LRserDCsSkPtapue1b9q3ZKQDqw9fo4DOZ7B7I6WTChT1RJ2dY1s5bWY5Fzh-yFAltSfLUxGuhQICPJ8ujcJ1D1HoPT4llrRti3x20z6GGDCJrtuZOWVudNapEXC1ZLAzN7_xhPhMb_7VYNzZjg-CJ3fAstiwZrpPCkdQ1T_9fmspQXhDf9qxi-88vAzzBK9iYB5rUK9QZ5AMPVi27pVG6Q2A",
+            "Priya Patel": "https://lh3.googleusercontent.com/aida-public/AB6AXuAZKNhBYpKdoSGngg3aCnp1LSPmkJ6YpP_x6GSqkQ8QTClu1IYXiiGprd_1CVAn5xWiks3rmkWUj_t8-i42HR79lTi_CiHaScFfo5kzGP6sr5o0Bk-8wfZwTXmEptXDRfaGW-5HjBCXK5__Hy5rZ_yJZIoqbmKpyJZW6-oPYNclPgYLQSfDTWXAsSYaL6ZVn5QCzQJRecgV2gVG89KZDl3fa9LszQXz-9m0cvs4kQDPKGF65oaYwxJ1Wkpie16VgucyYtaKB5Vm3_U",
+            "Rohan Mehta": "https://lh3.googleusercontent.com/aida-public/AB6AXuAaWpT7Rd7ve76MWmBgfDlHrBGYqlRZ3Hag58hyQDW4DUTcXFVBiVoT3VTy2mlakkS-5l-7AFjyGI7UEKw05Bdh7eYL4IZ-EFc2HqoqZrG4UgeuBXcUtxaLRaXjRuxbCcS5Wn-oug8gV05b7X4Cc5JUiYyCM2L_AFG5QrUktB3Z96wfyUGhfsDQnfS0NpUfvBMpCUEbLMrq7QD1uJPyb4fBkVu2Zf6sBLVaNzC9Rhla_qnX61plWcUhxEIRwRcQLEmqVhNicxr_0s4",
+            "Sneha Reddy": "https://lh3.googleusercontent.com/aida-public/AB6AXuAaBXqYQ-gCgI2BKBVjjjbwIk0c1DUwsbyVBr5FGlyHUZkjQdUUqskrWm0eeVb60vZyUWGN22hKEUQdfjG1PiL73YC9yUaLnkRkEorcW5sFcFS0_xJI8FPw9Onc8RaHo7tDcSYfOMRHesLSOyPDoAyCsJmZ75f_YZyQgPkz44uNHhALl_S_IhUO1P-VfGAlwmaFGXRMoFbmnT7iBXCKkgpleB86qefYRFJLgSiJpS1z-QuWQGSQjdhkSGdMLGkmJrVOQ2jykYXhy1M",
+            "Karan Singh": "https://lh3.googleusercontent.com/aida-public/AB6AXuByI2CrqF6v_Qonz_KzXio14XggGQDQOMSBhqlze3pMtrQ6TVh67gH6vtAYsNf-RPvbqoUbf7eRX4AhHEAsH1oKD5GXs2gE5lcnZeJjL-wQ38zuVmg16bk4gvSK1_rbNi9T0tgwgasHKdRfYL6ihSu6V64EIuoj-DPC7JA7NdMXGoMndCPtRpvYM_AG-JJSFqWDZm7E76zcsg2RTb8FvgzaJiqIWlKJ94UGjWGwJ7YM5Hczh3KYtsS6k5l4_ACHXfNlNpMmCrDMbOI",
+            "Ananya Gupta": "https://lh3.googleusercontent.com/aida-public/AB6AXuDVdu4t4irUugvmeKbo6aB7_jT0QRTkww5fSbYFu4F8bhtM9pW7RgfOUibbCChT2dcDigkSsYz_enU6g_Doc2O54QZEGnf-GvVWzfCFcDDpJJRs0c-TTSVCRQl7KoyWxc0RZxn-0gZ3_VyvITVzBhyYwZRzms6t-oogkEnJExwRI4PUmiKjmOy-NhHhebkJh6ISih_qnaWPS28H2oJo7UFxVhTMFXYH8CY-PH5v_0INaV1C0KKUaptpjuTJWwazA9vmOdS_4y_aths",
+            "Vikram Joshi": "https://lh3.googleusercontent.com/aida-public/AB6AXuA1YGDGKuTK-AIme04k5hXKrRSqlRlu_bLsjv3TncTJWKQ7uzjO7FQK8O8tSMFiOowL3qyj2eOGfd3pndXrwDFEI_WbK5UrzwfNS22HT5gTTXCC08usLyngDBywJWX_LNqdHeakeI28_AbOXHCAQMDqQDrgWoReLe_dd44sb7YBdGmuoHaNRZPVQd8zMM-LhFjGfH4v1hwAe3XkbDnctICbNXE2dPzjPN582XH6C9xnZYwXXhvz8lRNVuwuAB4Md_put2KoNoXE8h8",
+            "Diya Nair": "https://lh3.googleusercontent.com/aida-public/AB6AXuBZONl9Pnc2rAVoXq_UNWoqaMSNu3LcjIR2kE9MKcwjtRUQvrKeVT-rNYO3cWYqwejPGgnrrxsjpAtTN7KbFLSSfbU6vm8Za95SxdFhhW4R2BUW40CCafbxoAfQFYq2Uv38G2X67tJpGqIW47E69DOWHLh7uMPbladUalVvUBjW1gQYa59ZTh4OPOLPFcY0GslCW9zkB1yWzCPzKZ2azCLP4Bg8FgLAyCwUM8hBeTHGTaForUYq4M2mt8CmmSgrO5Diecz84rHSYuM"
+        };
+
+        function getAvatar(name) {
+            return AVATARS[name] || AVATARS["default"];
+        }
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            const demoContainer = document.getElementById("demo-logins");
+            const form = document.getElementById("login-form");
+            const errorBox = document.getElementById("error-box");
+
+            // Load all students for the quick logins
+            try {
+                const res = await fetch("/api/students");
+                if (res.ok) {
+                    const students = await res.json();
+                    if (students.length === 0) {
+                        demoContainer.innerHTML = `<p class="text-sm text-gray-500 text-left">No registered profiles in database.</p>`;
+                    } else {
+                        demoContainer.innerHTML = "";
+                        students.forEach(s => {
+                            const name = s.name;
+                            const initials = name.split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase();
+                            const avatar = getAvatar(name);
+                            
+                            const link = document.createElement("button");
+                            link.type = "button";
+                            link.className = "w-full flex items-center gap-sm p-sm bg-surface-variant/30 hover:bg-surface-variant/70 rounded-xl border border-outline-variant/30 text-on-surface hover:text-primary transition-all text-left";
+                            link.innerHTML = `
+                                <div class="w-8 h-8 rounded-full bg-[#d6e3ff] text-[#001b3d] flex items-center justify-center text-xs font-bold flex-shrink-0">
+                                    ${initials}
+                                </div>
+                                <div class="overflow-hidden">
+                                    <p class="text-sm font-bold truncate leading-tight">${s.name}</p>
+                                    <p class="text-xs text-on-surface-variant truncate">${s.year} — ${s.branch}</p>
+                                </div>
+                            `;
+                            link.addEventListener("click", () => loginAs(s));
+                            demoContainer.appendChild(link);
+                        });
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to fetch students", err);
+                demoContainer.innerHTML = `<p class="text-sm text-red-500 text-left">Failed to connect to backend database.</p>`;
+            }
+
+            // Handle manual ID or name login
+            form.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                errorBox.classList.add("hidden");
+                const inputVal = document.getElementById("student_id").value.trim();
+                
+                try {
+                    const res = await fetch("/api/students");
+                    if (res.ok) {
+                        const students = await res.json();
+                        const found = students.find(s => 
+                            s.student_id.toLowerCase() === inputVal.toLowerCase() ||
+                            s.name.toLowerCase() === inputVal.toLowerCase()
+                        );
+                        
+                        if (found) {
+                            loginAs(found);
+                        } else {
+                            errorBox.textContent = `⚠️ No student found with ID or name "${inputVal}". Please verify or select a quick profile below.`;
+                            errorBox.classList.remove("hidden");
+                        }
+                    }
+                } catch (err) {
+                    console.error("Manual login error", err);
+                    errorBox.textContent = "⚠️ Failed to verify login. Server might be offline.";
+                    errorBox.classList.remove("hidden");
+                }
+            });
+        });
+
+        function loginAs(student) {
+            localStorage.setItem("logged_in_user", JSON.stringify(student));
+            window.location.href = "/dashboard.html";
+        }
+    </script>
+</body>
+</html>

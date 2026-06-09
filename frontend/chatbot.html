@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matchmaker Chat - StudyMatch AI</title>
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+    <!-- Load Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Load Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <script>
+        // Inline theme manager to prevent white flash
+        function applyTheme() {
+            const theme = localStorage.getItem("theme") || "system";
+            let isDark = false;
+            let themeLabel = "";
+            let themeIcon = "desktop_windows";
+            
+            if (theme === "dark") {
+                isDark = true;
+                themeLabel = "Dark";
+                themeIcon = "dark_mode";
+            } else if (theme === "light") {
+                isDark = false;
+                themeLabel = "Light";
+                themeIcon = "light_mode";
+            } else {
+                isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+                themeLabel = "System (" + (isDark ? "Dark" : "Light") + ")";
+                themeIcon = "desktop_windows";
+            }
+            
+            if (isDark) {
+                document.documentElement.classList.add("dark");
+            } else {
+                document.documentElement.classList.remove("dark");
+            }
+            
+            const updateUI = () => {
+                const icon = document.getElementById("theme-icon");
+                const text = document.getElementById("theme-text");
+                if (icon) icon.textContent = themeIcon;
+                if (text) text.textContent = themeLabel;
+            };
+            
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", updateUI);
+            } else {
+                updateUI();
+            }
+        }
+        function toggleTheme() {
+            const theme = localStorage.getItem("theme") || "system";
+            let nextTheme = "light";
+            if (theme === "system") {
+                nextTheme = "light";
+            } else if (theme === "light") {
+                nextTheme = "dark";
+            } else if (theme === "dark") {
+                nextTheme = "system";
+            }
+            localStorage.setItem("theme", nextTheme);
+            applyTheme();
+        }
+        
+        // Listen for system theme changes
+        window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+            if ((localStorage.getItem("theme") || "system") === "system") {
+                applyTheme();
+            }
+        });
+        
+        applyTheme();
+    </script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "var(--color-primary)",
+                        "secondary": "var(--color-secondary)",
+                        "tertiary": "var(--color-tertiary)",
+                        "surface": "var(--color-surface)",
+                        "background": "var(--color-background)",
+                        "outline-variant": "var(--color-outline-variant)",
+                        "on-surface-variant": "var(--color-on-surface-variant)",
+                        "surface-container-high": "var(--color-surface-container-high)",
+                        "surface-container-low": "var(--color-surface-container-low)",
+                        "surface-container-lowest": "var(--color-surface-container-lowest)",
+                        "surface-container": "var(--color-surface-container)",
+                        "surface-container-highest": "var(--color-surface-container-highest)",
+                        "surface-variant": "var(--color-surface-variant)",
+                        "on-primary": "var(--color-on-primary)",
+                        "on-secondary": "var(--color-on-secondary)",
+                        "tertiary-container": "var(--color-tertiary-container)",
+                        "primary-fixed": "var(--color-primary-fixed)",
+                        "on-primary-fixed": "var(--color-on-primary-fixed)",
+                        "surface-bright": "var(--color-surface-bright)"
+                    },
+                    spacing: {
+                        "xs": "4px",
+                        "sm": "8px",
+                        "md": "16px",
+                        "lg": "24px",
+                        "xl": "32px",
+                        "max-width": "1280px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "40px",
+                        "gutter": "20px"
+                    },
+                    fontFamily: {
+                        "Inter": ["Inter", "sans-serif"],
+                        "Geist": ["Geist", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* CSS custom properties for Light/Dark themes */
+        :root {
+            --color-primary: #000a1e;
+            --color-secondary: #006c49;
+            --color-tertiary: #000a22;
+            --color-surface: #f8f9ff;
+            --color-background: #f8f9ff;
+            --color-outline-variant: #c4c6cf;
+            --color-on-surface-variant: #44474e;
+            --color-surface-container-high: #dce9ff;
+            --color-surface-container-low: #eff4ff;
+            --color-surface-container-lowest: #ffffff;
+            --color-surface-container: #e5eeff;
+            --color-surface-container-highest: #d3e4fe;
+            --color-surface-variant: #d3e4fe;
+            --color-surface-bright: #f8f9ff;
+            --color-on-primary: #ffffff;
+            --color-on-secondary: #ffffff;
+            --color-tertiary-container: #00204d;
+            --color-primary-fixed: #d6e3ff;
+            --color-on-primary-fixed: #001b3d;
+        }
+        :root.dark {
+            --color-primary: #aec7f6;
+            --color-secondary: #4edea3;
+            --color-tertiary: #adc6ff;
+            --color-surface: #0b1c30;
+            --color-background: #000a1e;
+            --color-outline-variant: #44474e;
+            --color-on-surface-variant: #c4c6cf;
+            --color-surface-container-high: #213145;
+            --color-surface-container-low: #0f233a;
+            --color-surface-container-lowest: #071324;
+            --color-surface-container: #0f233a;
+            --color-surface-container-highest: #2d476f;
+            --color-surface-variant: #2d476f;
+            --color-surface-bright: #0f233a;
+            --color-on-primary: #071324;
+            --color-on-secondary: #002113;
+            --color-tertiary-container: #000a22;
+            --color-primary-fixed: #002147;
+            --color-on-primary-fixed: #d6e3ff;
+        }
+        /* Contrast overrides for dark mode standard text */
+        .dark .text-gray-900 { color: #f8f9ff !important; }
+        .dark .text-gray-800 { color: #f8f9ff !important; }
+        .dark .text-gray-750 { color: #eff4ff !important; }
+        .dark .text-gray-700 { color: #eff4ff !important; }
+        .dark .text-gray-600 { color: #c4c6cf !important; }
+        .dark .text-gray-500 { color: #9aa0a6 !important; }
+        
+        .fill-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #c4c6cf;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-Inter transition-colors duration-200">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-surface sticky top-0 z-50 border-b border-outline-variant w-full h-16 flex justify-between items-center px-margin-mobile md:px-margin-desktop">
+        <div class="flex items-center gap-lg">
+            <a class="font-Inter text-headline-md font-bold text-primary flex items-center gap-sm text-2xl" href="/index.html">
+                <span class="material-symbols-outlined text-secondary fill-icon text-[28px]">school</span>
+                StudyMatch AI
+            </a>
+            <!-- Nav Tabs -->
+            <nav class="hidden md:flex items-center gap-md ml-lg">
+                <a href="/chatbot.html" class="text-sm font-bold text-primary bg-surface-variant px-sm py-xs rounded border border-outline-variant/30">Matchmaker</a>
+                <a href="/dashboard.html" class="text-sm font-semibold text-on-surface hover:text-primary px-sm py-xs rounded">Database</a>
+            </nav>
+        </div>
+        <div class="flex items-center gap-md">
+            <button onclick="toggleTheme()" class="h-10 px-3 rounded-full bg-surface-variant hover:bg-outline-variant/30 flex items-center gap-2 text-primary transition-colors border border-outline-variant/30" title="Toggle Theme (System / Light / Dark)">
+                <span class="material-symbols-outlined text-[20px]" id="theme-icon">desktop_windows</span>
+                <span class="text-xs font-semibold" id="theme-text">System</span>
+            </button>
+            <a href="/register.html" class="hidden md:flex bg-primary text-on-primary px-lg py-[10px] rounded hover:opacity-90 transition-all text-sm items-center gap-sm font-bold">Create Profile</a>
+            <div class="flex items-center gap-sm">
+                <span id="user-display-name" class="text-sm font-semibold text-primary hidden md:inline">Student</span>
+                <div class="w-10 h-10 rounded-full bg-surface-variant border border-outline-variant overflow-hidden flex-shrink-0">
+                    <img id="user-avatar" alt="Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAaWpT7Rd7ve76MWmBgfDlHrBGYqlRZ3Hag58hyQDW4DUTcXFVBiVoT3VTy2mlakkS-5l-7AFjyGI7UEKw05Bdh7eYL4IZ-EFc2HqoqZrG4UgeuBXcUtxaLRaXjRuxbCcS5Wn-oug8gV05b7X4Cc5JUiYyCM2L_AFG5QrUktB3Z96wfyUGhfsDQnfS0NpUfvBMpCUEbLMrq7QD1uJPyb4fBkVu2Zf6sBLVaNzC9Rhla_qnX61plWcUhxEIRwRcQLEmqVhNicxr_0s4"/>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace Layout -->
+    <div class="flex-grow flex w-full h-[calc(100vh-64px)] overflow-hidden">
+
+        <!-- Left Sidebar Options panel -->
+        <aside class="w-64 border-r border-outline-variant bg-surface flex flex-col justify-between p-md hidden md:flex flex-shrink-0 h-full overflow-y-auto">
+            <div class="flex flex-col gap-lg">
+                <!-- Navigation section -->
+                <div class="flex flex-col gap-xs">
+                    <span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider px-sm text-gray-500">Navigation</span>
+                    <nav class="flex flex-col gap-xs mt-sm">
+                        <a class="flex items-center gap-sm px-sm py-sm rounded hover:bg-surface-variant transition-colors text-on-surface text-sm font-semibold text-gray-600" href="/dashboard.html">
+                            <span class="material-symbols-outlined">dashboard</span>
+                            Dashboard
+                        </a>
+                        <a class="flex items-center gap-sm px-sm py-sm rounded bg-surface-variant border border-outline-variant/30 text-primary font-bold text-sm" href="/chatbot.html">
+                            <span class="material-symbols-outlined">person_search</span>
+                            Find Partner
+                        </a>
+                    </nav>
+                </div>
+
+                <!-- Chat Objective select section -->
+                <div class="flex flex-col gap-xs border-t border-outline-variant/50 pt-md">
+                    <span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider px-sm mb-xs text-gray-500">Objective</span>
+                    <div class="space-y-sm">
+                        <!-- Option 1 -->
+                        <label class="flex items-center gap-sm p-sm rounded hover:bg-surface-variant cursor-pointer transition-colors">
+                            <input type="radio" id="obj-matchmaker" name="objective-choice" value="matchmaker" checked class="text-primary focus:ring-primary border-outline-variant w-4 h-4 cursor-pointer" />
+                            <span class="text-sm text-gray-700 font-semibold cursor-pointer select-none">Find Study Partner</span>
+                        </label>
+                        <!-- Option 2 -->
+                        <label class="flex items-center gap-sm p-sm rounded hover:bg-surface-variant cursor-pointer transition-colors">
+                            <input type="radio" id="obj-registration" name="objective-choice" value="registration" class="text-primary focus:ring-primary border-outline-variant w-4 h-4 cursor-pointer" />
+                            <span class="text-sm text-gray-700 cursor-pointer select-none">Register My Profile</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Actions section -->
+                <div class="flex flex-col gap-xs border-t border-outline-variant/50 pt-md">
+                    <span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider px-sm mb-xs text-gray-500">Actions</span>
+                    <button onclick="clearChat()" class="w-full bg-surface-variant/30 border border-outline-variant/50 hover:bg-surface-variant/70 rounded-lg p-sm transition-colors text-center text-xs font-bold flex items-center justify-center gap-xs text-gray-700 h-10">
+                        <span class="material-symbols-outlined text-[16px]">delete</span>
+                        Clear Chat
+                    </button>
+                </div>
+
+                <div class="pt-sm border-t border-outline-variant/30">
+                    <a href="/register.html" class="mt-sm bg-transparent border border-primary text-primary px-md py-[10px] rounded-xl hover:bg-surface-variant transition-colors text-sm font-bold w-full flex justify-center items-center gap-sm">Register Profile</a>
+                </div>
+            </div>
+
+            <!-- Bottom Sidebar Links -->
+            <div class="flex flex-col gap-xs border-t border-outline-variant/50 pt-md mt-lg">
+                <button onclick="logout()" class="flex items-center gap-sm px-sm py-sm rounded hover:bg-surface-variant transition-colors text-red-700 w-full text-left font-bold text-sm">
+                    <span class="material-symbols-outlined">logout</span>
+                    Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Right Main Panel Container -->
+        <main class="flex-grow flex flex-col h-full bg-surface-container-low overflow-hidden relative">
+            
+            <!-- Chat Title Area -->
+            <div class="border-b border-outline-variant bg-surface px-lg py-md flex-shrink-0 flex items-center justify-between shadow-[0px_4px_12px_rgba(0,33,71,0.01)]">
+                <div>
+                    <h1 id="chat-objective-title" class="text-xl font-bold text-primary">Matchmaker Chat — Find Study Partner</h1>
+                    <p class="text-xs text-gray-500 mt-xs">Conversational matching and registration assistant.</p>
+                </div>
+            </div>
+
+            <!-- Chat Message Thread logs -->
+            <div id="chat-thread-container" class="flex-1 overflow-y-auto p-lg custom-scrollbar space-y-lg flex flex-col pb-28">
+                <!-- Dialogue items injected here -->
+            </div>
+
+            <!-- Floating Send Form Area -->
+            <div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-surface-container-low via-surface-container-low to-transparent pt-lg pb-md px-lg">
+                <form id="chat-input-form" class="max-w-4xl mx-auto flex gap-sm relative">
+                    <input id="chat-text-input" class="w-full bg-surface p-sm pl-md pr-12 rounded border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-sm h-11" placeholder="Type your message or preferences..." type="text" autocomplete="off" required />
+                    <button type="submit" class="bg-primary hover:opacity-90 text-on-primary w-11 h-11 rounded flex items-center justify-center transition-all shadow-sm flex-shrink-0">
+                        <span class="material-symbols-outlined">send</span>
+                    </button>
+                </form>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // Check Session Authentication
+        const sessionUser = localStorage.getItem("logged_in_user");
+        if (!sessionUser) {
+            window.location.href = "/login.html";
+        }
+        let loggedInUser = JSON.parse(sessionUser);
+
+        const AVATARS = {
+            "default": "https://lh3.googleusercontent.com/aida-public/AB6AXuAaWpT7Rd7ve76MWmBgfDlHrBGYqlRZ3Hag58hyQDW4DUTcXFVBiVoT3VTy2mlakkS-5l-7AFjyGI7UEKw05Bdh7eYL4IZ-EFc2HqoqZrG4UgeuBXcUtxaLRaXjRuxbCcS5Wn-oug8gV05b7X4Cc5JUiYyCM2L_AFG5QrUktB3Z96wfyUGhfsDQnfS0NpUfvBMpCUEbLMrq7QD1uJPyb4fBkVu2Zf6sBLVaNzC9Rhla_qnX61plWcUhxEIRwRcQLEmqVhNicxr_0s4",
+            "Aarav Sharma": "https://lh3.googleusercontent.com/aida-public/AB6AXuC47hAeFbFWvWEcnFQF_x1_IoTMwooACagZUjHoNyFR_qx_g_hL-9LRserDCsSkPtapue1b9q3ZKQDqw9fo4DOZ7B7I6WTChT1RJ2dY1s5bWY5Fzh-yFAltSfLUxGuhQICPJ8ujcJ1D1HoPT4llrRti3x20z6GGDCJrtuZOWVudNapEXC1ZLAzN7_xhPhMb_7VYNzZjg-CJ3fAstiwZrpPCkdQ1T_9fmspQXhDf9qxi-88vAzzBK9iYB5rUK9QZ5AMPVi27pVG6Q2A",
+            "Priya Patel": "https://lh3.googleusercontent.com/aida-public/AB6AXuAZKNhBYpKdoSGngg3aCnp1LSPmkJ6YpP_x6GSqkQ8QTClu1IYXiiGprd_1CVAn5xWiks3rmkWUj_t8-i42HR79lTi_CiHaScFfo5kzGP6sr5o0Bk-8wfZwTXmEptXDRfaGW-5HjBCXK5__Hy5rZ_yJZIoqbmKpyJZW6-oPYNclPgYLQSfDTWXAsSYaL6ZVn5QCzQJRecgV2gVG89KZDl3fa9LszQXz-9m0cvs4kQDPKGF65oaYwxJ1Wkpie16VgucyYtaKB5Vm3_U",
+            "Rohan Mehta": "https://lh3.googleusercontent.com/aida-public/AB6AXuAaWpT7Rd7ve76MWmBgfDlHrBGYqlRZ3Hag58hyQDW4DUTcXFVBiVoT3VTy2mlakkS-5l-7AFjyGI7UEKw05Bdh7eYL4IZ-EFc2HqoqZrG4UgeuBXcUtxaLRaXjRuxbCcS5Wn-oug8gV05b7X4Cc5JUiYyCM2L_AFG5QrUktB3Z96wfyUGhfsDQnfS0NpUfvBMpCUEbLMrq7QD1uJPyb4fBkVu2Zf6sBLVaNzC9Rhla_qnX61plWcUhxEIRwRcQLEmqVhNicxr_0s4",
+            "Sneha Reddy": "https://lh3.googleusercontent.com/aida-public/AB6AXuAaBXqYQ-gCgI2BKBVjjjbwIk0c1DUwsbyVBr5FGlyHUZkjQdUUqskrWm0eeVb60vZyUWGN22hKEUQdfjG1PiL73YC9yUaLnkRkEorcW5sFcFS0_xJI8FPw9Onc8RaHo7tDcSYfOMRHesLSOyPDoAyCsJmZ75f_YZyQgPkz44uNHhALl_S_IhUO1P-VfGAlwmaFGXRMoFbmnT7iBXCKkgpleB86qefYRFJLgSiJpS1z-QuWQGSQjdhkSGdMLGkmJrVOQ2jykYXhy1M",
+            "Karan Singh": "https://lh3.googleusercontent.com/aida-public/AB6AXuByI2CrqF6v_Qonz_KzXio14XggGQDQOMSBhqlze3pMtrQ6TVh67gH6vtAYsNf-RPvbqoUbf7eRX4AhHEAsH1oKD5GXs2gE5lcnZeJjL-wQ38zuVmg16bk4gvSK1_rbNi9T0tgwgasHKdRfYL6ihSu6V64EIuoj-DPC7JA7NdMXGoMndCPtRpvYM_AG-JJSFqWDZm7E76zcsg2RTb8FvgzaJiqIWlKJ94UGjWGwJ7YM5Hczh3KYtsS6k5l4_ACHXfNlNpMmCrDMbOI",
+            "Ananya Gupta": "https://lh3.googleusercontent.com/aida-public/AB6AXuDVdu4t4irUugvmeKbo6aB7_jT0QRTkww5fSbYFu4F8bhtM9pW7RgfOUibbCChT2dcDigkSsYz_enU6g_Doc2O54QZEGnf-GvVWzfCFcDDpJJRs0c-TTSVCRQl7KoyWxc0RZxn-0gZ3_VyvITVzBhyYwZRzms6t-oogkEnJExwRI4PUmiKjmOy-NhHhebkJh6ISih_qnaWPS28H2oJo7UFxVhTMFXYH8CY-PH5v_0INaV1C0KKUaptpjuTJWwazA9vmOdS_4y_aths",
+            "Vikram Joshi": "https://lh3.googleusercontent.com/aida-public/AB6AXuA1YGDGKuTK-AIme04k5hXKrRSqlRlu_bLsjv3TncTJWKQ7uzjO7FQK8O8tSMFiOowL3qyj2eOGfd3pndXrwDFEI_WbK5UrzwfNS22HT5gTTXCC08usLyngDBywJWX_LNqdHeakeI28_AbOXHCAQMDqQDrgWoReLe_dd44sb7YBdGmuoHaNRZPVQd8zMM-LhFjGfH4v1hwAe3XkbDnctICbNXE2dPzjPN582XH6C9xnZYwXXhvz8lRNVuwuAB4Md_put2KoNoXE8h8",
+            "Diya Nair": "https://lh3.googleusercontent.com/aida-public/AB6AXuBZONl9Pnc2rAVoXq_UNWoqaMSNu3LcjIR2kE9MKcwjtRUQvrKeVT-rNYO3cWYqwejPGgnrrxsjpAtTN7KbFLSSfbU6vm8Za95SxdFhhW4R2BUW40CCafbxoAfQFYq2Uv38G2X67tJpGqIW47E69DOWHLh7uMPbladUalVvUBjW1gQYa59ZTh4OPOLPFcY0GslCW9zkB1yWzCPzKZ2azCLP4Bg8FgLAyCwUM8hBeTHGTaForUYq4M2mt8CmmSgrO5Diecz84rHSYuM"
+        };
+
+        function getAvatar(name) {
+            return AVATARS[name] || AVATARS["default"];
+        }
+
+        // Active State variables
+        let activeObjective = "matchmaker"; // 'matchmaker' or 'registration'
+        let chatHistory = [];
+        
+        // Registration State variables
+        let registerStep = 0;
+        let registerProfile = {};
+
+        document.addEventListener("DOMContentLoaded", () => {
+            // Update User Layout details
+            document.getElementById("user-display-name").textContent = loggedInUser.name;
+            document.getElementById("user-avatar").src = getAvatar(loggedInUser.name);
+
+            // Set up objective choice listeners
+            const matchRadio = document.getElementById("obj-matchmaker");
+            const regRadio = document.getElementById("obj-registration");
+
+            matchRadio.addEventListener("change", () => toggleObjective("matchmaker"));
+            regRadio.addEventListener("change", () => toggleObjective("registration"));
+
+            // Initialize chat
+            initializeChat();
+
+            // Intercept form submit
+            document.getElementById("chat-input-form").addEventListener("submit", handleSendMessage);
+        });
+
+        function toggleObjective(obj) {
+            activeObjective = obj;
+            chatHistory = [];
+            
+            const titleEl = document.getElementById("chat-objective-title");
+            const inputEl = document.getElementById("chat-text-input");
+            
+            if (activeObjective === "matchmaker") {
+                titleEl.textContent = "Matchmaker Chat — Find Study Partner";
+                inputEl.placeholder = "Type your preferences or ask to 'find matches'...";
+            } else {
+                titleEl.textContent = "Matchmaker Chat — Register My Profile";
+                inputEl.placeholder = "Answer the question to build your profile...";
+                registerStep = 0;
+                registerProfile = {};
+            }
+
+            initializeChat();
+        }
+
+        function initializeChat() {
+            const thread = document.getElementById("chat-thread-container");
+            thread.innerHTML = "";
+
+            if (activeObjective === "matchmaker") {
+                const greeting = {
+                    role: "assistant",
+                    content: `Hello, **${loggedInUser.name}**! I am your StudyGroup Matchmaker. I am ready to find compatible study peers who complement your strengths, share your schedule, and match your learning goals.<br><br>Type **'match'** or click the button below to execute our compatibility engine.`
+                };
+                chatHistory.push(greeting);
+                renderMessage(greeting);
+                renderMatchingEngineButton();
+            } else {
+                const greeting = {
+                    role: "assistant",
+                    content: `👋 Hello! I am your conversational StudyMatch AI registration assistant. I will guide you step-by-step to create your study profile.<br><br>Let's get started!<br><br>**Question 1: What is your name?**`
+                };
+                chatHistory.push(greeting);
+                renderMessage(greeting);
+            }
+        }
+
+        function renderMessage(msg) {
+            const thread = document.getElementById("chat-thread-container");
+            const userAvatar = getAvatar(loggedInUser.name);
+            
+            let htmlContent = msg.content;
+            // Standard markdown cleanups
+            htmlContent = htmlContent.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            htmlContent = htmlContent.replace(/_(.*?)_/g, '<em>$1</em>');
+            htmlContent = htmlContent.replace(/\n/g, '<br>');
+
+            const msgDiv = document.createElement("div");
+            if (msg.role === "user") {
+                msgDiv.className = "flex gap-md w-full max-w-3xl self-end flex-row-reverse text-right items-start";
+                msgDiv.innerHTML = `
+                    <div class="w-8 h-8 rounded-full bg-surface-variant border border-outline-variant overflow-hidden flex-shrink-0">
+                        <img alt="User" class="w-full h-full object-cover" src="${userAvatar}"/>
+                    </div>
+                    <div class="bg-primary text-on-primary p-md rounded-xl rounded-tr-none shadow-[0px_4px_12px_rgba(0,33,71,0.05)] text-left inline-block">
+                        <p class="text-sm font-semibold">${htmlContent}</p>
+                    </div>
+                `;
+            } else {
+                msgDiv.className = "flex gap-md w-full max-w-3xl self-start text-left items-start";
+                msgDiv.innerHTML = `
+                    <div class="w-8 h-8 rounded bg-surface-container-high flex items-center justify-center flex-shrink-0 shadow-sm text-primary">
+                        <span class="material-symbols-outlined text-[18px]">smart_toy</span>
+                    </div>
+                    <div class="bg-surface-container p-md rounded-xl rounded-tl-none border border-outline-variant shadow-[0px_4px_12px_rgba(0,33,71,0.02)] inline-block">
+                        <p class="text-sm font-medium text-gray-800">${htmlContent}</p>
+                    </div>
+                `;
+            }
+
+            thread.appendChild(msgDiv);
+            thread.scrollTop = thread.scrollHeight;
+        }
+
+        function renderMatchingEngineButton() {
+            const thread = document.getElementById("chat-thread-container");
+            const btnDiv = document.createElement("div");
+            btnDiv.className = "w-full max-w-lg self-start pl-10 mt-sm";
+            btnDiv.innerHTML = `
+                <button onclick="runMatchingEngine()" class="w-full bg-secondary text-on-secondary hover:opacity-95 py-sm rounded-lg font-semibold text-sm shadow-md flex justify-center items-center gap-xs h-10 text-white font-bold">
+                    🔍 Run Matching Engine Now
+                </button>
+            `;
+            thread.appendChild(btnDiv);
+            thread.scrollTop = thread.scrollHeight;
+        }
+
+        async function handleSendMessage(e) {
+            e.preventDefault();
+            const inputEl = document.getElementById("chat-text-input");
+            const msgText = inputEl.value.trim();
+            if (!msgText) return;
+
+            inputEl.value = "";
+
+            const userMsg = { role: "user", content: msgText };
+            chatHistory.push(userMsg);
+            renderMessage(userMsg);
+
+            if (activeObjective === "matchmaker") {
+                await sendMatchmakerChat(msgText);
+            } else {
+                await sendRegistrationChat(msgText);
+            }
+        }
+
+        async function runMatchingEngine() {
+            // Log user trigger
+            const userMsg = { role: "user", content: "find matches" };
+            chatHistory.push(userMsg);
+            renderMessage(userMsg);
+            await sendMatchmakerChat("match");
+        }
+
+        async function sendMatchmakerChat(msgText) {
+            try {
+                const res = await fetch("/api/chat", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        student_id: loggedInUser.student_id,
+                        message: msgText,
+                        history: chatHistory.map(m => ({ role: m.role, content: m.content }))
+                    })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    
+                    const botMsg = { role: "assistant", content: data.response };
+                    chatHistory.push(botMsg);
+                    renderMessage(botMsg);
+
+                    // Render Matches and Groups if available
+                    if (data.matches && data.matches.length > 0) {
+                        data.matches.forEach(m => renderBentoMatchCard(m));
+                    }
+                    if (data.groups && data.groups.length > 0) {
+                        data.groups.forEach(g => renderStudyGroupCard(g));
+                    }
+                    
+                    // Always show match engine trigger again
+                    renderMatchingEngineButton();
+                }
+            } catch (err) {
+                console.error("Matchmaker chat error", err);
+                renderMessage({ role: "assistant", content: "⚠️ Failed to run matching query. Please verify backend server connectivity." });
+            }
+        }
+
+        async function sendRegistrationChat(msgText) {
+            try {
+                const res = await fetch("/api/chat/register-step", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        step: registerStep,
+                        message: msgText,
+                        profile: registerProfile,
+                        history: chatHistory.map(m => ({ role: m.role, content: m.content }))
+                    })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    
+                    if (data.success) {
+                        registerStep = data.step;
+                        registerProfile = data.profile;
+                        
+                        if (data.complete) {
+                            const savedProfile = data.profile;
+                            loggedInUser = savedProfile;
+                            localStorage.setItem("logged_in_user", JSON.stringify(savedProfile));
+                            
+                            const botMsg = { role: "assistant", content: data.response };
+                            chatHistory.push(botMsg);
+                            renderMessage(botMsg);
+                            
+                            // Auto reset to matchmaker screen after 4s
+                            setTimeout(() => {
+                                document.getElementById("obj-matchmaker").checked = true;
+                                toggleObjective("matchmaker");
+                            }, 4500);
+                        } else {
+                            const botMsg = { role: "assistant", content: data.prompt };
+                            chatHistory.push(botMsg);
+                            renderMessage(botMsg);
+                        }
+                    } else {
+                        // Reshow prompt
+                        const botMsg = { role: "assistant", content: data.prompt };
+                        chatHistory.push(botMsg);
+                        renderMessage(botMsg);
+                    }
+                }
+            } catch (err) {
+                console.error("Registration Q&A error", err);
+                renderMessage({ role: "assistant", content: "⚠️ Failed to process response. Verify server connectivity." });
+            }
+        }
+
+        function renderBentoMatchCard(match) {
+            const thread = document.getElementById("chat-thread-container");
+            const partner = match.partner;
+            const score = match.overall_score;
+            const avatarUrl = getAvatar(partner.name);
+
+            // Compute justification
+            const sortedFactors = Object.entries(match.breakdown).sort((a,b) => b[1].weighted - a[1].weighted);
+            const bestFactors = sortedFactors.filter(f => f[1].score > 50).map(f => f[0].replace(/_/g, ' ').toUpperCase());
+            
+            let aiJustification = "";
+            if (bestFactors.length > 0) {
+                aiJustification = `High compatibility in **${bestFactors.slice(0,2).join(" & ")}**. `;
+            }
+            aiJustification += `Strong match for **${partner.goal}** using a **${partner.study_style}** style (${partner.communication_preference}).`;
+            
+            const days = partner.availability_days.join(", ");
+            const times = partner.preferred_study_time.join(", ");
+            const strongSubjects = partner.subjects_strong_in.join(", ");
+
+            const card = document.createElement("div");
+            card.className = "bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-md w-full grid grid-cols-1 md:grid-cols-12 gap-md hover:border-secondary transition-all group text-on-surface text-left mt-md max-w-3xl pl-4 pr-4 py-4";
+            card.innerHTML = `
+                <!-- Left Pane: Identity and Score -->
+                <div class="md:col-span-5 flex flex-col gap-sm border-b md:border-b-0 md:border-r border-outline-variant pb-md md:pb-0 md:pr-md">
+                    <div class="flex items-center gap-sm mb-sm">
+                        <div class="w-12 h-12 rounded-full bg-surface-variant overflow-hidden border border-outline-variant flex-shrink-0">
+                            <img alt="${partner.name}" class="w-full h-full object-cover" src="${avatarUrl}"/>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-primary leading-tight">${partner.name}</h3>
+                            <span class="text-xs text-on-surface-variant font-semibold text-gray-500">${partner.year} — ${partner.branch}</span>
+                        </div>
+                    </div>
+                    <div class="bg-surface p-sm rounded border border-outline-variant mt-auto">
+                        <div class="flex justify-between items-end mb-xs">
+                            <span class="text-xs text-on-surface-variant uppercase font-semibold text-gray-500">Compatibility</span>
+                            <span class="text-lg font-bold text-secondary leading-none">${score}%</span>
+                        </div>
+                        <div class="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                            <div class="h-full bg-secondary rounded-full" style="width: ${score}%"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Pane: Details -->
+                <div class="md:col-span-7 flex flex-col justify-between gap-sm">
+                    <div>
+                        <h4 class="text-xs font-bold text-on-surface-variant uppercase flex items-center gap-xs text-gray-500">
+                            <span class="material-symbols-outlined text-[14px]">psychology</span> AI Justification
+                        </h4>
+                        <p class="text-sm text-on-surface mt-xs font-semibold text-gray-800">${aiJustification.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-sm mt-md">
+                        <div class="bg-surface-bright p-sm rounded border border-outline-variant">
+                            <span class="text-[10px] text-on-surface-variant uppercase block mb-xs font-bold text-gray-400">Schedule</span>
+                            <span class="text-xs text-primary flex items-center gap-xs font-semibold text-gray-600">
+                                <span class="material-symbols-outlined text-[16px] text-gray-400">schedule</span> 
+                                ${days} (${times})
+                            </span>
+                        </div>
+                        <div class="bg-surface-bright p-sm rounded border border-outline-variant">
+                            <span class="text-[10px] text-on-surface-variant uppercase block mb-xs font-bold text-gray-400">Strengths</span>
+                            <span class="text-xs text-primary flex items-center gap-xs font-semibold text-gray-600">
+                                <span class="material-symbols-outlined text-[16px] text-gray-400">book</span> 
+                                ${strongSubjects}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            thread.appendChild(card);
+            thread.scrollTop = thread.scrollHeight;
+        }
+
+        function renderStudyGroupCard(group) {
+            const thread = document.getElementById("chat-thread-container");
+            const namesStr = group.members.map(m => m.name).join(", ");
+            const avgScore = group.avg_score;
+            
+            const shared = [];
+            if (group.shared_traits.goals && group.shared_traits.goals.length > 0) shared.push(`Goal: ${group.shared_traits.goals[0]}`);
+            if (group.shared_traits.study_styles && group.shared_traits.study_styles.length > 0) shared.push(`Style: ${group.shared_traits.study_styles[0]}`);
+            if (group.shared_traits.shared_days && group.shared_traits.shared_days.length > 0) shared.push(`Days: ${group.shared_traits.shared_days.join(", ")}`);
+            if (group.shared_traits.shared_times && group.shared_traits.shared_times.length > 0) shared.push(`Times: ${group.shared_traits.shared_times.join(", ")}`);
+            
+            const sharedTraitsStr = shared.length > 0 ? shared.join(" | ") : "Multiple overlapping criteria";
+
+            const card = document.createElement("div");
+            card.className = "bg-surface-container border border-outline-variant rounded-xl p-md shadow-sm mb-lg text-on-surface w-full text-left max-w-3xl mt-md flex flex-col gap-sm";
+            card.innerHTML = `
+                <div class="flex items-center gap-md">
+                    <div class="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-on-secondary shadow-sm text-white">
+                        <span class="material-symbols-outlined">diversity_3</span>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-primary leading-tight">Suggested Study Group (${avgScore}% Avg Match)</h3>
+                        <span class="text-xs text-on-surface-variant font-semibold text-gray-500">Optimal group of ${group.members.length} students</span>
+                    </div>
+                </div>
+                <p class="text-sm font-bold text-gray-800 mt-xs">Members: ${namesStr}</p>
+                <p class="text-xs text-on-surface-variant italic text-gray-500 font-semibold">Shared Traits: ${sharedTraitsStr}</p>
+            `;
+            thread.appendChild(card);
+            thread.scrollTop = thread.scrollHeight;
+        }
+
+        function clearChat() {
+            chatHistory = [];
+            initializeChat();
+        }
+
+        function logout() {
+            localStorage.removeItem("logged_in_user");
+            window.location.href = "/index.html";
+        }
+    </script>
+</body>
+</html>

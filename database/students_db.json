@@ -1,0 +1,253 @@
+[
+    {
+        "student_id": "STU001",
+        "name": "Aarav Sharma",
+        "year": "3rd Year",
+        "branch": "Computer Science",
+        "subjects_needing_help_in": [
+            "DBMS",
+            "Operating Systems"
+        ],
+        "subjects_strong_in": [
+            "Data Structures",
+            "Python",
+            "Machine Learning"
+        ],
+        "study_style": "discussion",
+        "preferred_study_time": [
+            "evening",
+            "night"
+        ],
+        "availability_days": [
+            "Monday",
+            "Wednesday",
+            "Friday"
+        ],
+        "goal": "exam prep",
+        "communication_preference": "both"
+    },
+    {
+        "student_id": "STU002",
+        "name": "Priya Patel",
+        "year": "2nd Year",
+        "branch": "Computer Science",
+        "subjects_needing_help_in": [
+            "Data Structures",
+            "Algorithms"
+        ],
+        "subjects_strong_in": [
+            "DBMS",
+            "Web Development",
+            "Operating Systems"
+        ],
+        "study_style": "practice-problems",
+        "preferred_study_time": [
+            "morning",
+            "afternoon"
+        ],
+        "availability_days": [
+            "Tuesday",
+            "Thursday",
+            "Saturday"
+        ],
+        "goal": "exam prep",
+        "communication_preference": "online"
+    },
+    {
+        "student_id": "STU003",
+        "name": "Rohan Mehta",
+        "year": "3rd Year",
+        "branch": "Electronics & Communication",
+        "subjects_needing_help_in": [
+            "Signals & Systems",
+            "Digital Electronics"
+        ],
+        "subjects_strong_in": [
+            "Circuit Theory",
+            "Microprocessors",
+            "Python"
+        ],
+        "study_style": "visual",
+        "preferred_study_time": [
+            "afternoon",
+            "evening"
+        ],
+        "availability_days": [
+            "Monday",
+            "Wednesday",
+            "Saturday"
+        ],
+        "goal": "concept clarity",
+        "communication_preference": "in-person"
+    },
+    {
+        "student_id": "STU004",
+        "name": "Sneha Reddy",
+        "year": "4th Year",
+        "branch": "Computer Science",
+        "subjects_needing_help_in": [
+            "Machine Learning",
+            "Cloud Computing"
+        ],
+        "subjects_strong_in": [
+            "Data Structures",
+            "Algorithms",
+            "DBMS"
+        ],
+        "study_style": "discussion",
+        "preferred_study_time": [
+            "evening",
+            "night"
+        ],
+        "availability_days": [
+            "Monday",
+            "Tuesday",
+            "Friday"
+        ],
+        "goal": "project work",
+        "communication_preference": "both"
+    },
+    {
+        "student_id": "STU005",
+        "name": "Karan Singh",
+        "year": "2nd Year",
+        "branch": "Mechanical Engineering",
+        "subjects_needing_help_in": [
+            "Thermodynamics",
+            "Fluid Mechanics"
+        ],
+        "subjects_strong_in": [
+            "Engineering Drawing",
+            "Mathematics",
+            "Statics"
+        ],
+        "study_style": "reading",
+        "preferred_study_time": [
+            "morning",
+            "afternoon"
+        ],
+        "availability_days": [
+            "Monday",
+            "Wednesday",
+            "Thursday",
+            "Friday"
+        ],
+        "goal": "exam prep",
+        "communication_preference": "in-person"
+    },
+    {
+        "student_id": "STU006",
+        "name": "Ananya Gupta",
+        "year": "1st Year",
+        "branch": "Computer Science",
+        "subjects_needing_help_in": [
+            "Python",
+            "Discrete Mathematics"
+        ],
+        "subjects_strong_in": [
+            "Physics",
+            "Mathematics",
+            "English"
+        ],
+        "study_style": "visual",
+        "preferred_study_time": [
+            "morning",
+            "evening"
+        ],
+        "availability_days": [
+            "Tuesday",
+            "Wednesday",
+            "Saturday",
+            "Sunday"
+        ],
+        "goal": "concept clarity",
+        "communication_preference": "online"
+    },
+    {
+        "student_id": "STU007",
+        "name": "Vikram Joshi",
+        "year": "3rd Year",
+        "branch": "Electronics & Communication",
+        "subjects_needing_help_in": [
+            "Microprocessors",
+            "Embedded Systems"
+        ],
+        "subjects_strong_in": [
+            "Signals & Systems",
+            "Digital Electronics",
+            "VLSI Design"
+        ],
+        "study_style": "practice-problems",
+        "preferred_study_time": [
+            "afternoon",
+            "night"
+        ],
+        "availability_days": [
+            "Monday",
+            "Thursday",
+            "Friday",
+            "Saturday"
+        ],
+        "goal": "competitive exam",
+        "communication_preference": "both"
+    },
+    {
+        "student_id": "STU008",
+        "name": "Diya Nair",
+        "year": "2nd Year",
+        "branch": "Computer Science",
+        "subjects_needing_help_in": [
+            "Operating Systems",
+            "Computer Networks"
+        ],
+        "subjects_strong_in": [
+            "Python",
+            "Data Structures",
+            "Web Development"
+        ],
+        "study_style": "discussion",
+        "preferred_study_time": [
+            "evening",
+            "night"
+        ],
+        "availability_days": [
+            "Monday",
+            "Wednesday",
+            "Friday",
+            "Sunday"
+        ],
+        "goal": "exam prep",
+        "communication_preference": "online"
+    },
+    {
+        "student_id": "STU009",
+        "name": "Yashwanth Ponnam",
+        "email": "yashwanthponnam55@gmail.com",
+        "year": "4th Year",
+        "branch": "Data Science",
+        "subjects_strong_in": [
+            "Python"
+        ],
+        "subjects_needing_help_in": [
+            "DBMS"
+        ],
+        "study_style": "visual",
+        "preferred_study_time": [
+            "morning",
+            "afternoon",
+            "evening",
+            "night"
+        ],
+        "availability_days": [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday"
+        ],
+        "goal": "exam prep",
+        "communication_preference": "both"
+    }
+]
