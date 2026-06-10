@@ -55,6 +55,42 @@ except Exception:
     orchestrator = None
     has_llm = False
 
+@app.route('/api/chats/<chat_id>/typing', methods=['POST'])
+def api_chat_typing(chat_id):
+    data = request.json
+    student_id = data.get("student_id")
+    if not student_id:
+        return jsonify({"detail": "Missing student_id"}), 400
+        
+    success = update_typing_status(chat_id, student_id)
+    if success:
+        return jsonify({"detail": "Typing status updated"})
+    return jsonify({"detail": "Chat not found"}), 404
+
+@app.route('/api/chats/<chat_id>/read', methods=['POST'])
+def api_chat_read(chat_id):
+    data = request.json
+    student_id = data.get("student_id")
+    if not student_id:
+        return jsonify({"detail": "Missing student_id"}), 400
+        
+    success = update_read_receipts(chat_id, student_id)
+    if success:
+        return jsonify({"detail": "Read receipts updated"})
+    return jsonify({"detail": "Chat not found"}), 404
+
+@app.route('/api/chats/<chat_id>/messages/<timestamp>', methods=['DELETE'])
+def api_delete_message(chat_id, timestamp):
+    data = request.json
+    student_id = data.get("student_id")
+    if not student_id:
+        return jsonify({"detail": "Missing student_id"}), 400
+        
+    success = delete_chat_message(chat_id, student_id, timestamp)
+    if success:
+        return jsonify({"detail": "Message deleted"})
+    return jsonify({"detail": "Message not found or unauthorized"}), 403
+
 # ──────────────────────────────────────────────
 #  Page Routes
 # ──────────────────────────────────────────────
@@ -571,11 +607,30 @@ def api_create_group():
         
     student_ids = data.get("student_ids", [])
     group_name = data.get("group_name", "Study Group").strip()
+    creator_id = data.get("creator_id")
+    creator_name = data.get("creator_name", "Someone")
     
-    if not student_ids:
-        return jsonify({"detail": "Missing student_ids."}), 400
+    if not student_ids or not creator_id:
+        return jsonify({"detail": "Missing student_ids or creator_id."}), 400
         
-    chat = create_group_chat(student_ids, group_name)
+    # Create the group chat with ONLY the creator initially
+    chat = create_group_chat([creator_id], group_name)
+    chat_id = chat["chat_id"]
+    
+    # Generate invites for all other students
+    for sid in student_ids:
+        if sid != creator_id:
+            save_notification({
+                "recipient_id": sid,
+                "sender_id": creator_id,
+                "sender_name": creator_name,
+                "message": f"{creator_name} invited you to join the group '{group_name}'.",
+                "type": "group_invite",
+                "status": "pending",
+                "chat_id": chat_id,
+                "created_at": datetime.datetime.utcnow().isoformat() + "Z"
+            })
+            
     return jsonify(chat)
 
 @app.route('/api/chats/<chat_id>/rename', methods=['POST'])
@@ -607,8 +662,11 @@ def api_get_chat_messages(chat_id):
     chats = load_chats()
     for chat in chats:
         if chat.get("chat_id") == chat_id:
-            return jsonify(chat.get("messages", []))
-    return jsonify([])
+            return jsonify({
+                "messages": chat.get("messages", []),
+                "typing_users": chat.get("typing_users", {})
+            })
+    return jsonify({"messages": [], "typing_users": {}})
 
 @app.route('/api/chats/<chat_id>/messages', methods=['POST'])
 def api_send_message(chat_id):
@@ -715,6 +773,29 @@ def api_get_notifications():
     notifications = load_notifications()
     user_notifications = [n for n in notifications if n.get("recipient_id") == student_id]
     
+    # Inject study session reminders dynamically
+    from database.db_helper_extended import load_sessions
+    sessions = load_sessions()
+    now = datetime.datetime.utcnow()
+    for s in sessions:
+        if s.get("creator_id") == student_id or s.get("partner_id") == student_id:
+            try:
+                # Naive parse Assuming local timezone or UTC... just comparing strings won't perfectly work across timezones without proper parsing, but we'll approximate:
+                session_time = datetime.datetime.fromisoformat(f"{s.get('date')}T{s.get('time')}:00")
+                diff = (session_time - now).total_seconds() / 60.0
+                if 0 < diff <= 15:
+                    user_notifications.append({
+                        "notification_id": f"REMINDER_{s.get('session_id')}",
+                        "recipient_id": student_id,
+                        "sender_name": "System",
+                        "message": f"Reminder: Your study session '{s.get('title')}' is starting in {int(diff)} minutes!",
+                        "type": "reminder",
+                        "status": "pending",
+                        "created_at": now.isoformat() + "Z"
+                    })
+            except Exception:
+                pass
+    
     # Sort by created_at descending
     user_notifications.sort(key=lambda x: x.get("created_at", ""), reverse=True)
     return jsonify(user_notifications)
@@ -764,17 +845,25 @@ def api_resolve_notification(notification_id):
         return jsonify({"detail": "Notification not found"}), 404
         
     if action == "accept":
-        # If it's a registered user, create a chat
-        sender_id = target.get("sender_id")
-        recipient_id = target.get("recipient_id")
-        if sender_id and recipient_id:
-            chat_id = f"DM_{min(sender_id, recipient_id)}_{max(sender_id, recipient_id)}"
-            initial_msg = {
-                "sender_id": sender_id,
-                "text": target.get("message", "Let's study together!"),
-                "timestamp": target.get("created_at")
-            }
-            save_message(chat_id, initial_msg)
+        if target.get("type") == "group_invite":
+            chat_id = target.get("chat_id")
+            recipient_id = target.get("recipient_id")
+            if chat_id and recipient_id:
+                # Add user to group
+                from database.db_helper_extended import add_participant_to_group
+                add_participant_to_group(chat_id, recipient_id)
+        else:
+            # If it's a registered user, create a DM chat
+            sender_id = target.get("sender_id")
+            recipient_id = target.get("recipient_id")
+            if sender_id and recipient_id:
+                chat_id = f"DM_{min(sender_id, recipient_id)}_{max(sender_id, recipient_id)}"
+                initial_msg = {
+                    "sender_id": sender_id,
+                    "text": target.get("message", "Let's study together!"),
+                    "timestamp": target.get("created_at")
+                }
+                save_message(chat_id, initial_msg)
             
         target["status"] = "accepted"
         save_notification(target)

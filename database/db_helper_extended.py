@@ -171,6 +171,58 @@ def remove_participant_from_group(chat_id: str, student_id: str) -> bool:
                     return True
         return False
 
+def add_participant_to_group(chat_id: str, student_id: str) -> bool:
+    with _lock:
+        chats = _read_json(_CHATS_PATH)
+        for c in chats:
+            if c.get("chat_id") == chat_id:
+                if "participants" not in c:
+                    c["participants"] = []
+                if student_id not in c["participants"]:
+                    c["participants"].append(student_id)
+                    _write_json(_CHATS_PATH, chats)
+                    return True
+        return False
+
+def update_typing_status(chat_id: str, student_id: str) -> bool:
+    from datetime import datetime
+    with _lock:
+        chats = _read_json(_CHATS_PATH)
+        for c in chats:
+            if c.get("chat_id") == chat_id:
+                if "typing_users" not in c:
+                    c["typing_users"] = {}
+                c["typing_users"][student_id] = datetime.utcnow().isoformat() + "Z"
+                _write_json(_CHATS_PATH, chats)
+                return True
+        return False
+
+def update_read_receipts(chat_id: str, student_id: str) -> bool:
+    from datetime import datetime
+    with _lock:
+        chats = _read_json(_CHATS_PATH)
+        for c in chats:
+            if c.get("chat_id") == chat_id:
+                if "read_receipts" not in c:
+                    c["read_receipts"] = {}
+                c["read_receipts"][student_id] = datetime.utcnow().isoformat() + "Z"
+                _write_json(_CHATS_PATH, chats)
+                return True
+        return False
+
+def delete_chat_message(chat_id: str, student_id: str, timestamp: str) -> bool:
+    with _lock:
+        chats = _read_json(_CHATS_PATH)
+        for c in chats:
+            if c.get("chat_id") == chat_id:
+                # Find message by student_id and timestamp
+                for i, m in enumerate(c.get("messages", [])):
+                    if m.get("sender_id") == student_id and m.get("timestamp") == timestamp:
+                        del c["messages"][i]
+                        _write_json(_CHATS_PATH, chats)
+                        return True
+        return False
+
 # ──────────────────────────────────────────────
 #  3. Help Request Tickets
 # ──────────────────────────────────────────────
