@@ -133,6 +133,43 @@ def save_message(chat_id: str, message: dict) -> list[dict]:
         _write_json(_CHATS_PATH, chats)
         return found_chat["messages"]
 
+def create_group_chat(participants: list, group_name: str) -> dict:
+    import uuid
+    with _lock:
+        chats = _read_json(_CHATS_PATH)
+        chat_id = f"GROUP_{uuid.uuid4().hex[:8]}"
+        new_chat = {
+            "chat_id": chat_id,
+            "participants": participants,
+            "group_name": group_name,
+            "is_group": True,
+            "messages": []
+        }
+        chats.append(new_chat)
+        _write_json(_CHATS_PATH, chats)
+        return new_chat
+
+def rename_group_chat(chat_id: str, new_name: str) -> bool:
+    with _lock:
+        chats = _read_json(_CHATS_PATH)
+        for c in chats:
+            if c.get("chat_id") == chat_id:
+                c["group_name"] = new_name
+                _write_json(_CHATS_PATH, chats)
+                return True
+        return False
+
+def remove_participant_from_group(chat_id: str, student_id: str) -> bool:
+    with _lock:
+        chats = _read_json(_CHATS_PATH)
+        for c in chats:
+            if c.get("chat_id") == chat_id:
+                if "participants" in c and student_id in c["participants"]:
+                    c["participants"].remove(student_id)
+                    _write_json(_CHATS_PATH, chats)
+                    return True
+        return False
+
 # ──────────────────────────────────────────────
 #  3. Help Request Tickets
 # ──────────────────────────────────────────────

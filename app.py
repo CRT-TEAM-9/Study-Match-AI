@@ -9,8 +9,10 @@ from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 import os
 import re
+import uuid
 from pathlib import Path
 from dotenv import load_dotenv
+from werkzeug.utils import secure_filename
 
 # Import backend modules
 from database.db_helper import load_students, save_student, find_student_by_id, get_next_student_id
@@ -23,7 +25,10 @@ from database.db_helper_extended import (
     load_chats,
     save_message,
     load_tickets,
-    save_ticket
+    save_ticket,
+    create_group_chat,
+    rename_group_chat,
+    remove_participant_from_group
 )
 import datetime
 
@@ -34,6 +39,10 @@ load_dotenv()
 # Flask will serve files directly from the nexus directory as static assets
 app = Flask(__name__, static_folder='nexus', static_url_path='')
 CORS(app)
+
+UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'uploads')
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Initialize LLM Orchestrator safely
 try:
@@ -170,6 +179,8 @@ def api_register_student():
         goal = data.get("goal", "").strip()
         communication_preference = data.get("communication_preference", "").strip()
         profile_pic = data.get("profile_pic", "").strip()
+        social_links = data.get("social_links", {})
+        profile_visibility = data.get("profile_visibility", "public").strip()
         
         # Validation
         if not name or not email or not college or not year or not branch or not study_style or not goal or not communication_preference:
@@ -197,7 +208,9 @@ def api_register_student():
             "availability_days": availability_days,
             "goal": goal,
             "communication_preference": communication_preference,
-            "profile_pic": profile_pic
+            "profile_pic": profile_pic,
+            "social_links": social_links,
+            "profile_visibility": profile_visibility
         }
         
         save_student(profile)
@@ -228,6 +241,54 @@ def api_update_avatar():
         return jsonify(student)
     except Exception as e:
         return jsonify({"detail": str(e)}), 400
+
+@app.route('/api/students/update', methods=['POST'])
+def api_update_profile():
+    """Update a student's complete profile details."""
+    try:
+        data = request.json
+        if not data:
+            return jsonify({"detail": "No payload provided."}), 400
+            
+        student_id = data.get("student_id")
+        if not student_id:
+            return jsonify({"detail": "Missing student ID."}), 400
+            
+        student = find_student_by_id(student_id)
+        if not student:
+            return jsonify({"detail": "Student profile not found."}), 404
+            
+        # Update allowed fields
+        for field in ["name", "college", "year", "branch", "study_style", "goal", "communication_preference", "profile_visibility"]:
+            if field in data:
+                student[field] = data[field]
+                
+        # Update array fields
+        for field in ["subjects_strong_in", "subjects_needing_help_in", "preferred_study_time", "availability_days"]:
+            if field in data and isinstance(data[field], list):
+                student[field] = data[field]
+                
+        # Update nested social links
+        if "social_links" in data:
+            student["social_links"] = data["social_links"]
+            
+        save_student(student)
+        return jsonify(student)
+    except Exception as e:
+        return jsonify({"detail": str(e)}), 400
+
+@app.route('/api/public-profile/<student_id>', methods=['GET'])
+def api_get_public_profile(student_id):
+    """Retrieve a student's public profile."""
+    student = find_student_by_id(student_id)
+    if not student:
+        return jsonify({"detail": "Profile not found."}), 404
+        
+    if student.get("profile_visibility", "public") != "public":
+        return jsonify({"detail": "This profile is private."}), 403
+        
+    # Return a safe subset of the profile (exclude email or other highly sensitive data if needed, but for now we return it so they can be contacted)
+    return jsonify(student)
 
 @app.route('/api/chat', methods=['POST'])
 def api_chat():
@@ -444,6 +505,9 @@ def api_get_chats():
     for chat in chats:
         chat_id = chat.get("chat_id", "")
         participants = chat.get("participants", [])
+        is_group = chat.get("is_group", False)
+        group_name = chat.get("group_name", "")
+        
         if not participants:
             if student_id in chat_id:
                 if chat_id.startswith("DM_"):
@@ -458,18 +522,22 @@ def api_get_chats():
                     other_participant = p
                     break
             
-            other_name = "Study Group"
-            other_pic = ""
-            if other_participant and other_participant in student_map:
-                other_name = student_map[other_participant].get("name", other_participant)
-                other_pic = student_map[other_participant].get("profile_pic", "")
-            elif chat_id.startswith("DM_"):
-                parts = chat_id.split("_")[1:]
-                for p in parts:
-                    if p != student_id and p in student_map:
-                        other_name = student_map[p].get("name", p)
-                        other_pic = student_map[p].get("profile_pic", "")
-                        break
+            if is_group:
+                other_name = group_name if group_name else "Study Group"
+                other_pic = ""
+            else:
+                other_name = "Study Partner"
+                other_pic = ""
+                if other_participant and other_participant in student_map:
+                    other_name = student_map[other_participant].get("name", other_participant)
+                    other_pic = student_map[other_participant].get("profile_pic", "")
+                elif chat_id.startswith("DM_"):
+                    parts = chat_id.split("_")[1:]
+                    for p in parts:
+                        if p != student_id and p in student_map:
+                            other_name = student_map[p].get("name", p)
+                            other_pic = student_map[p].get("profile_pic", "")
+                            break
                         
             last_message = ""
             last_timestamp = ""
@@ -480,13 +548,56 @@ def api_get_chats():
                 
             user_chats.append({
                 "chat_id": chat_id,
-                "participants": participants,
+                "other_participant": other_participant,
                 "other_name": other_name,
                 "other_pic": other_pic,
+                "participants": participants,
+                "is_group": is_group,
+                "group_name": group_name,
                 "last_message": last_message,
                 "last_timestamp": last_timestamp
             })
+    user_chats.sort(key=lambda x: x["last_timestamp"], reverse=True)
     return jsonify(user_chats)
+
+@app.route('/api/chats/create_group', methods=['POST'])
+def api_create_group():
+    data = request.json
+    if not data:
+        return jsonify({"detail": "No payload provided."}), 400
+        
+    student_ids = data.get("student_ids", [])
+    group_name = data.get("group_name", "Study Group").strip()
+    
+    if not student_ids:
+        return jsonify({"detail": "Missing student_ids."}), 400
+        
+    chat = create_group_chat(student_ids, group_name)
+    return jsonify(chat)
+
+@app.route('/api/chats/<chat_id>/rename', methods=['POST'])
+def api_rename_group(chat_id):
+    data = request.json
+    new_name = data.get("new_name", "").strip()
+    if not new_name:
+        return jsonify({"detail": "Missing new_name."}), 400
+        
+    success = rename_group_chat(chat_id, new_name)
+    if success:
+        return jsonify({"detail": "Group renamed successfully."})
+    return jsonify({"detail": "Chat not found or failed to rename."}), 404
+
+@app.route('/api/chats/<chat_id>/leave', methods=['POST'])
+def api_leave_group(chat_id):
+    data = request.json
+    student_id = data.get("student_id", "").strip()
+    if not student_id:
+        return jsonify({"detail": "Missing student_id."}), 400
+        
+    success = remove_participant_from_group(chat_id, student_id)
+    if success:
+        return jsonify({"detail": "Left group successfully."})
+    return jsonify({"detail": "Chat not found or failed to leave."}), 404
 
 @app.route('/api/chats/<chat_id>/messages', methods=['GET'])
 def api_get_chat_messages(chat_id):
@@ -505,9 +616,12 @@ def api_send_message(chat_id):
     sender_id = data.get("sender_id", "").strip()
     sender_name = data.get("sender_name", "").strip()
     content = data.get("content", "").strip()
+    file_url = data.get("file_url", "").strip()
+    file_name = data.get("file_name", "").strip()
+    file_type = data.get("file_type", "").strip()
     
-    if not sender_id or not content:
-        return jsonify({"detail": "Missing required fields: sender_id, content."}), 400
+    if not sender_id or (not content and not file_url):
+        return jsonify({"detail": "Missing required fields: sender_id and content or file."}), 400
         
     if not sender_name:
         student = find_student_by_id(sender_id)
@@ -522,6 +636,11 @@ def api_send_message(chat_id):
         "content": content,
         "timestamp": datetime.datetime.now().isoformat()
     }
+    
+    if file_url:
+        message["file_url"] = file_url
+        message["file_name"] = file_name
+        message["file_type"] = file_type
     
     messages = save_message(chat_id, message)
     return jsonify(messages)
@@ -578,6 +697,39 @@ def api_close_ticket(ticket_id):
     target_ticket["status"] = "closed"
     save_ticket(target_ticket)
     return jsonify(target_ticket)
+
+
+# ──────────────────────────────────────────────
+#  File Upload Endpoints
+# ──────────────────────────────────────────────
+
+@app.route('/api/upload', methods=['POST'])
+def api_upload_file():
+    if 'file' not in request.files:
+        return jsonify({"detail": "No file part in the request."}), 400
+        
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({"detail": "No selected file."}), 400
+        
+    if file:
+        filename = secure_filename(file.filename)
+        ext = os.path.splitext(filename)[1]
+        unique_filename = f"{uuid.uuid4().hex}{ext}"
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
+        file.save(filepath)
+        
+        file_url = f"/uploads/{unique_filename}"
+        
+        return jsonify({
+            "file_url": file_url,
+            "file_name": filename,
+            "file_type": file.content_type
+        })
+
+@app.route('/uploads/<path:filename>')
+def serve_uploads(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 
 if __name__ == "__main__":

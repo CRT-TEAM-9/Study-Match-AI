@@ -676,10 +676,43 @@
                     </div>
                 </div>
                 <p class="text-sm font-bold text-gray-800 mt-xs">Members: ${namesStr}</p>
-                <p class="text-xs text-on-surface-variant italic text-gray-500 font-semibold">Shared Traits: ${sharedTraitsStr}</p>
+                <p class="text-xs text-on-surface-variant italic text-gray-500 font-semibold mb-sm">Shared Traits: ${sharedTraitsStr}</p>
+                <div class="mt-auto border-t border-outline-variant/30 pt-sm">
+                    <button onclick='createGroupChat(${JSON.stringify(group.members.map(m => m.student_id))}, ${JSON.stringify(group.shared_traits.goals && group.shared_traits.goals.length > 0 ? group.shared_traits.goals[0] + " Study Group" : "Matchmaker Study Group")})' class="w-full bg-secondary text-on-secondary hover:opacity-95 py-2 rounded font-semibold text-xs shadow-sm flex justify-center items-center gap-xs">
+                        <span class="material-symbols-outlined text-[16px]">group_add</span> Create Study Group Chat
+                    </button>
+                </div>
             `;
             thread.appendChild(card);
             thread.scrollTop = thread.scrollHeight;
+        }
+
+        async function createGroupChat(studentIds, defaultName) {
+            if (!studentIds.includes(loggedInUser.student_id)) {
+                studentIds.push(loggedInUser.student_id);
+            }
+            
+            const groupName = defaultName || "Matchmaker Study Group";
+            
+            try {
+                const res = await fetch(window.getApiUrl("/api/chats/create_group"), {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        student_ids: studentIds,
+                        group_name: groupName
+                    })
+                });
+                
+                if (res.ok) {
+                    alert("Study group chat created successfully! You can find it in your Live Chats dashboard.");
+                } else {
+                    alert("Failed to create group chat.");
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Network error while creating group.");
+            }
         }
 
         function clearChat() {
