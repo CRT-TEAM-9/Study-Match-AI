@@ -70,7 +70,6 @@ Nexus/
 │
 ├── .env                      # Application environment variables (Git ignored)
 ├── app.py                    # Flask development server entry point
-├── verify_backend.py         # Verification suite for matching engine
 ├── verify_extended.py        # Verification suite for sessions, chats, and tickets database
 ├── requirements.txt          # Python package requirements list
 └── README.md                 # Project README documentation
@@ -122,12 +121,7 @@ By default, the server runs on: **[http://127.0.0.1:5000](http://127.0.0.1:5000)
 
 ## Verification
 
-To execute diagnostic scripts testing the database queries and matching compatibility scoring logic, run:
-```bash
-python verify_backend.py
-```
-
-To run extended verification tests for scheduler, chats, and help request tickets, execute:
+To run automated verification tests for the database (scheduler, chats, and help request tickets), execute:
 ```bash
 python verify_extended.py
 ```
