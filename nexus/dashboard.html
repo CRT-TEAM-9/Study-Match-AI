@@ -2033,10 +2033,15 @@
                 });
                 
                 if (res.ok) {
+                    const data = await res.json();
                     await loadNotifications();
                     if (action === "accept") {
-                        // Refresh chats to show the new DM if it was a registered user
-                        await loadChatsView();
+                        if (data.chat_id) {
+                            activeChatId = data.chat_id;
+                            showTab("chats");
+                        } else {
+                            await loadChatsView();
+                        }
                     }
                 } else {
                     alert("Failed to resolve notification.");

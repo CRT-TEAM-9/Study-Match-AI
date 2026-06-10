@@ -780,7 +780,11 @@ def api_resolve_notification(notification_id):
         save_notification(target)
         # We can safely delete it or leave it as accepted. Let's delete it so it clears out.
         delete_notification(notification_id)
-        return jsonify({"detail": "Accepted and chat created" if sender_id else "Accepted request"})
+        
+        return jsonify({
+            "detail": "Accepted and chat created" if sender_id else "Accepted request",
+            "chat_id": chat_id if sender_id and recipient_id else None
+        })
         
     elif action == "decline":
         delete_notification(notification_id)
