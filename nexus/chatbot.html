@@ -3,9 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Matchmaker Chat - StudyMatch AI</title>
+    <title>Matchmaker Chat - Nexus</title>
     <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+    <!-- Offline Connection Status Handler -->
+    <script src="/offline-handler.js" defer></script>
+    <!-- Firebase SDK Integration -->
+    <script src="/firebase-config.js"></script>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
+      const app = initializeApp(window.firebaseConfig);
+      const analytics = getAnalytics(app);
+    </script>
     <!-- Load Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <!-- Load Fonts & Icons -->
@@ -193,7 +203,7 @@
         <div class="flex items-center gap-lg">
             <a class="font-Inter text-headline-md font-bold text-primary flex items-center gap-sm text-2xl" href="/index.html">
                 <span class="material-symbols-outlined text-secondary fill-icon text-[28px]">school</span>
-                StudyMatch AI
+                Nexus
             </a>
             <!-- Nav Tabs -->
             <nav class="hidden md:flex items-center gap-md ml-lg">
@@ -226,13 +236,17 @@
                 <div class="flex flex-col gap-xs">
                     <span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider px-sm text-gray-500">Navigation</span>
                     <nav class="flex flex-col gap-xs mt-sm">
-                        <a class="flex items-center gap-sm px-sm py-sm rounded hover:bg-surface-variant transition-colors text-on-surface text-sm font-semibold text-gray-600" href="/dashboard.html">
+                        <a class="flex items-center gap-sm px-sm py-sm rounded hover:bg-surface-variant transition-colors text-on-surface text-sm font-semibold text-gray-600 cursor-pointer" href="/dashboard.html">
                             <span class="material-symbols-outlined">dashboard</span>
                             Dashboard
                         </a>
-                        <a class="flex items-center gap-sm px-sm py-sm rounded bg-surface-variant border border-outline-variant/30 text-primary font-bold text-sm" href="/chatbot.html">
+                        <a class="flex items-center gap-sm px-sm py-sm rounded bg-surface-variant border border-outline-variant/30 text-primary font-bold text-sm cursor-pointer" href="/chatbot.html">
                             <span class="material-symbols-outlined">person_search</span>
                             Find Partner
+                        </a>
+                        <a class="flex items-center gap-sm px-sm py-sm rounded hover:bg-surface-variant transition-colors text-on-surface text-sm font-semibold text-gray-600 cursor-pointer" href="/dashboard.html#profile">
+                            <span class="material-symbols-outlined">account_circle</span>
+                            My Profile
                         </a>
                     </nav>
                 </div>
@@ -326,7 +340,10 @@
             "Diya Nair": "https://lh3.googleusercontent.com/aida-public/AB6AXuBZONl9Pnc2rAVoXq_UNWoqaMSNu3LcjIR2kE9MKcwjtRUQvrKeVT-rNYO3cWYqwejPGgnrrxsjpAtTN7KbFLSSfbU6vm8Za95SxdFhhW4R2BUW40CCafbxoAfQFYq2Uv38G2X67tJpGqIW47E69DOWHLh7uMPbladUalVvUBjW1gQYa59ZTh4OPOLPFcY0GslCW9zkB1yWzCPzKZ2azCLP4Bg8FgLAyCwUM8hBeTHGTaForUYq4M2mt8CmmSgrO5Diecz84rHSYuM"
         };
 
-        function getAvatar(name) {
+        function getAvatar(name, profile_pic) {
+            if (profile_pic) {
+                return profile_pic;
+            }
             return AVATARS[name] || AVATARS["default"];
         }
 
@@ -341,7 +358,7 @@
         document.addEventListener("DOMContentLoaded", () => {
             // Update User Layout details
             document.getElementById("user-display-name").textContent = loggedInUser.name;
-            document.getElementById("user-avatar").src = getAvatar(loggedInUser.name);
+            document.getElementById("user-avatar").src = getAvatar(loggedInUser.name, loggedInUser.profile_pic);
 
             // Set up objective choice listeners
             const matchRadio = document.getElementById("obj-matchmaker");
@@ -392,7 +409,7 @@
             } else {
                 const greeting = {
                     role: "assistant",
-                    content: `👋 Hello! I am your conversational StudyMatch AI registration assistant. I will guide you step-by-step to create your study profile.<br><br>Let's get started!<br><br>**Question 1: What is your name?**`
+                    content: `👋 Hello! I am your conversational Nexus registration assistant. I will guide you step-by-step to create your study profile.<br><br>Let's get started!<br><br>**Question 1: What is your name?**`
                 };
                 chatHistory.push(greeting);
                 renderMessage(greeting);
@@ -401,7 +418,7 @@
 
         function renderMessage(msg) {
             const thread = document.getElementById("chat-thread-container");
-            const userAvatar = getAvatar(loggedInUser.name);
+            const userAvatar = getAvatar(loggedInUser.name, loggedInUser.profile_pic);
             
             let htmlContent = msg.content;
             // Standard markdown cleanups

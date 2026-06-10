@@ -1,6 +1,6 @@
 """
-Study Match AI — LLM Orchestrator
-====================================
+Nexus — LLM Orchestrator
+==========================
 Manages all interactions with the Groq API for conversational AI features.
 
 Responsibilities:
@@ -41,7 +41,7 @@ logger = logging.getLogger(__name__)
 #  SYSTEM PROMPTS
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-SYSTEM_PROMPT_MAIN = """You are Study Match AI, a friendly and enthusiastic academic advisor chatbot. Your personality is warm, encouraging, and slightly nerdy — you genuinely love helping students find the perfect study partners.
+SYSTEM_PROMPT_MAIN = """You are Nexus, a friendly and enthusiastic academic advisor chatbot. Your personality is warm, encouraging, and slightly nerdy — you genuinely love helping students find the perfect study partners.
 
 CORE RULES:
 1. You help students with TWO modes: "Register" (create their profile) and "Find Match" (discover study partners).
@@ -235,7 +235,7 @@ class LLMOrchestrator:
         except (ConnectionError, RuntimeError):
             # Graceful fallback if API is down
             return (
-                "👋 Hey there! Welcome to **Study Match AI**!\n\n"
+                "👋 Hey there! Welcome to **Nexus**!\n\n"
                 "I'm here to help you find the perfect study partners. "
                 "Here's what I can do:\n\n"
                 "📝 **Register** — Create your study profile\n"

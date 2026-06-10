@@ -1,0 +1,29 @@
+[
+    {
+        "chat_id": "DM_STU002_STU009",
+        "participants": [
+            "STU002",
+            "STU009"
+        ],
+        "messages": [
+            {
+                "sender_id": "STU009",
+                "sender_name": "Yashwanth Ponnam",
+                "content": "Hi Priya Patel! I saw your help request on \"Physics: Electromagnetic Induction\" and would love to help you study this topic. Let's study together!",
+                "timestamp": "2026-06-09T23:54:16.205696"
+            },
+            {
+                "sender_id": "STU009",
+                "sender_name": "Yashwanth Ponnam",
+                "content": "Hello",
+                "timestamp": "2026-06-09T23:54:23.525092"
+            },
+            {
+                "sender_id": "STU009",
+                "sender_name": "Yashwanth Ponnam",
+                "content": "Hi Priya Patel! I saw your help request on \"Physics: Electromagnetic Induction\" and would love to help you study this topic. Let's study together!",
+                "timestamp": "2026-06-09T23:55:17.000624"
+            }
+        ]
+    }
+]

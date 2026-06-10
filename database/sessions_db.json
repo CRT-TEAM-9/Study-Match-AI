@@ -1,0 +1,17 @@
+[
+    {
+        "title": "DEMO",
+        "date": "2026-06-10",
+        "time": "07:57",
+        "description": "",
+        "partner_id": "STU002",
+        "partner_name": "Priya Patel",
+        "creator_id": "STU009",
+        "creator_name": "Yashwanth Ponnam",
+        "attendees": [
+            "STU009",
+            "STU002"
+        ],
+        "session_id": "SES001"
+    }
+]

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Not Found - Nexus</title>
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+    <script src="/offline-handler.js" defer></script>
+    <!-- Firebase SDK Integration -->
+    <script src="/firebase-config.js"></script>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
+      const app = initializeApp(window.firebaseConfig);
+      const analytics = getAnalytics(app);
+    </script>
+    <!-- Load Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Load Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <script>
+        // Inline theme manager to prevent white flash
+        function applyTheme() {
+            const theme = localStorage.getItem("theme") || "system";
+            let isDark = false;
+            let themeLabel = "";
+            let themeIcon = "desktop_windows";
+            
+            if (theme === "dark") {
+                isDark = true;
+                themeLabel = "Dark";
+                themeIcon = "dark_mode";
+            } else if (theme === "light") {
+                isDark = false;
+                themeLabel = "Light";
+                themeIcon = "light_mode";
+            } else {
+                isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+                themeLabel = "System (" + (isDark ? "Dark" : "Light") + ")";
+                themeIcon = "desktop_windows";
+            }
+            
+            if (isDark) {
+                document.documentElement.classList.add("dark");
+            } else {
+                document.documentElement.classList.remove("dark");
+            }
+            
+            const updateUI = () => {
+                const icon = document.getElementById("theme-icon");
+                const text = document.getElementById("theme-text");
+                if (icon) icon.textContent = themeIcon;
+                if (text) text.textContent = themeLabel;
+            };
+            
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", updateUI);
+            } else {
+                updateUI();
+            }
+        }
+        function toggleTheme() {
+            const theme = localStorage.getItem("theme") || "system";
+            let nextTheme = "light";
+            if (theme === "system") {
+                nextTheme = "light";
+            } else if (theme === "light") {
+                nextTheme = "dark";
+            } else if (theme === "dark") {
+                nextTheme = "system";
+            }
+            localStorage.setItem("theme", nextTheme);
+            applyTheme();
+        }
+        
+        window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+            if ((localStorage.getItem("theme") || "system") === "system") {
+                applyTheme();
+            }
+        });
+        
+        applyTheme();
+    </script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "var(--color-primary)",
+                        "secondary": "var(--color-secondary)",
+                        "tertiary": "var(--color-tertiary)",
+                        "surface": "var(--color-surface)",
+                        "background": "var(--color-background)",
+                        "outline-variant": "var(--color-outline-variant)",
+                        "on-surface-variant": "var(--color-on-surface-variant)",
+                        "surface-container-high": "var(--color-surface-container-high)",
+                        "surface-variant": "var(--color-surface-variant)",
+                        "on-primary": "var(--color-on-primary)"
+                    },
+                    fontFamily: {
+                        "Inter": ["Inter", "sans-serif"],
+                        "Geist": ["Geist", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --color-primary: #000a1e;
+            --color-secondary: #006c49;
+            --color-tertiary: #000a22;
+            --color-surface: #f8f9ff;
+            --color-background: #f8f9ff;
+            --color-outline-variant: #c4c6cf;
+            --color-on-surface-variant: #44474e;
+            --color-surface-container-high: #dce9ff;
+            --color-surface-variant: #d3e4fe;
+            --color-on-primary: #ffffff;
+        }
+        :root.dark {
+            --color-primary: #aec7f6;
+            --color-secondary: #4edea3;
+            --color-tertiary: #adc6ff;
+            --color-surface: #0b1c30;
+            --color-background: #000a1e;
+            --color-outline-variant: #44474e;
+            --color-on-surface-variant: #c4c6cf;
+            --color-surface-container-high: #213145;
+            --color-surface-variant: #2d476f;
+            --color-on-primary: #071324;
+        }
+        .dark .text-gray-800 { color: #f8f9ff !important; }
+        .dark .text-gray-600 { color: #c4c6cf !important; }
+        .fill-icon { font-variation-settings: 'FILL' 1; }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-Inter transition-colors duration-200 justify-between">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-surface border-b border-outline-variant w-full h-16 flex justify-between items-center px-6 md:px-12 flex-shrink-0">
+        <div class="flex items-center">
+            <a class="font-Inter text-headline-md font-bold text-primary flex items-center gap-2 text-2xl" href="/index.html">
+                <span class="material-symbols-outlined text-secondary fill-icon text-[28px]">school</span>
+                Nexus
+            </a>
+        </div>
+        <div class="flex items-center gap-4">
+            <button onclick="toggleTheme()" class="h-10 px-3 rounded-full bg-surface-variant hover:bg-outline-variant/30 flex items-center gap-2 text-primary transition-colors border border-outline-variant/30" title="Toggle Theme (System / Light / Dark)">
+                <span class="material-symbols-outlined text-[20px]" id="theme-icon">desktop_windows</span>
+                <span class="text-xs font-semibold" id="theme-text">System</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex flex-col items-center justify-center text-center p-6 gap-6">
+        <div class="w-24 h-24 rounded-full bg-surface-variant flex items-center justify-center border border-outline-variant shadow-[0px_4px_16px_rgba(0,0,0,0.02)]">
+            <span class="material-symbols-outlined text-secondary text-[48px]">quiz</span>
+        </div>
+        <div class="flex flex-col gap-2 max-w-md">
+            <h1 class="text-4xl font-extrabold tracking-tight text-primary">Page Not Found</h1>
+            <p class="text-base text-on-surface-variant text-gray-600">The academic route you are trying to access does not exist or has been moved to another subject department.</p>
+        </div>
+        <a href="/index.html" class="bg-primary text-on-primary font-bold px-lg py-sm rounded-xl hover:opacity-90 transition-all shadow-[0px_4px_12px_rgba(0,33,71,0.05)] mt-2 flex items-center gap-2 h-11 px-5">
+            <span class="material-symbols-outlined text-[18px]">home</span>
+            Return to Nexus
+        </a>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-surface-container-low border-t border-outline-variant py-6 px-6 md:px-12 flex-shrink-0">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-4 max-w-[1280px] mx-auto w-full">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary fill-icon">school</span>
+                <span class="font-Inter text-headline-sm font-semibold text-primary text-lg font-bold">Nexus</span>
+            </div>
+            <div class="text-xs text-on-surface-variant text-gray-500">
+                © 2026 Nexus. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

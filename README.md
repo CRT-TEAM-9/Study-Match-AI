@@ -1,31 +1,36 @@
-# 🎓 StudyMatch AI
+# Nexus
 
 [![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![Flask](https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 [![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/HTML)
+[![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)](https://firebase.google.com/)
+[![JSON](https://img.shields.io/badge/JSON-000000?style=for-the-badge&logo=json&logoColor=white)](https://www.json.org/)
 [![Groq AI](https://img.shields.io/badge/Groq%20Cloud-F55A42?style=for-the-badge&logo=google-gemini&logoColor=white)](https://groq.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
-**StudyMatch AI** is a professional peer-matching platform designed for university students to form optimal study partnerships. The application leverages an intelligent weighted compatibility matrix alongside a conversational LLM agent to register student profiles dynamically and explain match recommendations interactively.
+Nexus is a professional peer-matching platform designed for university students to form optimal study partnerships. The application leverages an intelligent weighted compatibility matrix alongside a conversational LLM agent to register student profiles dynamically and explain match recommendations interactively.
 
 ---
 
-## 🌟 Key Features
+## Key Features
 
-*   **🗣️ Conversational AI Registration**: Students can set up their academic profile in a multi-turn conversation with an AI agent rather than filling out static form inputs.
-*   **🧩 Intelligent Compatibility Matrix**: Calculates matching pairs based on a custom-weighted algorithm rather than random assignment.
-*   **👥 Automated Study Groups**: Suggests study circles dynamically if 3 or more students share highly compatible study styles, availabilities, and goals.
-*   **📊 Student Directory Dashboard**: Instant search, category filters, and compatibility ranking for peer profiles.
-*   **🌓 Premium 3-State Theme Engine**:
-    *   Cycle between **Light**, **Dark**, and **System** schemes.
+*   **Conversational AI Registration**: Students can set up their academic profile in a multi-turn conversation with an AI agent rather than filling out static form inputs.
+*   **Intelligent Compatibility Matrix**: Calculates matching pairs based on a custom-weighted algorithm rather than random assignment.
+*   **Automated Study Groups**: Suggests study circles dynamically if 3 or more students share highly compatible study styles, availabilities, and goals.
+*   **Student Directory Dashboard**: Instant search, category filters, and compatibility ranking for peer profiles.
+*   **Help Request Ticket Board**: A peer-tutoring board where students can post questions or topics they need help with. Other students can click "Offer Help" to start a direct message thread instantly and help out.
+*   **Live Study Group Chat Rooms**: Modern master-detail chat panel enabling direct messaging and study group channels, powered by client-side HTTP polling (3-second intervals) to fetch messages in real-time.
+*   **Collaborative Study Session Scheduler**: Plan upcoming study sessions, set dates/times, choose study partners, and specify agendas. Renders upcoming schedules on a clean agenda timeline.
+*   **Premium 3-State Theme Engine**:
+    *   Cycle between Light, Dark, and System schemes.
     *   System mode integrates native browser/OS media query listeners (`(prefers-color-scheme: dark)`) for instant UI adjustment.
     *   Inline, blocking `<head>` configuration that prevents layout styling flashes (white/dark flashes) on initial page load.
 
 ---
 
-## 📐 Matchmaking Algorithm & Weights
+## Matchmaking Algorithm & Weights
 
 To prevent arbitrary student pairings, compatibility is calculated by evaluating specific logical intersections:
 
@@ -38,10 +43,10 @@ To prevent arbitrary student pairings, compatibility is calculated by evaluating
 
 ---
 
-## 📁 Project Directory Structure
+## Project Directory Structure
 
 ```text
-Study Match AI/
+Nexus/
 │
 ├── backend/                  # Python backend core logic
 │   ├── config.py             # Schema rules, fields, and constants
@@ -50,9 +55,13 @@ Study Match AI/
 │
 ├── database/                 # JSON file-based storage layer
 │   ├── db_helper.py          # Read/write queries for profile database
-│   └── students.json         # Complete dataset of student profiles
+│   ├── db_helper_extended.py # Read/write queries for sessions, chats, and tickets
+│   ├── students_db.json      # Complete dataset of student profiles
+│   ├── sessions_db.json      # Dataset of study sessions
+│   ├── chats_db.json         # Chat logs and room configs
+│   └── tickets_db.json       # Help requests bulletin tickets
 │
-├── frontend/                 # Client-side static mockups & CSS
+├── nexus/                    # Client-side static templates & assets
 │   ├── landing.html          # Dynamic portal entry showing platform stats
 │   ├── login.html            # Profile selector screen
 │   ├── register.html         # Custom registration form & JS payload parser
@@ -62,13 +71,14 @@ Study Match AI/
 ├── .env                      # Application environment variables (Git ignored)
 ├── app.py                    # Flask development server entry point
 ├── verify_backend.py         # Verification suite for matching engine
+├── verify_extended.py        # Verification suite for sessions, chats, and tickets database
 ├── requirements.txt          # Python package requirements list
 └── README.md                 # Project README documentation
 ```
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 Follow these instructions to run the application locally.
 
@@ -110,14 +120,19 @@ By default, the server runs on: **[http://127.0.0.1:5000](http://127.0.0.1:5000)
 
 ---
 
-## 🧪 Verification
+## Verification
 
 To execute diagnostic scripts testing the database queries and matching compatibility scoring logic, run:
 ```bash
 python verify_backend.py
 ```
 
+To run extended verification tests for scheduler, chats, and help request tickets, execute:
+```bash
+python verify_extended.py
+```
+
 ---
 
-## 📝 License
+## License
 This project is licensed under the MIT License. See [LICENSE](LICENSE) or the header badges for details.

@@ -3,9 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - StudyMatch AI</title>
+    <title>Register - Nexus</title>
     <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+    <!-- Offline Connection Status Handler -->
+    <script src="/offline-handler.js" defer></script>
+    <!-- Firebase SDK Integration -->
+    <script src="/firebase-config.js"></script>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
+      const app = initializeApp(window.firebaseConfig);
+      const analytics = getAnalytics(app);
+    </script>
     <!-- Load Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <!-- Load Fonts & Icons -->
@@ -13,6 +23,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
     
     <script>
+        // Page restriction: Redirect logged in users away from register page
+        if (localStorage.getItem("logged_in_user")) {
+            window.location.href = "/dashboard.html";
+        }
+        
         // Inline theme manager to prevent white flash
         function applyTheme() {
             const theme = localStorage.getItem("theme") || "system";
@@ -179,7 +194,7 @@
         <div class="flex items-center gap-lg">
             <a class="font-Inter text-headline-md font-bold text-primary flex items-center gap-sm text-2xl" href="/index.html" target="_self">
                 <span class="material-symbols-outlined text-secondary fill-icon text-[28px]">school</span>
-                StudyMatch AI
+                Nexus
             </a>
         </div>
         <div class="flex items-center gap-md">
@@ -201,7 +216,7 @@
             
             <div class="z-10 flex items-center gap-sm">
                 <span class="material-symbols-outlined fill-icon text-[32px]">school</span>
-                <span class="text-xl font-bold tracking-tight">StudyMatch AI</span>
+                <span class="text-xl font-bold tracking-tight">Nexus</span>
             </div>
             
             <div class="z-10 max-w-lg my-xl">
@@ -210,7 +225,7 @@
                 </h1>
                 <blockquote class="mt-xl pl-lg border-l-4 border-secondary">
                     <p class="text-lg text-on-primary-container italic mb-sm">
-                        "StudyMatch found me the perfect Calc III partner in minutes. We aligned on schedule, study style, and even our struggles with infinite series."
+                        "Nexus found me the perfect Calc III partner in minutes. We aligned on schedule, study style, and even our struggles with infinite series."
                     </p>
                     <footer class="text-sm text-on-primary-container opacity-80 flex items-center gap-sm mt-xs">
                         <div class="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center text-primary overflow-hidden">
@@ -239,12 +254,47 @@
                     <p class="text-sm text-on-surface-variant mt-xs">Fill in your academic details to be mapped by the matchmaker.</p>
                 </div>
 
-                <!-- Error Notification container -->
+                <!-- Google Sign Up Button Option -->
+                <div class="mb-lg">
+                    <button id="btn-google-signup" type="button" class="w-full flex items-center justify-center gap-sm bg-surface hover:bg-surface-variant text-primary font-semibold text-sm border border-outline-variant py-sm px-md rounded transition-all shadow-[0px_2px_4px_rgba(0,0,0,0.02)] h-11">
+                        <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                        </svg>
+                        <span>Sign up with Google</span>
+                    </button>
+                    
+                    <div class="relative flex py-xs items-center mt-md">
+                        <div class="flex-grow border-t border-outline-variant"></div>
+                        <span class="flex-shrink-0 mx-md text-[10px] text-gray-400 font-bold uppercase tracking-wider">Or Fill Details Manually</span>
+                        <div class="flex-grow border-t border-outline-variant"></div>
+                    </div>
+                </div>
+
+                <!-- Notification container -->
                 <div id="error-box" class="hidden p-md bg-red-50 text-red-700 border border-red-300 rounded-lg text-sm text-left mb-md">
-                    <!-- Error text -->
+                    <!-- Error or notification text -->
                 </div>
 
                 <form id="register-form" class="flex flex-col gap-lg">
+                    <!-- Profile Picture Upload Widget -->
+                    <div class="flex flex-col items-center sm:flex-row gap-md p-md bg-surface-container-low rounded-lg border border-outline-variant/30">
+                        <div class="relative w-20 h-20 rounded-full border-2 border-outline-variant bg-surface-variant flex items-center justify-center overflow-hidden flex-shrink-0">
+                            <img id="avatar-preview" class="w-full h-full object-cover hidden" alt="Avatar Preview" />
+                            <span id="avatar-placeholder" class="material-symbols-outlined text-on-surface-variant text-[40px]">person</span>
+                        </div>
+                        <div class="flex flex-col gap-xs items-center sm:items-start">
+                            <label class="text-sm font-semibold text-primary">Profile Picture</label>
+                            <span class="text-xs text-on-surface-variant text-center sm:text-left text-gray-500">Upload a picture or use Google account photo (Max 2MB)</span>
+                            <input type="file" id="profile_pic_input" accept="image/*" class="hidden" />
+                            <button type="button" onclick="document.getElementById('profile_pic_input').click()" class="mt-1 bg-surface border border-outline-variant text-primary hover:bg-surface-variant px-md py-[6px] rounded text-xs font-bold transition-all shadow-[0px_2px_4px_rgba(0,0,0,0.02)]">
+                                Choose Image
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- Basic Details -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
                         <div class="flex flex-col gap-xs">
@@ -255,6 +305,12 @@
                             <label class="text-sm text-primary font-medium" for="email">University Email</label>
                             <input class="w-full bg-surface rounded border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all py-sm px-md text-base" id="email" name="email" placeholder="jane.doe@university.edu" type="email" required />
                         </div>
+                    </div>
+
+                    <!-- Password Field for Direct Sign-Up -->
+                    <div id="password-field-container" class="flex flex-col gap-xs">
+                        <label class="text-sm text-primary font-medium" for="password">Create Password (for Direct Email Registration)</label>
+                        <input class="w-full bg-surface rounded border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all py-sm px-md text-base" id="password" name="password" placeholder="At least 6 characters" type="password" minlength="6" />
                     </div>
 
                     <!-- Year & Branch -->
@@ -278,49 +334,49 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
                         <div class="flex flex-col gap-xs">
                             <label class="text-sm text-primary font-medium" for="subjects_strong">Strong Subjects (comma-separated)</label>
-                            <input class="w-full bg-surface rounded border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all py-sm px-md text-base" id="subjects_strong" name="subjects_strong" placeholder="Python, Data Structures" type="text" required />
+                            <input class="w-full bg-surface rounded border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all py-sm px-md text-base" id="subjects_strong" name="subjects_strong" placeholder="Data Structures, Java, Calculus" type="text" required />
                         </div>
                         <div class="flex flex-col gap-xs">
-                            <label class="text-sm text-primary font-medium" for="subjects_help">Subjects Needing Help In (comma-separated)</label>
-                            <input class="w-full bg-surface rounded border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all py-sm px-md text-base" id="subjects_help" name="subjects_help" placeholder="DBMS, Calculus III" type="text" required />
+                            <label class="text-sm text-primary font-medium" for="subjects_help">Subjects Needing Help (comma-separated)</label>
+                            <input class="w-full bg-surface rounded border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all py-sm px-md text-base" id="subjects_help" name="subjects_help" placeholder="Discrete Math, Physics, DBMS" type="text" required />
                         </div>
                     </div>
 
-                    <!-- Study Style & Goal -->
+                    <!-- Study Preferences & Goals -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
                         <div class="flex flex-col gap-xs">
                             <label class="text-sm text-primary font-medium" for="study_style">Study Style</label>
                             <select class="w-full bg-surface rounded border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all py-sm px-md text-base" id="study_style" name="study_style" required>
-                                <option value="visual">Visual (Diagrams & Flowcharts)</option>
-                                <option value="reading">Reading (Books & Summaries)</option>
-                                <option value="discussion">Discussion (Debates & Explaining)</option>
-                                <option value="practice-problems">Practice Problems (Solving tasks)</option>
+                                <option value="discussion">Discussion & Group Study</option>
+                                <option value="practice-problems">Practice Problems & Labs</option>
+                                <option value="reading">Reading & Reviewing Notes</option>
+                                <option value="visual">Visual Aids & Video Lectures</option>
                             </select>
                         </div>
                         <div class="flex flex-col gap-xs">
                             <label class="text-sm text-primary font-medium" for="goal">Study Goal</label>
                             <select class="w-full bg-surface rounded border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all py-sm px-md text-base" id="goal" name="goal" required>
-                                <option value="exam prep">Exam Preparation</option>
+                                <option value="exam prep">Exam Prep</option>
                                 <option value="concept clarity">Concept Clarity</option>
-                                <option value="project work">Project Collaboration</option>
-                                <option value="competitive exam">Competitive Exams</option>
+                                <option value="project work">Project Work</option>
+                                <option value="competitive exam">Competitive Exam Prep</option>
                             </select>
                         </div>
                     </div>
 
-                    <!-- Communication Preference -->
+                    <!-- Comm Pref -->
                     <div class="flex flex-col gap-xs">
                         <label class="text-sm text-primary font-medium" for="comm">Communication Preference</label>
                         <select class="w-full bg-surface rounded border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all py-sm px-md text-base" id="comm" name="comm" required>
-                            <option value="online">Online Only</option>
-                            <option value="in-person">In-Person Only</option>
-                            <option value="both">Both (Flexible)</option>
+                            <option value="both">Hybrid (Both Online & In-Person)</option>
+                            <option value="online">Online Only (Discord / Zoom)</option>
+                            <option value="in-person">In-Person Only (Campus Library)</option>
                         </select>
                     </div>
 
                     <!-- Availability Days -->
                     <div class="flex flex-col gap-xs">
-                        <span class="text-sm text-primary font-medium">Available Days</span>
+                        <span class="text-sm text-primary font-medium">Availability Days</span>
                         <div class="flex flex-wrap gap-sm mt-xs">
                             <label class="inline-flex items-center gap-xs bg-surface px-sm py-xs border border-outline-variant rounded hover:bg-surface-variant cursor-pointer text-sm">
                                 <input type="checkbox" name="availability" value="Monday" class="rounded border-outline-variant text-primary focus:ring-primary"> Monday
@@ -381,22 +437,143 @@
         <div class="flex flex-col md:flex-row justify-between items-center gap-md max-w-max-width mx-auto">
             <div class="flex items-center gap-sm">
                 <span class="material-symbols-outlined text-primary fill-icon">school</span>
-                <span class="font-Inter text-headline-sm font-semibold text-primary text-lg font-bold">StudyMatch AI</span>
+                <span class="font-Inter text-headline-sm font-semibold text-primary text-lg font-bold">Nexus</span>
             </div>
-            <div class="text-label-sm text-on-surface-variant text-xs">
-                © 2026 StudyMatch AI. All rights reserved.
+            <div class="text-label-sm text-on-surface-variant">
+                © 2026 Nexus. All rights reserved.
             </div>
         </div>
     </footer>
 
-    <script>
+    <script type="module">
+        import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+
+        let firebaseAuthApp;
+        try {
+            firebaseAuthApp = getApp();
+        } catch (e) {
+            const firebaseConfigAuthFallback = {
+                apiKey: "AIzaSyB57PrVE5nJYYRDheUeNRic614uNFua-8g",
+                authDomain: "nexus-29798.firebaseapp.com",
+                projectId: "nexus-29798",
+                storageBucket: "nexus-29798.firebasestorage.app",
+                messagingSenderId: "762554824740",
+                appId: "1:762554824740:web:24019b66e1d586c88dc0b1",
+                measurementId: "G-KT3C7EC4T5"
+            };
+            firebaseAuthApp = initializeApp(firebaseConfigAuthFallback);
+        }
+        const auth = getAuth(firebaseAuthApp);
+        const provider = new GoogleAuthProvider();
+
         document.addEventListener("DOMContentLoaded", () => {
             const form = document.getElementById("register-form");
             const errorBox = document.getElementById("error-box");
+            const googleBtn = document.getElementById("btn-google-signup");
+            const passwordContainer = document.getElementById("password-field-container");
 
+            let base64ProfilePic = "";
+            let isGoogleAuthenticated = false;
+            
+            const picInput = document.getElementById("profile_pic_input");
+            const avatarPreview = document.getElementById("avatar-preview");
+            const avatarPlaceholder = document.getElementById("avatar-placeholder");
+
+            picInput.addEventListener("change", (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    if (file.size > 2 * 1024 * 1024) {
+                        alert("Image size should not exceed 2MB.");
+                        picInput.value = "";
+                        return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        base64ProfilePic = event.target.result;
+                        avatarPreview.src = base64ProfilePic;
+                        avatarPreview.classList.remove("hidden");
+                        avatarPlaceholder.classList.add("hidden");
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // 1. Check if redirected from login page with temporary google/email auth profile info
+            const tempUserStr = sessionStorage.getItem("temp_auth_user");
+            if (tempUserStr) {
+                try {
+                    const tempUser = JSON.parse(tempUserStr);
+                    prefillAuthDetails(tempUser.name, tempUser.email, tempUser.profile_pic);
+                } catch (err) {
+                    console.error("Error loading cached redirect authentication info", err);
+                }
+            }
+
+            // Prefill helper
+            function prefillAuthDetails(name, email, profilePic) {
+                isGoogleAuthenticated = true;
+                
+                // Prefill basic fields
+                document.getElementById("name").value = name || "";
+                document.getElementById("email").value = email || "";
+                
+                // Hide password field since they signed in via OAuth
+                if (passwordContainer) {
+                    passwordContainer.classList.add("hidden");
+                    const passInput = passwordContainer.querySelector("input");
+                    if (passInput) passInput.removeAttribute("required");
+                }
+
+                // Show avatar
+                if (profilePic) {
+                    base64ProfilePic = profilePic;
+                    avatarPreview.src = profilePic;
+                    avatarPreview.classList.remove("hidden");
+                    avatarPlaceholder.classList.add("hidden");
+                }
+
+                // Show information message in banner
+                errorBox.innerHTML = `👋 Authenticated as <strong>${email}</strong>!<br>Please fill out your academic and study preferences below to complete your Nexus profile.`;
+                errorBox.className = "p-md text-blue-700 bg-blue-50 border border-blue-300 rounded-lg text-sm text-left mb-md";
+            }
+
+            // 2. Google sign-up handler
+            googleBtn.addEventListener("click", async () => {
+                errorBox.classList.add("hidden");
+                try {
+                    const result = await signInWithPopup(auth, provider);
+                    const user = result.user;
+                    
+                    // Verify if they already exist in database
+                    const res = await fetch("/api/students");
+                    if (res.ok) {
+                        const students = await res.json();
+                        const found = students.find(s => s.email && s.email.toLowerCase() === user.email.toLowerCase());
+                        if (found) {
+                            errorBox.innerHTML = `⚠️ Account already exists! Logging you in as <strong>${found.name}</strong>...`;
+                            errorBox.className = "p-md text-blue-700 bg-blue-50 border border-blue-300 rounded-lg text-sm text-left mb-md";
+                            
+                            localStorage.setItem("logged_in_user", JSON.stringify(found));
+                            setTimeout(() => {
+                                window.location.href = "/dashboard.html";
+                            }, 2000);
+                        } else {
+                            prefillAuthDetails(user.displayName, user.email, user.photoURL);
+                        }
+                    }
+                } catch (err) {
+                    console.error("Google Signup popup failed", err);
+                    errorBox.textContent = `⚠️ Google authentication failed: ${err.message}`;
+                    errorBox.className = "p-md text-red-700 bg-red-50 border border-red-300 rounded-lg text-sm text-left mb-md";
+                }
+            });
+
+            // 3. Submit Profile Form
             form.addEventListener("submit", async (e) => {
                 e.preventDefault();
                 errorBox.classList.add("hidden");
+                errorBox.className = "p-md text-red-700 bg-red-50 border border-red-300 rounded-lg text-sm text-left mb-md";
 
                 // Collect checkbox lists
                 const availability = Array.from(document.querySelectorAll("input[name='availability']:checked")).map(el => el.value);
@@ -416,6 +593,31 @@
                     return;
                 }
 
+                const name = document.getElementById("name").value.trim();
+                const email = document.getElementById("email").value.trim();
+                const passwordInput = document.getElementById("password");
+                const password = passwordInput ? passwordInput.value : "";
+
+                // If not signed in via Google, register in Firebase using Email & Password first
+                if (!isGoogleAuthenticated) {
+                    if (!password || password.length < 6) {
+                        errorBox.textContent = "⚠️ Please create a password of at least 6 characters for direct registration.";
+                        errorBox.classList.remove("hidden");
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        return;
+                    }
+                    try {
+                        // Create user in Firebase Auth
+                        await createUserWithEmailAndPassword(auth, email, password);
+                    } catch (err) {
+                        console.error("Firebase Auth creation error", err);
+                        errorBox.textContent = `⚠️ Authentication setup failed: ${err.message}`;
+                        errorBox.classList.remove("hidden");
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        return;
+                    }
+                }
+
                 // Split commas
                 const strongVal = document.getElementById("subjects_strong").value;
                 const helpVal = document.getElementById("subjects_help").value;
@@ -424,8 +626,8 @@
 
                 // Build registration JSON payload
                 const payload = {
-                    name: document.getElementById("name").value.trim(),
-                    email: document.getElementById("email").value.trim(),
+                    name,
+                    email,
                     year: document.getElementById("year").value,
                     branch: document.getElementById("branch").value.trim(),
                     subjects_strong_in,
@@ -434,7 +636,8 @@
                     preferred_study_time: study_times,
                     availability_days: availability,
                     goal: document.getElementById("goal").value,
-                    communication_preference: document.getElementById("comm").value
+                    communication_preference: document.getElementById("comm").value,
+                    profile_pic: base64ProfilePic
                 };
 
                 try {
@@ -449,6 +652,7 @@
                     if (res.ok) {
                         const savedStudent = await res.json();
                         localStorage.setItem("logged_in_user", JSON.stringify(savedStudent));
+                        sessionStorage.removeItem("temp_auth_user");
                         window.location.href = "/dashboard.html";
                     } else {
                         const errorData = await res.json();

@@ -1,0 +1,22 @@
+[
+    {
+        "ticket_id": "TCK001",
+        "student_id": "STU001",
+        "student_name": "Aarav Sharma",
+        "subject": "Discrete Mathematics",
+        "topic": "Probability Generating Functions",
+        "description": "Struggling with resolving recurrence relations using generating functions. Looking for a study partner to solve problems from Chapter 5.",
+        "status": "open",
+        "created_at": "2026-06-09T18:00:00Z"
+    },
+    {
+        "ticket_id": "TCK002",
+        "student_id": "STU002",
+        "student_name": "Priya Patel",
+        "subject": "Physics",
+        "topic": "Electromagnetic Induction",
+        "description": "Need conceptual clarity on Faraday's Laws and Lenz's Law problems. Let's do a joint study session before the midterm.",
+        "status": "open",
+        "created_at": "2026-06-09T19:30:00Z"
+    }
+]

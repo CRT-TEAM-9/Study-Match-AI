@@ -89,6 +89,8 @@ htmlcov/
 .Trashes
 ehthumbs.db
 Thumbs.db
+PRD.txt
+TRD.txt
 
 # Project Legacy configurations (Unused since Streamlit was removed)
 .streamlit/

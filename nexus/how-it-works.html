@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How it Works - Nexus</title>
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+    <!-- Offline Connection Status Handler -->
+    <script src="/offline-handler.js" defer></script>
+    <!-- Firebase SDK Integration -->
+    <script src="/firebase-config.js"></script>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
+      const app = initializeApp(window.firebaseConfig);
+      const analytics = getAnalytics(app);
+    </script>
+    <!-- Load Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Load Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <script>
+        // Inline theme manager to prevent white flash
+        function applyTheme() {
+            const theme = localStorage.getItem("theme") || "system";
+            let isDark = false;
+            let themeLabel = "";
+            let themeIcon = "desktop_windows";
+            
+            if (theme === "dark") {
+                isDark = true;
+                themeLabel = "Dark";
+                themeIcon = "dark_mode";
+            } else if (theme === "light") {
+                isDark = false;
+                themeLabel = "Light";
+                themeIcon = "light_mode";
+            } else {
+                isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+                themeLabel = "System (" + (isDark ? "Dark" : "Light") + ")";
+                themeIcon = "desktop_windows";
+            }
+            
+            if (isDark) {
+                document.documentElement.classList.add("dark");
+            } else {
+                document.documentElement.classList.remove("dark");
+            }
+            
+            const updateUI = () => {
+                const icon = document.getElementById("theme-icon");
+                const text = document.getElementById("theme-text");
+                if (icon) icon.textContent = themeIcon;
+                if (text) text.textContent = themeLabel;
+            };
+            
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", updateUI);
+            } else {
+                updateUI();
+            }
+        }
+        function toggleTheme() {
+            const theme = localStorage.getItem("theme") || "system";
+            let nextTheme = "light";
+            if (theme === "system") {
+                nextTheme = "light";
+            } else if (theme === "light") {
+                nextTheme = "dark";
+            } else if (theme === "dark") {
+                nextTheme = "system";
+            }
+            localStorage.setItem("theme", nextTheme);
+            applyTheme();
+        }
+        
+        // Listen for system theme changes
+        window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+            if ((localStorage.getItem("theme") || "system") === "system") {
+                applyTheme();
+            }
+        });
+        
+        applyTheme();
+    </script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "var(--color-primary)",
+                        "secondary": "var(--color-secondary)",
+                        "tertiary": "var(--color-tertiary)",
+                        "surface": "var(--color-surface)",
+                        "background": "var(--color-background)",
+                        "outline-variant": "var(--color-outline-variant)",
+                        "on-surface-variant": "var(--color-on-surface-variant)",
+                        "surface-container-high": "var(--color-surface-container-high)",
+                        "surface-container-low": "var(--color-surface-container-low)",
+                        "surface-container-lowest": "var(--color-surface-container-lowest)",
+                        "surface-container-highest": "var(--color-surface-container-highest)",
+                        "surface-variant": "var(--color-surface-variant)",
+                        "surface-bright": "var(--color-surface-bright)",
+                        "on-primary": "var(--color-on-primary)",
+                        "on-secondary": "var(--color-on-secondary)",
+                        "primary-fixed": "var(--color-primary-fixed)",
+                        "on-primary-fixed": "var(--color-on-primary-fixed)"
+                    },
+                    spacing: {
+                        "xs": "4px",
+                        "sm": "8px",
+                        "md": "16px",
+                        "lg": "24px",
+                        "xl": "32px",
+                        "max-width": "1280px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "40px",
+                        "gutter": "20px"
+                    },
+                    fontFamily: {
+                        "Inter": ["Inter", "sans-serif"],
+                        "Geist": ["Geist", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* CSS custom properties for Light/Dark themes */
+        :root {
+            --color-primary: #000a1e;
+            --color-secondary: #006c49;
+            --color-tertiary: #000a22;
+            --color-surface: #f8f9ff;
+            --color-background: #f8f9ff;
+            --color-outline-variant: #c4c6cf;
+            --color-on-surface-variant: #44474e;
+            --color-surface-container-high: #dce9ff;
+            --color-surface-container-low: #eff4ff;
+            --color-surface-container-lowest: #ffffff;
+            --color-surface-container-highest: #d3e4fe;
+            --color-surface-variant: #d3e4fe;
+            --color-surface-bright: #f8f9ff;
+            --color-on-primary: #ffffff;
+            --color-on-secondary: #ffffff;
+            --color-primary-fixed: #d6e3ff;
+            --color-on-primary-fixed: #001b3d;
+        }
+        :root.dark {
+            --color-primary: #aec7f6;
+            --color-secondary: #4edea3;
+            --color-tertiary: #adc6ff;
+            --color-surface: #0b1c30;
+            --color-background: #000a1e;
+            --color-outline-variant: #44474e;
+            --color-on-surface-variant: #c4c6cf;
+            --color-surface-container-high: #213145;
+            --color-surface-container-low: #0f233a;
+            --color-surface-container-lowest: #071324;
+            --color-surface-container-highest: #2d476f;
+            --color-surface-variant: #2d476f;
+            --color-surface-bright: #0f233a;
+            --color-on-primary: #071324;
+            --color-on-secondary: #002113;
+            --color-primary-fixed: #002147;
+            --color-on-primary-fixed: #d6e3ff;
+        }
+        /* Contrast overrides for dark mode standard text */
+        .dark .text-gray-800 { color: #f8f9ff !important; }
+        .dark .text-gray-700 { color: #eff4ff !important; }
+        .dark .text-gray-600 { color: #c4c6cf !important; }
+        .dark .text-gray-500 { color: #9aa0a6 !important; }
+        
+        .fill-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+        .bg-grid-pattern {
+            background-image: linear-gradient(to right, #E2E8F0 1px, transparent 1px), 
+                              linear-gradient(to bottom, #E2E8F0 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        .dark .bg-grid-pattern {
+            background-image: linear-gradient(to right, #1a2e4c 1px, transparent 1px), 
+                              linear-gradient(to bottom, #1a2e4c 1px, transparent 1px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-Inter transition-colors duration-200">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-surface sticky top-0 z-50 border-b border-outline-variant w-full h-16 flex justify-between items-center px-margin-mobile md:px-margin-desktop">
+        <div class="flex items-center gap-lg">
+            <a class="font-Inter text-headline-md font-bold text-primary flex items-center gap-sm text-2xl" href="/index.html">
+                <span class="material-symbols-outlined text-secondary fill-icon text-[28px]">school</span>
+                Nexus
+            </a>
+        </div>
+        <div class="flex items-center gap-md">
+            <button onclick="toggleTheme()" class="h-10 px-3 rounded-full bg-surface-variant hover:bg-outline-variant/30 flex items-center gap-2 text-primary transition-colors border border-outline-variant/30" title="Toggle Theme (System / Light / Dark)">
+                <span class="material-symbols-outlined text-[20px]" id="theme-icon">desktop_windows</span>
+                <span class="text-xs font-semibold" id="theme-text">System</span>
+            </button>
+            <a href="/login.html" class="text-primary font-label-md text-label-md px-md py-sm hover:bg-surface-variant rounded transition-colors hidden sm:block flex items-center justify-center font-bold">Sign In</a>
+            <a href="/register.html" class="bg-primary text-on-primary font-label-md text-label-md px-md py-sm rounded hover:opacity-90 transition-all shadow-[0px_4px_12px_rgba(0,33,71,0.05)] flex items-center justify-center font-bold">Get Started</a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+        <!-- Hero Section -->
+        <section class="relative pt-xl pb-16 md:pt-24 md:pb-28 overflow-hidden bg-grid-pattern w-full border-b border-outline-variant">
+            <!-- Math & Science Canvas Animation Background -->
+            <canvas id="math-bg-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-0"></canvas>
+            <div class="max-w-max-width mx-auto px-margin-mobile md:px-margin-desktop relative z-10 text-center">
+                <h1 class="font-display-lg text-headline-lg-mobile md:text-5xl text-primary font-bold tracking-tight">
+                    How Nexus Works
+                </h1>
+                <p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto mt-md">
+                    We've replaced random study groups and arbitrary pairings with a weighted compatibility algorithm driven by natural conversation. Here is how we connect you with optimal study peers.
+                </p>
+            </div>
+        </section>
+
+        <!-- Steps Timeline / Grid -->
+        <section class="py-xl md:py-24 bg-background w-full">
+            <div class="max-w-max-width mx-auto px-margin-mobile md:px-margin-desktop">
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-lg relative">
+                    
+                    <!-- Step 1 Card -->
+                    <div class="bg-surface-bright border border-outline-variant p-lg rounded-xl shadow-[0px_4px_16px_rgba(0,0,0,0.01)] hover:shadow-[0px_8px_24px_rgba(0,33,71,0.03)] transition-all flex flex-col items-start gap-md relative">
+                        <div class="absolute -top-4 -left-2 bg-secondary text-white font-bold w-8 h-8 rounded-full flex items-center justify-center text-sm shadow-md">1</div>
+                        <div class="w-12 h-12 bg-surface-container-high rounded flex items-center justify-center text-primary mt-sm">
+                            <span class="material-symbols-outlined text-[24px]">forum</span>
+                        </div>
+                        <h2 class="text-xl font-bold text-primary">Conversational Setup</h2>
+                        <p class="text-sm text-on-surface-variant text-gray-600 leading-relaxed">
+                            No lengthy forms. You simply converse with our Groq-powered AI assistant, which naturally prompts you for your major, study style, active availability days, and academic goals.
+                        </p>
+                        <span class="text-xs font-semibold px-2 py-0.5 bg-surface-container-high text-primary rounded border border-outline-variant/30 mt-auto">Groq LLM Engine</span>
+                    </div>
+
+                    <!-- Step 2 Card -->
+                    <div class="bg-surface-bright border border-outline-variant p-lg rounded-xl shadow-[0px_4px_16px_rgba(0,0,0,0.01)] hover:shadow-[0px_8px_24px_rgba(0,33,71,0.03)] transition-all flex flex-col items-start gap-md relative">
+                        <div class="absolute -top-4 -left-2 bg-secondary text-white font-bold w-8 h-8 rounded-full flex items-center justify-center text-sm shadow-md">2</div>
+                        <div class="w-12 h-12 bg-surface-container-high rounded flex items-center justify-center text-secondary mt-sm">
+                            <span class="material-symbols-outlined text-[24px]">rule</span>
+                        </div>
+                        <h2 class="text-xl font-bold text-primary">Intelligent Weighting</h2>
+                        <p class="text-sm text-on-surface-variant text-gray-600 leading-relaxed">
+                            Our matching engine evaluates compatibility using strict criteria:
+                            <ul class="text-xs text-on-surface-variant text-gray-500 mt-2 list-disc list-inside space-y-1">
+                                <li><strong>Complementary Strengths (40%):</strong> Pairing weak subjects with others' strong ones.</li>
+                                <li><strong>Schedule Overlap (30%):</strong> Aligning days & times.</li>
+                                <li><strong>Style & Goal (15% each):</strong> Overlapping learning styles and targets.</li>
+                            </ul>
+                        </p>
+                        <span class="text-xs font-semibold px-2 py-0.5 bg-surface-container-high text-primary rounded border border-outline-variant/30 mt-auto">Deterministic Algorithm</span>
+                    </div>
+
+                    <!-- Step 3 Card -->
+                    <div class="bg-surface-bright border border-outline-variant p-lg rounded-xl shadow-[0px_4px_16px_rgba(0,0,0,0.01)] hover:shadow-[0px_8px_24px_rgba(0,33,71,0.03)] transition-all flex flex-col items-start gap-md relative">
+                        <div class="absolute -top-4 -left-2 bg-secondary text-white font-bold w-8 h-8 rounded-full flex items-center justify-center text-sm shadow-md">3</div>
+                        <div class="w-12 h-12 bg-surface-container-high rounded flex items-center justify-center text-primary mt-sm">
+                            <span class="material-symbols-outlined text-[24px]">explore</span>
+                        </div>
+                        <h2 class="text-xl font-bold text-primary">Interactive Matches</h2>
+                        <p class="text-sm text-on-surface-variant text-gray-600 leading-relaxed">
+                            Once matches are computed, you receive ranked, bento-style match recommendations complete with AI-generated justifications explaining exactly why you align with each peer.
+                        </p>
+                        <span class="text-xs font-semibold px-2 py-0.5 bg-surface-container-high text-primary rounded border border-outline-variant/30 mt-auto">Bento Cards View</span>
+                    </div>
+
+                    <!-- Step 4 Card -->
+                    <div class="bg-surface-bright border border-outline-variant p-lg rounded-xl shadow-[0px_4px_16px_rgba(0,0,0,0.01)] hover:shadow-[0px_8px_24px_rgba(0,33,71,0.03)] transition-all flex flex-col items-start gap-md relative">
+                        <div class="absolute -top-4 -left-2 bg-secondary text-white font-bold w-8 h-8 rounded-full flex items-center justify-center text-sm shadow-md">4</div>
+                        <div class="w-12 h-12 bg-surface-container-high rounded flex items-center justify-center text-secondary mt-sm">
+                            <span class="material-symbols-outlined text-[24px]">diversity_3</span>
+                        </div>
+                        <h2 class="text-xl font-bold text-primary">Automated Groups</h2>
+                        <p class="text-sm text-on-surface-variant text-gray-600 leading-relaxed">
+                            If three or more students exhibit high mutual compatibility across all parameters, the engine automatically suggests optimal Study Groups and summarizes their shared characteristics.
+                        </p>
+                        <span class="text-xs font-semibold px-2 py-0.5 bg-surface-container-high text-primary rounded border border-outline-variant/30 mt-auto">Multi-Peer Aggregator</span>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Dynamic Matching Demo Section / Formula Breakdown -->
+        <section class="py-xl bg-surface-container-low border-t border-b border-outline-variant w-full">
+            <div class="max-w-4xl mx-auto px-margin-mobile md:px-margin-desktop text-center">
+                <h2 class="text-3xl font-bold text-primary mb-sm">The Matching Equation</h2>
+                <p class="text-sm text-on-surface-variant text-gray-600 max-w-xl mx-auto mb-lg">
+                    We use a strict weighted formula to prevent random or low-value connections. Every single match is given an overall compatibility score.
+                </p>
+                <div class="bg-surface-bright border border-outline-variant p-lg rounded-xl shadow-md text-left flex flex-col gap-md">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-outline-variant/30 pb-xs mb-sm">
+                        <span class="font-bold text-lg text-primary">Compatibility Score Formula</span>
+                        <code class="text-xs bg-surface-container-high text-primary px-2 py-1 rounded border border-outline-variant/30 font-semibold font-mono">Score = (C_s × 0.40) + (O_t × 0.30) + (S_l × 0.15) + (G_y × 0.15)</code>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-md text-sm">
+                        <div class="flex items-start gap-sm">
+                            <span class="material-symbols-outlined text-secondary text-[20px]">menu_book</span>
+                            <div>
+                                <h4 class="font-bold text-primary">Complementary Strengths (C_s - 40%)</h4>
+                                <p class="text-xs text-on-surface-variant text-gray-500 mt-[2px]">Evaluates whether subject difficulties in one student align with subject mastery in another.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-sm">
+                            <span class="material-symbols-outlined text-secondary text-[20px]">calendar_today</span>
+                            <div>
+                                <h4 class="font-bold text-primary">Schedule overlap (O_t - 30%)</h4>
+                                <p class="text-xs text-on-surface-variant text-gray-500 mt-[2px]">Aggregates overlapping days (Mon-Sun) and preferred times (Morning, Afternoon, Evening, Night).</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-sm">
+                            <span class="material-symbols-outlined text-secondary text-[20px]">psychology</span>
+                            <div>
+                                <h4 class="font-bold text-primary">Study Style (S_l - 15%)</h4>
+                                <p class="text-xs text-on-surface-variant text-gray-500 mt-[2px]">Checks learning style compatibility (e.g. visual lectures, review notes, practice problems).</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-sm">
+                            <span class="material-symbols-outlined text-secondary text-[20px]">flag</span>
+                            <div>
+                                <h4 class="font-bold text-primary">Shared Goal (G_y - 15%)</h4>
+                                <p class="text-xs text-on-surface-variant text-gray-500 mt-[2px]">Overlapping milestones: competitive exams, test prep, concept review, or project work.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="py-xl bg-surface-container-high w-full">
+            <div class="max-w-max-width mx-auto px-margin-mobile md:px-margin-desktop text-center flex flex-col items-center gap-md">
+                <h2 class="text-3xl font-bold text-primary">Find Your Optimal Study Peer Today</h2>
+                <p class="text-sm text-on-surface-variant max-w-xl text-gray-600">Connect with classmates at your university using our matchmaking system.</p>
+                <div class="flex gap-md mt-sm">
+                    <a href="/register.html" class="bg-primary text-on-primary font-bold px-xl py-md rounded hover:bg-primary/90 transition-colors shadow-md text-sm">Register My Profile</a>
+                    <a href="/login.html" class="bg-transparent border border-primary text-primary font-bold px-xl py-md rounded hover:bg-surface-variant transition-colors text-sm">Sign In</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-surface-container-low border-t border-outline-variant py-lg px-margin-mobile md:px-margin-desktop mt-auto">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-md max-w-max-width mx-auto">
+            <div class="flex items-center gap-sm">
+                <span class="material-symbols-outlined text-primary fill-icon">school</span>
+                <span class="font-Inter text-headline-sm font-semibold text-primary">Nexus</span>
+            </div>
+            <div class="text-label-sm text-on-surface-variant">
+                © 2026 Nexus. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Math & Science Equations Animation Script -->
+    <script>
+        (function() {
+            const canvas = document.getElementById('math-bg-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            
+            let width = 0;
+            let height = 0;
+            
+            function resize() {
+                if (canvas.parentElement) {
+                    width = canvas.parentElement.clientWidth || window.innerWidth;
+                    height = canvas.parentElement.clientHeight || 400;
+                } else {
+                    width = window.innerWidth;
+                    height = window.innerHeight;
+                }
+                canvas.width = width;
+                canvas.height = height;
+            }
+            
+            resize();
+            window.addEventListener('load', resize);
+            window.addEventListener('resize', resize);
+            document.addEventListener('DOMContentLoaded', resize);
+            
+            const formulas = [
+                "E = mc²", "a² + b² = c²", "∇ × E = -∂B/∂t", "iℏ(∂/∂t)Ψ = ĤΨ",
+                "e^(iπ) + 1 = 0", "F = ma", "PV = nRT", "Δx · Δp ≥ ℏ/2",
+                "∫ f(x)dx", "sin²θ + cos²θ = 1", "ζ(s) = ∑ n⁻ˢ", "λ = h/p",
+                "F = G(m₁m₂)/r²", "pH = -log[H⁺]", "K_e = ½mv²", "lim(x→∞)",
+                "C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O", "H₂O", "NaCl", "CO₂"
+            ];
+            
+            const particles = [];
+            const particleCount = 20; // Subtle count for hero sub-header
+            
+            let mouse = { x: -1000, y: -1000 };
+            
+            window.addEventListener('mousemove', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                mouse.x = e.clientX - rect.left;
+                mouse.y = e.clientY - rect.top;
+            });
+            
+            window.addEventListener('mouseleave', () => {
+                mouse.x = -1000;
+                mouse.y = -1000;
+            });
+            
+            class Particle {
+                constructor() {
+                    this.reset(true);
+                }
+                
+                reset(initial = false) {
+                    this.x = Math.random() * width;
+                    this.y = initial ? Math.random() * height : (Math.random() * 50 + height);
+                    this.text = formulas[Math.floor(Math.random() * formulas.length)];
+                    this.fontSize = Math.floor(Math.random() * 6) + 12; // 12px to 18px
+                    this.speedX = (Math.random() - 0.5) * 0.25;
+                    this.speedY = -(Math.random() * 0.35 + 0.1); // Float upwards
+                    this.opacity = 0;
+                    this.maxOpacity = Math.random() * 0.15 + 0.05;
+                    this.fadeInSpeed = 0.004;
+                    this.fadeOutThreshold = height * 0.25;
+                    this.rotation = (Math.random() - 0.5) * 0.25;
+                    this.rotationSpeed = (Math.random() - 0.5) * 0.001;
+                }
+                
+                update() {
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+                    this.rotation += this.rotationSpeed;
+                    
+                    // Gentle mouse repelling
+                    const dx = this.x - mouse.x;
+                    const dy = this.y - mouse.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 150) {
+                        const force = (150 - dist) / 150;
+                        this.x += (dx / dist) * force * 1.5;
+                        this.y += (dy / dist) * force * 1.5;
+                    }
+                    
+                    // Fade in
+                    if (this.opacity < this.maxOpacity && this.y > this.fadeOutThreshold) {
+                        this.opacity += this.fadeInSpeed;
+                    }
+                    
+                    // Fade out near the top
+                    if (this.y < this.fadeOutThreshold) {
+                        this.opacity -= 0.005;
+                    }
+                    
+                    // Reset if out of bounds or completely faded out
+                    if (this.y < -30 || this.x < -150 || this.x > width + 150 || (this.y < this.fadeOutThreshold && this.opacity <= 0)) {
+                        this.reset();
+                    }
+                }
+                
+                draw() {
+                    ctx.save();
+                    ctx.translate(this.x, this.y);
+                    ctx.rotate(this.rotation);
+                    
+                    const isDark = document.documentElement.classList.contains('dark');
+                    const color = isDark ? `rgba(255, 255, 255, ${this.opacity})` : `rgba(0, 0, 0, ${this.opacity})`;
+                    
+                    ctx.fillStyle = color;
+                    ctx.font = `${this.fontSize}px 'Geist', 'Courier New', monospace`;
+                    ctx.fillText(this.text, 0, 0);
+                    ctx.restore();
+                }
+            }
+            
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+            
+            function animate() {
+                ctx.clearRect(0, 0, width, height);
+                
+                particles.forEach(p => {
+                    p.update();
+                    p.draw();
+                });
+                
+                requestAnimationFrame(animate);
+            }
+            
+            animate();
+        })();
+    </script>
+</body>
+</html>

@@ -3,9 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudyMatch AI - Find Your Perfect Study Peer</title>
+    <title>Nexus - Find Your Perfect Study Peer</title>
     <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+    <!-- Offline Connection Status Handler -->
+    <script src="/offline-handler.js" defer></script>
+    <!-- Firebase SDK Integration -->
+    <script src="/firebase-config.js"></script>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
+      const app = initializeApp(window.firebaseConfig);
+      const analytics = getAnalytics(app);
+    </script>
     <!-- Load Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <!-- Load Fonts & Icons -->
@@ -187,7 +197,7 @@
         <div class="flex items-center gap-lg">
             <a class="font-Inter text-headline-md font-bold text-primary flex items-center gap-sm" href="#">
                 <span class="material-symbols-outlined text-secondary fill-icon text-[28px]">school</span>
-                StudyMatch AI
+                Nexus
             </a>
         </div>
         <div class="flex items-center gap-md">
@@ -204,7 +214,9 @@
     <main class="flex-grow">
         <!-- Hero Section -->
         <section class="relative pt-xl pb-24 md:pt-32 md:pb-40 overflow-hidden bg-grid-pattern w-full">
-            <div class="max-w-max-width mx-auto px-margin-mobile md:px-margin-desktop">
+            <!-- Math & Science Canvas Animation Background -->
+            <canvas id="math-bg-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-0"></canvas>
+            <div class="max-w-max-width mx-auto px-margin-mobile md:px-margin-desktop relative z-10">
                 <div class="grid md:grid-cols-2 gap-xl items-center">
                     <div class="flex flex-col items-start gap-lg">
                         <div class="inline-flex items-center gap-sm px-sm py-xs bg-surface-container-high rounded-full border border-outline-variant">
@@ -222,13 +234,13 @@
                                 Find Your Match
                                 <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
                             </a>
-                            <a href="/register.html" class="bg-transparent border border-primary text-primary font-label-md text-label-md px-xl py-md rounded hover:bg-surface-variant transition-colors flex items-center justify-center font-bold">
+                            <a href="/how-it-works.html" class="bg-transparent border border-primary text-primary font-label-md text-label-md px-xl py-md rounded hover:bg-surface-variant transition-colors flex items-center justify-center font-bold">
                                 How it Works
                             </a>
                         </div>
                     </div>
                     <div class="relative w-full aspect-square md:aspect-[4/3] rounded-xl overflow-hidden border border-outline-variant bg-surface shadow-[0px_12px_32px_rgba(0,0,0,0.05)]">
-                        <img alt="StudyMatch AI Illustration" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBZONl9Pnc2rAVoXq_UNWoqaMSNu3LcjIR2kE9MKcwjtRUQvrKeVT-rNYO3cWYqwejPGgnrrxsjpAtTN7KbFLSSfbU6vm8Za95SxdFhhW4R2BUW40CCafbxoAfQFYq2Uv38G2X67tJpGqIW47E69DOWHLh7uMPbladUalVvUBjW1gQYa59ZTh4OPOLPFcY0GslCW9zkB1yWzCPzKZ2azCLP4Bg8FgLAyCwUM8hBeTHGTaForUYq4M2mt8CmmSgrO5Diecz84rHSYuM"/>
+                        <img alt="Nexus Illustration" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBZONl9Pnc2rAVoXq_UNWoqaMSNu3LcjIR2kE9MKcwjtRUQvrKeVT-rNYO3cWYqwejPGgnrrxsjpAtTN7KbFLSSfbU6vm8Za95SxdFhhW4R2BUW40CCafbxoAfQFYq2Uv38G2X67tJpGqIW47E69DOWHLh7uMPbladUalVvUBjW1gQYa59ZTh4OPOLPFcY0GslCW9zkB1yWzCPzKZ2azCLP4Bg8FgLAyCwUM8hBeTHGTaForUYq4M2mt8CmmSgrO5Diecz84rHSYuM"/>
                     </div>
                 </div>
             </div>
@@ -301,7 +313,7 @@
             <div class="max-w-max-width mx-auto px-margin-mobile md:px-margin-desktop text-center flex flex-col items-center gap-md">
                 <h2 class="font-headline-lg text-primary font-semibold text-3xl">Join 1,200+ students already matching</h2>
                 <p class="font-body-md text-on-surface-variant max-w-xl">Create your profile in minutes. Connect with a study peer today and improve your learning outcomes.</p>
-                <a href="/?page=register" target="_self" class="bg-primary text-on-primary font-label-md text-label-md px-xl py-md rounded hover:bg-primary-container transition-colors shadow-md font-bold mt-sm">Get Started Now</a>
+                <a href="/register.html" class="bg-primary text-on-primary font-label-md text-label-md px-xl py-md rounded hover:bg-primary-container transition-colors shadow-md font-bold mt-sm">Get Started Now</a>
             </div>
         </section>
     </main>
@@ -311,12 +323,150 @@
         <div class="flex flex-col md:flex-row justify-between items-center gap-md max-w-max-width mx-auto">
             <div class="flex items-center gap-sm">
                 <span class="material-symbols-outlined text-primary fill-icon">school</span>
-                <span class="font-Inter text-headline-sm font-semibold text-primary">StudyMatch AI</span>
+                <span class="font-Inter text-headline-sm font-semibold text-primary">Nexus</span>
             </div>
             <div class="text-label-sm text-on-surface-variant">
-                © 2026 StudyMatch AI. All rights reserved.
+                © 2026 Nexus. All rights reserved.
             </div>
         </div>
     </footer>
+
+    <!-- Math & Science Equations Animation Script -->
+    <script>
+        (function() {
+            const canvas = document.getElementById('math-bg-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            
+            let width = 0;
+            let height = 0;
+            
+            function resize() {
+                if (canvas.parentElement) {
+                    width = canvas.parentElement.clientWidth || window.innerWidth;
+                    height = canvas.parentElement.clientHeight || 600;
+                } else {
+                    width = window.innerWidth;
+                    height = window.innerHeight;
+                }
+                canvas.width = width;
+                canvas.height = height;
+            }
+            
+            // Run immediately and on layout events
+            resize();
+            window.addEventListener('load', resize);
+            window.addEventListener('resize', resize);
+            document.addEventListener('DOMContentLoaded', resize);
+            
+            const formulas = [
+                "E = mc²", "a² + b² = c²", "∇ × E = -∂B/∂t", "iℏ(∂/∂t)Ψ = ĤΨ",
+                "e^(iπ) + 1 = 0", "F = ma", "PV = nRT", "Δx · Δp ≥ ℏ/2",
+                "∫ f(x)dx", "sin²θ + cos²θ = 1", "ζ(s) = ∑ n⁻ˢ", "λ = h/p",
+                "F = G(m₁m₂)/r²", "pH = -log[H⁺]", "K_e = ½mv²", "lim(x→∞)",
+                "C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O", "H₂O", "NaCl", "CO₂"
+            ];
+            
+            const particles = [];
+            const particleCount = 75; // Increased density count
+            
+            let mouse = { x: -1000, y: -1000 };
+            
+            window.addEventListener('mousemove', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                mouse.x = e.clientX - rect.left;
+                mouse.y = e.clientY - rect.top;
+            });
+            
+            window.addEventListener('mouseleave', () => {
+                mouse.x = -1000;
+                mouse.y = -1000;
+            });
+            
+            class Particle {
+                constructor() {
+                    this.reset(true);
+                }
+                
+                reset(initial = false) {
+                    this.x = Math.random() * width;
+                    this.y = initial ? Math.random() * height : (Math.random() * 50 + height);
+                    this.text = formulas[Math.floor(Math.random() * formulas.length)];
+                    this.fontSize = Math.floor(Math.random() * 8) + 13; // 13px to 21px
+                    this.speedX = (Math.random() - 0.5) * 0.3;
+                    this.speedY = -(Math.random() * 0.4 + 0.15); // Float upwards
+                    this.opacity = 0;
+                    this.maxOpacity = Math.random() * 0.20 + 0.08; // Increased opacity for a denser visual appearance
+                    this.fadeInSpeed = 0.005;
+                    this.fadeOutThreshold = height * 0.25; // Fade out in top 25%
+                    this.rotation = (Math.random() - 0.5) * 0.3;
+                    this.rotationSpeed = (Math.random() - 0.5) * 0.0015;
+                }
+                
+                update() {
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+                    this.rotation += this.rotationSpeed;
+                    
+                    // Gentle mouse repelling
+                    const dx = this.x - mouse.x;
+                    const dy = this.y - mouse.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 180) {
+                        const force = (180 - dist) / 180;
+                        this.x += (dx / dist) * force * 1.8;
+                        this.y += (dy / dist) * force * 1.8;
+                    }
+                    
+                    // Fade in
+                    if (this.opacity < this.maxOpacity && this.y > this.fadeOutThreshold) {
+                        this.opacity += this.fadeInSpeed;
+                    }
+                    
+                    // Fade out near the top
+                    if (this.y < this.fadeOutThreshold) {
+                        this.opacity -= 0.006;
+                    }
+                    
+                    // Reset if out of bounds or completely faded out
+                    if (this.y < -30 || this.x < -150 || this.x > width + 150 || (this.y < this.fadeOutThreshold && this.opacity <= 0)) {
+                        this.reset();
+                    }
+                }
+                
+                draw() {
+                    ctx.save();
+                    ctx.translate(this.x, this.y);
+                    ctx.rotate(this.rotation);
+                    
+                    // Detect theme color dynamically
+                    const isDark = document.documentElement.classList.contains('dark');
+                    const color = isDark ? `rgba(255, 255, 255, ${this.opacity})` : `rgba(0, 0, 0, ${this.opacity})`;
+                    
+                    ctx.fillStyle = color;
+                    ctx.font = `${this.fontSize}px 'Geist', 'Courier New', monospace`;
+                    ctx.fillText(this.text, 0, 0);
+                    ctx.restore();
+                }
+            }
+            
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+            
+            function animate() {
+                ctx.clearRect(0, 0, width, height);
+                
+                particles.forEach(p => {
+                    p.update();
+                    p.draw();
+                });
+                
+                requestAnimationFrame(animate);
+            }
+            
+            animate();
+        })();
+    </script>
 </body>
 </html>

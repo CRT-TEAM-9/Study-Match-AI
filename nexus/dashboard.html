@@ -1,0 +1,1531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Directory - Nexus</title>
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+    <!-- Offline Connection Status Handler -->
+    <script src="/offline-handler.js" defer></script>
+    <!-- Firebase SDK Integration -->
+    <script src="/firebase-config.js"></script>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
+      const app = initializeApp(window.firebaseConfig);
+      const analytics = getAnalytics(app);
+    </script>
+    <!-- Load Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Load Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <script>
+        // Inline theme manager to prevent white flash
+        function applyTheme() {
+            const theme = localStorage.getItem("theme") || "system";
+            let isDark = false;
+            let themeLabel = "";
+            let themeIcon = "desktop_windows";
+            
+            if (theme === "dark") {
+                isDark = true;
+                themeLabel = "Dark";
+                themeIcon = "dark_mode";
+            } else if (theme === "light") {
+                isDark = false;
+                themeLabel = "Light";
+                themeIcon = "light_mode";
+            } else {
+                isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+                themeLabel = "System (" + (isDark ? "Dark" : "Light") + ")";
+                themeIcon = "desktop_windows";
+            }
+            
+            if (isDark) {
+                document.documentElement.classList.add("dark");
+            } else {
+                document.documentElement.classList.remove("dark");
+            }
+            
+            const updateUI = () => {
+                const icon = document.getElementById("theme-icon");
+                const text = document.getElementById("theme-text");
+                if (icon) icon.textContent = themeIcon;
+                if (text) text.textContent = themeLabel;
+            };
+            
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", updateUI);
+            } else {
+                updateUI();
+            }
+        }
+        function toggleTheme() {
+            const theme = localStorage.getItem("theme") || "system";
+            let nextTheme = "light";
+            if (theme === "system") {
+                nextTheme = "light";
+            } else if (theme === "light") {
+                nextTheme = "dark";
+            } else if (theme === "dark") {
+                nextTheme = "system";
+            }
+            localStorage.setItem("theme", nextTheme);
+            applyTheme();
+        }
+        
+        // Listen for system theme changes
+        window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+            if ((localStorage.getItem("theme") || "system") === "system") {
+                applyTheme();
+            }
+        });
+        
+        applyTheme();
+    </script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "var(--color-primary)",
+                        "secondary": "var(--color-secondary)",
+                        "tertiary": "var(--color-tertiary)",
+                        "surface": "var(--color-surface)",
+                        "background": "var(--color-background)",
+                        "outline-variant": "var(--color-outline-variant)",
+                        "on-surface-variant": "var(--color-on-surface-variant)",
+                        "surface-container-high": "var(--color-surface-container-high)",
+                        "surface-container-low": "var(--color-surface-container-low)",
+                        "surface-container-lowest": "var(--color-surface-container-lowest)",
+                        "surface-container-highest": "var(--color-surface-container-highest)",
+                        "surface-variant": "var(--color-surface-variant)",
+                        "surface-bright": "var(--color-surface-bright)",
+                        "on-primary": "var(--color-on-primary)",
+                        "on-secondary": "var(--color-on-secondary)",
+                        "primary-fixed": "var(--color-primary-fixed)",
+                        "on-primary-fixed": "var(--on-primary-fixed)"
+                    },
+                    spacing: {
+                        "xs": "4px",
+                        "sm": "8px",
+                        "md": "16px",
+                        "lg": "24px",
+                        "xl": "32px",
+                        "max-width": "1280px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "40px",
+                        "gutter": "20px"
+                    },
+                    fontFamily: {
+                        "Inter": ["Inter", "sans-serif"],
+                        "Geist": ["Geist", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* CSS custom properties for Light/Dark themes */
+        :root {
+            --color-primary: #000a1e;
+            --color-secondary: #006c49;
+            --color-tertiary: #000a22;
+            --color-surface: #f8f9ff;
+            --color-background: #f8f9ff;
+            --color-outline-variant: #c4c6cf;
+            --color-on-surface-variant: #44474e;
+            --color-surface-container-high: #dce9ff;
+            --color-surface-container-low: #eff4ff;
+            --color-surface-container-lowest: #ffffff;
+            --color-surface-container-highest: #d3e4fe;
+            --color-surface-variant: #d3e4fe;
+            --color-surface-bright: #f8f9ff;
+            --color-on-primary: #ffffff;
+            --color-on-secondary: #ffffff;
+            --color-primary-fixed: #d6e3ff;
+            --color-on-primary-fixed: #001b3d;
+        }
+        :root.dark {
+            --color-primary: #aec7f6;
+            --color-secondary: #4edea3;
+            --color-tertiary: #adc6ff;
+            --color-surface: #0b1c30;
+            --color-background: #000a1e;
+            --color-outline-variant: #44474e;
+            --color-on-surface-variant: #c4c6cf;
+            --color-surface-container-high: #213145;
+            --color-surface-container-low: #0f233a;
+            --color-surface-container-lowest: #071324;
+            --color-surface-container-highest: #2d476f;
+            --color-surface-variant: #2d476f;
+            --color-surface-bright: #0f233a;
+            --color-on-primary: #071324;
+            --color-on-secondary: #002113;
+            --color-primary-fixed: #002147;
+            --color-on-primary-fixed: #d6e3ff;
+        }
+        /* Contrast overrides for dark mode standard text */
+        .dark .text-gray-900 { color: #f8f9ff !important; }
+        .dark .text-gray-800 { color: #f8f9ff !important; }
+        .dark .text-gray-700 { color: #eff4ff !important; }
+        .dark .text-gray-600 { color: #c4c6cf !important; }
+        .dark .text-gray-500 { color: #9aa0a6 !important; }
+        
+        .fill-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+        .table-scroll::-webkit-scrollbar {
+            height: 6px;
+            width: 6px;
+        }
+        .table-scroll::-webkit-scrollbar-thumb {
+            background-color: #c4c6cf;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-Inter transition-colors duration-200">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-surface sticky top-0 z-50 border-b border-outline-variant w-full h-16 flex justify-between items-center px-margin-mobile md:px-margin-desktop">
+        <div class="flex items-center gap-lg">
+            <a class="font-Inter text-headline-md font-bold text-primary flex items-center gap-sm text-2xl" href="/index.html">
+                <span class="material-symbols-outlined text-secondary fill-icon text-[28px]">school</span>
+                Nexus
+            </a>
+            <!-- Nav Tabs -->
+            <nav class="hidden md:flex items-center gap-md ml-lg">
+                <a href="/chatbot.html" class="text-sm font-semibold text-on-surface hover:text-primary px-sm py-xs rounded">Matchmaker</a>
+                <a href="/dashboard.html" class="text-sm font-bold text-primary bg-surface-variant px-sm py-xs rounded border border-outline-variant/30">Database</a>
+            </nav>
+        </div>
+        <div class="flex items-center gap-md">
+            <button onclick="toggleTheme()" class="h-10 px-3 rounded-full bg-surface-variant hover:bg-outline-variant/30 flex items-center gap-2 text-primary transition-colors border border-outline-variant/30" title="Toggle Theme (System / Light / Dark)">
+                <span class="material-symbols-outlined text-[20px]" id="theme-icon">desktop_windows</span>
+                <span class="text-xs font-semibold" id="theme-text">System</span>
+            </button>
+            <a href="/chatbot.html?objective=register" class="hidden md:flex bg-primary text-on-primary px-lg py-[10px] rounded hover:opacity-90 transition-all text-sm items-center gap-sm font-bold">Create Profile</a>
+            <div class="flex items-center gap-sm">
+                <span id="user-display-name" class="text-sm font-semibold text-primary hidden md:inline">Student</span>
+                <div class="w-10 h-10 rounded-full bg-surface-variant border border-outline-variant overflow-hidden flex-shrink-0">
+                    <img id="user-avatar" alt="Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAaWpT7Rd7ve76MWmBgfDlHrBGYqlRZ3Hag58hyQDW4DUTcXFVBiVoT3VTy2mlakkS-5l-7AFjyGI7UEKw05Bdh7eYL4IZ-EFc2HqoqZrG4UgeuBXcUtxaLRaXjRuxbCcS5Wn-oug8gV05b7X4Cc5JUiYyCM2L_AFG5QrUktB3Z96wfyUGhfsDQnfS0NpUfvBMpCUEbLMrq7QD1uJPyb4fBkVu2Zf6sBLVaNzC9Rhla_qnX61plWcUhxEIRwRcQLEmqVhNicxr_0s4"/>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace Layout -->
+    <div class="flex-grow flex w-full">
+
+        <!-- Left Sidebar Navigation -->
+        <aside class="w-64 border-r border-outline-variant bg-surface flex flex-col justify-between p-md hidden md:flex flex-shrink-0">
+            <div class="flex flex-col gap-lg">
+                <div class="flex flex-col gap-xs">
+                    <span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider px-sm text-gray-500">Navigation</span>
+                    <nav class="flex flex-col gap-xs mt-sm">
+                        <a id="nav-dashboard-btn" onclick="showTab('dashboard')" class="flex items-center gap-sm px-sm py-sm rounded bg-surface-variant border border-outline-variant/30 text-primary font-bold text-sm cursor-pointer">
+                            <span class="material-symbols-outlined">dashboard</span>
+                            Dashboard
+                        </a>
+                        <a class="flex items-center gap-sm px-sm py-sm rounded hover:bg-surface-variant transition-colors text-on-surface text-sm font-semibold text-gray-600 cursor-pointer" href="/chatbot.html">
+                            <span class="material-symbols-outlined">person_search</span>
+                            Find Partner
+                        </a>
+                        <a id="nav-helpboard-btn" onclick="showTab('helpboard')" class="flex items-center gap-sm px-sm py-sm rounded hover:bg-surface-variant transition-colors text-on-surface text-sm font-semibold text-gray-600 cursor-pointer">
+                            <span class="material-symbols-outlined">contact_support</span>
+                            Help Board
+                        </a>
+                        <a id="nav-chats-btn" onclick="showTab('chats')" class="flex items-center gap-sm px-sm py-sm rounded hover:bg-surface-variant transition-colors text-on-surface text-sm font-semibold text-gray-600 cursor-pointer">
+                            <span class="material-symbols-outlined">chat</span>
+                            Live Chats
+                        </a>
+                        <a id="nav-scheduler-btn" onclick="showTab('scheduler')" class="flex items-center gap-sm px-sm py-sm rounded hover:bg-surface-variant transition-colors text-on-surface text-sm font-semibold text-gray-600 cursor-pointer">
+                            <span class="material-symbols-outlined">calendar_month</span>
+                            Scheduler
+                        </a>
+                        <a id="nav-profile-btn" onclick="showTab('profile')" class="flex items-center gap-sm px-sm py-sm rounded hover:bg-surface-variant transition-colors text-on-surface text-sm font-semibold text-gray-600 cursor-pointer">
+                            <span class="material-symbols-outlined">account_circle</span>
+                            My Profile
+                        </a>
+                    </nav>
+                </div>
+                <div class="border-t border-outline-variant/50 pt-lg">
+                    <a href="/register.html" class="mt-sm bg-transparent border border-primary text-primary px-md py-[10px] rounded-xl hover:bg-surface-variant transition-colors text-sm font-bold w-full flex justify-center items-center gap-sm">Register Profile</a>
+                </div>
+            </div>
+
+            <!-- Bottom Sidebar Links -->
+            <div class="flex flex-col gap-xs border-t border-outline-variant/50 pt-md">
+                <button onclick="logout()" class="flex items-center gap-sm px-sm py-sm rounded hover:bg-surface-variant transition-colors text-red-700 w-full text-left font-bold text-sm">
+                    <span class="material-symbols-outlined">logout</span>
+                    Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Right Main Panel Container -->
+        <main id="dashboard-main-content" class="flex-grow p-lg md:p-xl flex flex-col gap-xl">
+            <!-- Header Section -->
+            <div>
+                <h1 class="text-3xl font-bold text-primary tracking-tight">Student Directory</h1>
+                <p class="text-sm text-on-surface-variant mt-xs">Browse registered student profiles and see their capabilities.</p>
+            </div>
+
+            <!-- Stats metric cards row -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter w-full">
+                <!-- Card 1 -->
+                <div class="bg-surface-bright border border-outline-variant rounded-xl p-lg flex flex-col gap-sm shadow-[0px_4px_12px_rgba(0,33,71,0.02)]">
+                    <div class="flex justify-between items-start">
+                        <span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider text-gray-500">Active Students</span>
+                        <div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-primary">
+                            <span class="material-symbols-outlined text-[20px]">groups</span>
+                        </div>
+                    </div>
+                    <div class="flex items-end gap-md">
+                        <span id="stat-students" class="text-4xl font-bold text-primary font-display-lg">--</span>
+                        <span class="text-xs font-semibold text-secondary-container bg-secondary px-sm py-[2px] rounded mb-1 text-white flex items-center gap-[2px]">
+                            <span class="material-symbols-outlined text-[12px] font-bold">trending_up</span> +12%
+                        </span>
+                    </div>
+                </div>
+                <!-- Card 2 -->
+                <div class="bg-surface-bright border border-outline-variant rounded-xl p-lg flex flex-col gap-sm shadow-[0px_4px_12px_rgba(0,33,71,0.02)]">
+                    <div class="flex justify-between items-start">
+                        <span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider text-gray-500">Successful Matches</span>
+                        <div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-primary">
+                            <span class="material-symbols-outlined text-[20px]">handshake</span>
+                        </div>
+                    </div>
+                    <div class="flex items-end gap-md">
+                        <span id="stat-matches" class="text-4xl font-bold text-primary font-display-lg">--</span>
+                    </div>
+                </div>
+                <!-- Card 3 -->
+                <div class="bg-surface-bright border border-outline-variant rounded-xl p-lg flex flex-col gap-sm shadow-[0px_4px_12px_rgba(0,33,71,0.02)]">
+                    <div class="flex justify-between items-start">
+                        <span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider text-gray-500">Formed Study Groups</span>
+                        <div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-primary">
+                            <span class="material-symbols-outlined text-[20px]">diversity_3</span>
+                        </div>
+                    </div>
+                    <div class="flex items-end gap-md">
+                        <span id="stat-groups" class="text-4xl font-bold text-primary font-display-lg">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table & Search Block Wrapper -->
+            <div class="flex flex-col gap-md border border-outline-variant rounded-xl bg-surface-container-lowest p-lg shadow-[0px_4px_12px_rgba(0,33,71,0.02)]">
+                
+                <!-- Controls Row -->
+                <div class="flex flex-col sm:flex-row gap-sm items-center justify-between w-full">
+                    <!-- Search Input container -->
+                    <div class="relative flex-1 w-full sm:max-w-md">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px] text-gray-400">search</span>
+                        <input id="search-input" class="w-full pl-10 pr-md py-sm bg-surface rounded border border-outline-variant focus:border-on-tertiary-container focus:ring-2 focus:ring-on-tertiary-container focus:ring-offset-0 text-base placeholder:text-gray-400 outline-none transition-all h-10" placeholder="Search students, branches, subjects..." type="text"/>
+                    </div>
+                    <div class="flex items-center gap-xs">
+                        <button onclick="clearSearch()" id="clear-search-btn" class="hidden bg-red-50 text-red-700 border border-red-200 px-sm py-sm rounded hover:bg-red-100 transition-colors h-10 w-10 flex items-center justify-center" title="Clear Search">
+                            <span class="material-symbols-outlined text-[20px]">close</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Main Directory Table Container -->
+                <div class="overflow-x-auto table-scroll w-full border border-outline-variant/30 rounded-lg">
+                    <table class="w-full text-left border-collapse min-w-[900px]">
+                        <thead>
+                            <tr class="bg-surface text-sm text-on-surface-variant border-b border-outline-variant text-gray-600 font-semibold h-12">
+                                <th class="p-md whitespace-nowrap pl-4">Student Name</th>
+                                <th class="p-md whitespace-nowrap">Year & Branch</th>
+                                <th class="p-md">Strong Subjects</th>
+                                <th class="p-md">Needs Help In</th>
+                                <th class="p-md whitespace-nowrap">Study Style</th>
+                                <th class="p-md whitespace-nowrap pr-4">Goal</th>
+                            </tr>
+                        </thead>
+                        <tbody id="directory-tbody" class="text-sm divide-y divide-outline-variant/30 text-gray-800">
+                            <!-- Dynamic Table Rows -->
+                            <tr>
+                                <td colspan="6" class="p-lg text-center text-gray-500">Loading student directory...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Footer / Pagination Section -->
+                <div class="flex items-center justify-between border-t border-outline-variant/30 pt-md text-xs text-on-surface-variant font-medium text-gray-500">
+                    <span id="pagination-text">Showing 0-0 of 0 students</span>
+                    <div class="flex gap-xs">
+                        <button class="px-sm py-xs border border-outline-variant rounded bg-surface hover:bg-surface-variant transition-colors disabled:opacity-50 text-xs" disabled>Previous</button>
+                        <button class="px-sm py-xs border border-outline-variant rounded bg-surface hover:bg-surface-variant transition-colors disabled:opacity-50 text-xs" disabled>Next</button>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- Profile Panel Container -->
+        <main id="profile-main-content" class="flex-grow p-lg md:p-xl flex flex-col gap-xl hidden">
+            <!-- Header Section -->
+            <div>
+                <h1 class="text-3xl font-bold text-primary tracking-tight">My Profile</h1>
+                <p class="text-sm text-on-surface-variant mt-xs">Manage your study partner match credentials and profile settings.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-lg items-start">
+                <!-- Left column: Avatar Card (Col 1-4) -->
+                <div class="lg:col-span-4 bg-surface-bright border border-outline-variant rounded-xl p-lg flex flex-col items-center text-center gap-md shadow-[0px_4px_12px_rgba(0,33,71,0.02)]">
+                    <div class="relative w-32 h-32 rounded-full border-4 border-outline-variant overflow-hidden flex-shrink-0 bg-surface-variant flex items-center justify-center">
+                        <img id="profile-avatar-large" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAaWpT7Rd7ve76MWmBgfDlHrBGYqlRZ3Hag58hyQDW4DUTcXFVBiVoT3VTy2mlakkS-5l-7AFjyGI7UEKw05Bdh7eYL4IZ-EFc2HqoqZrG4UgeuBXcUtxaLRaXjRuxbCcS5Wn-oug8gV05b7X4Cc5JUiYyCM2L_AFG5QrUktB3Z96wfyUGhfsDQnfS0NpUfvBMpCUEbLMrq7QD1uJPyb4fBkVu2Zf6sBLVaNzC9Rhla_qnX61plWcUhxEIRwRcQLEmqVhNicxr_0s4" alt="Large Avatar" />
+                    </div>
+                    <div class="flex flex-col gap-xs">
+                        <h2 id="profile-name" class="text-xl font-bold text-primary">Student Name</h2>
+                        <span id="profile-id" class="text-xs font-semibold px-2 py-0.5 bg-surface-container-high rounded-full border border-outline-variant/30 text-primary self-center">STU001</span>
+                        <span id="profile-email" class="text-sm text-on-surface-variant">student@university.edu</span>
+                    </div>
+                    <div class="border-t border-outline-variant/30 pt-md w-full flex flex-col items-center gap-xs">
+                        <span class="text-xs text-on-surface-variant font-medium text-gray-500">Change Profile Image</span>
+                        <input type="file" id="profile-edit-avatar-input" accept="image/*" class="hidden" />
+                        <button onclick="document.getElementById('profile-edit-avatar-input').click()" class="bg-surface border border-outline-variant hover:bg-surface-variant text-primary font-bold px-md py-[6px] rounded text-xs transition-all w-full shadow-[0px_2px_4px_rgba(0,0,0,0.02)]">
+                            Upload Photo
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right column: Detailed Academic Info (Col 5-12) -->
+                <div class="lg:col-span-8 bg-surface-bright border border-outline-variant rounded-xl p-lg flex flex-col gap-lg shadow-[0px_4px_12px_rgba(0,33,71,0.02)]">
+                    <div>
+                        <h3 class="text-lg font-bold text-primary border-b border-outline-variant/30 pb-xs mb-md">Academic Profile</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-md text-sm">
+                            <div>
+                                <span class="text-xs font-semibold text-on-surface-variant text-gray-500">Major / Branch</span>
+                                <p id="profile-branch" class="text-base font-semibold text-primary mt-[2px]">-</p>
+                            </div>
+                            <div>
+                                <span class="text-xs font-semibold text-on-surface-variant text-gray-500">Academic Year</span>
+                                <p id="profile-year" class="text-base font-semibold text-primary mt-[2px]">-</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-lg font-bold text-primary border-b border-outline-variant/30 pb-xs mb-md">Academic Focus</h3>
+                        <div class="flex flex-col gap-md text-sm">
+                            <div>
+                                <span class="text-xs font-semibold text-on-surface-variant text-gray-500 mb-xs block">Strong Subjects</span>
+                                <div id="profile-strong-badges" class="flex flex-wrap gap-xs">
+                                    <!-- badges -->
+                                </div>
+                            </div>
+                            <div>
+                                <span class="text-xs font-semibold text-on-surface-variant text-gray-500 mb-xs block">Subjects Needing Help In</span>
+                                <div id="profile-help-badges" class="flex flex-wrap gap-xs">
+                                    <!-- badges -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-lg font-bold text-primary border-b border-outline-variant/30 pb-xs mb-md">Matchmaker Preferences</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-md text-sm">
+                            <div>
+                                <span class="text-xs font-semibold text-on-surface-variant text-gray-500">Study Style</span>
+                                <p id="profile-study-style" class="text-base font-semibold text-primary mt-[2px]">-</p>
+                            </div>
+                            <div>
+                                <span class="text-xs font-semibold text-on-surface-variant text-gray-500">Shared Goal</span>
+                                <p id="profile-goal" class="text-base font-semibold text-primary mt-[2px]">-</p>
+                            </div>
+                            <div>
+                                <span class="text-xs font-semibold text-on-surface-variant text-gray-500">Communication Mode</span>
+                                <p id="profile-comm" class="text-base font-semibold text-primary mt-[2px]">-</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-lg font-bold text-primary border-b border-outline-variant/30 pb-xs mb-md">Schedule & Availability</h3>
+                        <div class="flex flex-col gap-md text-sm">
+                            <div>
+                                <span class="text-xs font-semibold text-on-surface-variant text-gray-500 mb-xs block">Available Days</span>
+                                <div id="profile-days-badges" class="flex flex-wrap gap-xs">
+                                    <!-- badges -->
+                                </div>
+                            </div>
+                            <div>
+                                <span class="text-xs font-semibold text-on-surface-variant text-gray-500 mb-xs block">Preferred Study Times</span>
+                                <div id="profile-times-badges" class="flex flex-wrap gap-xs">
+                                    <!-- badges -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+
+        <!-- Help Board Panel Container -->
+        <main id="helpboard-main-content" class="flex-grow p-lg md:p-xl flex flex-col gap-xl hidden">
+            <!-- Header Section -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md">
+                <div>
+                    <h1 class="text-3xl font-bold text-primary tracking-tight">Help Request Ticket Board</h1>
+                    <p class="text-sm text-on-surface-variant mt-xs">Post questions, request peer tutoring, or offer academic assistance.</p>
+                </div>
+                <button onclick="openTicketModal()" class="bg-primary text-on-primary px-lg py-[10px] rounded hover:opacity-90 transition-all text-sm items-center gap-sm font-bold flex">
+                    <span class="material-symbols-outlined text-[20px]">add</span>
+                    Post Request
+                </button>
+            </div>
+
+            <!-- Active Tickets Grid -->
+            <div id="tickets-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter w-full">
+                <!-- Dynamic Tickets Load here -->
+            </div>
+        </main>
+
+        <!-- Ticket Creation Modal -->
+        <div id="ticket-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 hidden backdrop-blur-sm">
+            <div class="bg-surface border border-outline-variant rounded-2xl p-xl w-full max-w-lg mx-margin-mobile flex flex-col gap-md shadow-2xl">
+                <div class="flex justify-between items-center border-b border-outline-variant/30 pb-sm">
+                    <h3 class="text-xl font-bold text-primary">Post a Help Request</h3>
+                    <button onclick="closeTicketModal()" class="text-on-surface-variant hover:text-primary">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                <form id="ticket-form" onsubmit="handleTicketSubmit(event)" class="flex flex-col gap-md">
+                    <div class="flex flex-col gap-xs">
+                        <label for="ticket-subject" class="text-xs font-bold text-on-surface-variant uppercase text-gray-500">Subject / Course</label>
+                        <input id="ticket-subject" required placeholder="e.g. Discrete Mathematics, Python Programming" class="w-full px-md py-sm bg-surface-container-lowest rounded border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all h-10 text-sm text-gray-900" type="text" />
+                    </div>
+                    <div class="flex flex-col gap-xs">
+                        <label for="ticket-topic" class="text-xs font-bold text-on-surface-variant uppercase text-gray-500">Topic / Specific Area</label>
+                        <input id="ticket-topic" required placeholder="e.g. Recurrence Relations, Binary Search Trees" class="w-full px-md py-sm bg-surface-container-lowest rounded border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all h-10 text-sm text-gray-900" type="text" />
+                    </div>
+                    <div class="flex flex-col gap-xs">
+                        <label for="ticket-description" class="text-xs font-bold text-on-surface-variant uppercase text-gray-500">Description of Problem</label>
+                        <textarea id="ticket-description" required rows="4" placeholder="Explain what concepts you are struggling with, or what problems you'd like to collaborate on..." class="w-full px-md py-sm bg-surface-container-lowest rounded border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-sm text-gray-900"></textarea>
+                    </div>
+                    <div class="flex justify-end gap-sm pt-sm border-t border-outline-variant/30">
+                        <button type="button" onclick="closeTicketModal()" class="px-md py-sm rounded border border-outline-variant text-primary hover:bg-surface-variant text-sm font-bold transition-all">Cancel</button>
+                        <button type="submit" class="bg-primary text-on-primary px-lg py-sm rounded hover:opacity-90 transition-all text-sm font-bold">Post Request</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Live Chats Panel Container -->
+        <main id="chats-main-content" class="flex-grow p-lg md:p-xl flex flex-col gap-xl hidden">
+            <!-- Header Section -->
+            <div>
+                <h1 class="text-3xl font-bold text-primary tracking-tight">Live Study Group Chat Rooms</h1>
+                <p class="text-sm text-on-surface-variant mt-xs">Connect with study partners in real-time. Direct messages and group discussion rooms.</p>
+            </div>
+
+            <!-- Master-Detail Chat Layout -->
+            <div class="flex-grow flex border border-outline-variant rounded-2xl bg-surface-container-lowest overflow-hidden min-h-[500px] max-h-[700px] shadow-lg">
+                <!-- Left Panel: Chat List -->
+                <div class="w-80 border-r border-outline-variant bg-surface flex flex-col flex-shrink-0">
+                    <div class="p-md border-b border-outline-variant flex flex-col gap-xs">
+                        <h3 class="text-sm font-bold text-primary">Conversations</h3>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px] text-gray-400">search</span>
+                            <input id="chat-search" oninput="filterChatsList()" placeholder="Filter chats..." class="w-full pl-9 pr-md py-1 bg-surface-container-low rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none text-xs h-8 text-gray-900" type="text" />
+                        </div>
+                    </div>
+                    <div id="chats-list" class="flex-grow overflow-y-auto divide-y divide-outline-variant/30">
+                        <!-- Chat room items load here -->
+                    </div>
+                </div>
+
+                <!-- Right Panel: Active Chat Stream -->
+                <div id="active-chat-container" class="flex-grow flex flex-col bg-surface-container-lowest">
+                    <!-- Chat Room Header -->
+                    <div id="chat-header" class="px-lg py-md border-b border-outline-variant flex items-center justify-between bg-surface">
+                        <div class="flex items-center gap-sm">
+                            <div class="w-10 h-10 rounded-full border border-outline-variant overflow-hidden bg-surface-variant" id="chat-header-avatar-container">
+                                <img id="chat-header-avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAaWpT7Rd7ve76MWmBgfDlHrBGYqlRZ3Hag58hyQDW4DUTcXFVBiVoT3VTy2mlakkS-5l-7AFjyGI7UEKw05Bdh7eYL4IZ-EFc2HqoqZrG4UgeuBXcUtxaLRaXjRuxbCcS5Wn-oug8gV05b7X4Cc5JUiYyCM2L_AFG5QrUktB3Z96wfyUGhfsDQnfS0NpUfvBMpCUEbLMrq7QD1uJPyb4fBkVu2Zf6sBLVaNzC9Rhla_qnX61plWcUhxEIRwRcQLEmqVhNicxr_0s4" alt="Chat Partner" />
+                            </div>
+                            <div>
+                                <h4 id="chat-header-name" class="font-bold text-primary text-base">Select a conversation</h4>
+                                <span id="chat-header-status" class="text-xs text-secondary font-medium">Click on a chat to view messages</span>
+                            </div>
+                        </div>
+                        <div id="chat-header-actions" class="hidden">
+                            <button id="schedule-from-chat-btn" class="flex items-center gap-[4px] bg-secondary text-white text-xs font-bold px-md py-[6px] rounded hover:opacity-90 transition-all shadow-[0px_2px_4px_rgba(0,0,0,0.02)]">
+                                <span class="material-symbols-outlined text-[16px]">calendar_month</span>
+                                Schedule Session
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Messages List -->
+                    <div id="messages-container" class="flex-grow p-lg overflow-y-auto flex flex-col gap-md bg-surface-container-low/30">
+                        <!-- Selection placeholder -->
+                        <div id="no-chat-selected" class="flex-grow flex flex-col items-center justify-center gap-sm text-center text-gray-500 py-20">
+                            <span class="material-symbols-outlined text-4xl text-outline-variant">forum</span>
+                            <p class="text-sm font-semibold">No Conversation Selected</p>
+                            <p class="text-xs text-on-surface-variant max-w-xs">Select a conversation from the sidebar, or offer help on the Help Board to start a new chat.</p>
+                        </div>
+                        <!-- Dynamic messages load here -->
+                    </div>
+
+                    <!-- Message Input Form -->
+                    <form id="message-form" onsubmit="handleSendMessage(event)" class="px-lg py-md border-t border-outline-variant flex gap-sm bg-surface hidden">
+                        <input id="message-input" autocomplete="off" placeholder="Type a message..." class="flex-grow px-md py-sm bg-surface-container-lowest rounded-xl border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-sm text-gray-900 h-10" type="text" />
+                        <button type="submit" class="bg-primary text-on-primary w-10 h-10 rounded-full flex items-center justify-center hover:opacity-90 transition-all flex-shrink-0">
+                            <span class="material-symbols-outlined">send</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </main>
+
+        <!-- Scheduler Panel Container -->
+        <main id="scheduler-main-content" class="flex-grow p-lg md:p-xl flex flex-col gap-xl hidden">
+            <!-- Header Section -->
+            <div>
+                <h1 class="text-3xl font-bold text-primary tracking-tight">Collaborative Study Scheduler</h1>
+                <p class="text-sm text-on-surface-variant mt-xs">Plan upcoming study sessions, set agendas, and coordinate schedules with peer partners.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-lg items-start">
+                <!-- Left: Scheduler Form (Col 1-5) -->
+                <div class="lg:col-span-5 bg-surface-bright border border-outline-variant rounded-xl p-lg flex flex-col gap-md shadow-[0px_4px_12px_rgba(0,33,71,0.02)]">
+                    <h3 class="text-lg font-bold text-primary border-b border-outline-variant/30 pb-xs">Schedule a Session</h3>
+                    <form id="schedule-form" onsubmit="handleScheduleSubmit(event)" class="flex flex-col gap-md">
+                        <div class="flex flex-col gap-xs">
+                            <label for="schedule-title" class="text-xs font-bold text-on-surface-variant uppercase text-gray-500">Session Title</label>
+                            <input id="schedule-title" required placeholder="e.g. Discrete Math Chapter 5 Practice" class="w-full px-md py-sm bg-surface-container-lowest rounded border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all h-10 text-sm text-gray-900" type="text" />
+                        </div>
+                        <div class="grid grid-cols-2 gap-sm">
+                            <div class="flex flex-col gap-xs">
+                                <label for="schedule-date" class="text-xs font-bold text-on-surface-variant uppercase text-gray-500">Date</label>
+                                <input id="schedule-date" required class="w-full px-md py-sm bg-surface-container-lowest rounded border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all h-10 text-sm text-gray-900" type="date" />
+                            </div>
+                            <div class="flex flex-col gap-xs">
+                                <label for="schedule-time" class="text-xs font-bold text-on-surface-variant uppercase text-gray-500">Time</label>
+                                <input id="schedule-time" required class="w-full px-md py-sm bg-surface-container-lowest rounded border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all h-10 text-sm text-gray-900" type="time" />
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-xs">
+                            <label for="schedule-partner" class="text-xs font-bold text-on-surface-variant uppercase text-gray-500">Study Partner / Peer</label>
+                            <select id="schedule-partner" required class="w-full px-md py-sm bg-surface-container-lowest rounded border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all h-10 text-sm text-gray-900">
+                                <option value="">-- Choose a Match --</option>
+                                <!-- Dynamic partners load here -->
+                            </select>
+                        </div>
+                        <div class="flex flex-col gap-xs">
+                            <label for="schedule-agenda" class="text-xs font-bold text-on-surface-variant uppercase text-gray-500">Agenda / Focus</label>
+                            <textarea id="schedule-agenda" rows="3" placeholder="What will you study? Solve problems, review notes, prepare presentations..." class="w-full px-md py-sm bg-surface-container-lowest rounded border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-sm text-gray-900"></textarea>
+                        </div>
+                        <button type="submit" class="bg-primary text-on-primary px-lg py-[10px] rounded hover:opacity-90 transition-all text-sm font-bold mt-sm shadow-[0px_2px_4px_rgba(0,0,0,0.02)]">
+                            Schedule Session
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Right: Session List / Agenda (Col 6-12) -->
+                <div class="lg:col-span-7 bg-surface-bright border border-outline-variant rounded-xl p-lg flex flex-col gap-md shadow-[0px_4px_12px_rgba(0,33,71,0.02)]">
+                    <h3 class="text-lg font-bold text-primary border-b border-outline-variant/30 pb-xs">Upcoming Sessions Timeline</h3>
+                    <div id="sessions-timeline" class="flex flex-col gap-md overflow-y-auto max-h-[550px]">
+                        <!-- Dynamic timeline cards load here -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-surface-container-low border-t border-outline-variant py-lg px-margin-mobile md:px-margin-desktop mt-auto">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-md max-w-max-width mx-auto">
+            <div class="flex items-center gap-sm">
+                <span class="material-symbols-outlined text-primary fill-icon">school</span>
+                <span class="font-Inter text-headline-sm font-semibold text-primary font-bold text-lg">Nexus</span>
+            </div>
+            <div class="text-label-sm text-on-surface-variant text-xs">
+                © 2026 Nexus. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Check Session Authentication
+        const sessionUser = localStorage.getItem("logged_in_user");
+        if (!sessionUser) {
+            window.location.href = "/login.html";
+        }
+        const loggedInUser = JSON.parse(sessionUser);
+
+        const AVATARS = {
+            "default": "https://lh3.googleusercontent.com/aida-public/AB6AXuAaWpT7Rd7ve76MWmBgfDlHrBGYqlRZ3Hag58hyQDW4DUTcXFVBiVoT3VTy2mlakkS-5l-7AFjyGI7UEKw05Bdh7eYL4IZ-EFc2HqoqZrG4UgeuBXcUtxaLRaXjRuxbCcS5Wn-oug8gV05b7X4Cc5JUiYyCM2L_AFG5QrUktB3Z96wfyUGhfsDQnfS0NpUfvBMpCUEbLMrq7QD1uJPyb4fBkVu2Zf6sBLVaNzC9Rhla_qnX61plWcUhxEIRwRcQLEmqVhNicxr_0s4",
+            "Aarav Sharma": "https://lh3.googleusercontent.com/aida-public/AB6AXuC47hAeFbFWvWEcnFQF_x1_IoTMwooACagZUjHoNyFR_qx_g_hL-9LRserDCsSkPtapue1b9q3ZKQDqw9fo4DOZ7B7I6WTChT1RJ2dY1s5bWY5Fzh-yFAltSfLUxGuhQICPJ8ujcJ1D1HoPT4llrRti3x20z6GGDCJrtuZOWVudNapEXC1ZLAzN7_xhPhMb_7VYNzZjg-CJ3fAstiwZrpPCkdQ1T_9fmspQXhDf9qxi-88vAzzBK9iYB5rUK9QZ5AMPVi27pVG6Q2A",
+            "Priya Patel": "https://lh3.googleusercontent.com/aida-public/AB6AXuAZKNhBYpKdoSGngg3aCnp1LSPmkJ6YpP_x6GSqkQ8QTClu1IYXiiGprd_1CVAn5xWiks3rmkWUj_t8-i42HR79lTi_CiHaScFfo5kzGP6sr5o0Bk-8wfZwTXmEptXDRfaGW-5HjBCXK5__Hy5rZ_yJZIoqbmKpyJZW6-oPYNclPgYLQSfDTWXAsSYaL6ZVn5QCzQJRecgV2gVG89KZDl3fa9LszQXz-9m0cvs4kQDPKGF65oaYwxJ1Wkpie16VgucyYtaKB5Vm3_U",
+            "Rohan Mehta": "https://lh3.googleusercontent.com/aida-public/AB6AXuAaWpT7Rd7ve76MWmBgfDlHrBGYqlRZ3Hag58hyQDW4DUTcXFVBiVoT3VTy2mlakkS-5l-7AFjyGI7UEKw05Bdh7eYL4IZ-EFc2HqoqZrG4UgeuBXcUtxaLRaXjRuxbCcS5Wn-oug8gV05b7X4Cc5JUiYyCM2L_AFG5QrUktB3Z96wfyUGhfsDQnfS0NpUfvBMpCUEbLMrq7QD1uJPyb4fBkVu2Zf6sBLVaNzC9Rhla_qnX61plWcUhxEIRwRcQLEmqVhNicxr_0s4",
+            "Sneha Reddy": "https://lh3.googleusercontent.com/aida-public/AB6AXuAaBXqYQ-gCgI2BKBVjjjbwIk0c1DUwsbyVBr5FGlyHUZkjQdUUqskrWm0eeVb60vZyUWGN22hKEUQdfjG1PiL73YC9yUaLnkRkEorcW5sFcFS0_xJI8FPw9Onc8RaHo7tDcSYfOMRHesLSOyPDoAyCsJmZ75f_YZyQgPkz44uNHhALl_S_IhUO1P-VfGAlwmaFGXRMoFbmnT7iBXCKkgpleB86qefYRFJLgSiJpS1z-QuWQGSQjdhkSGdMLGkmJrVOQ2jykYXhy1M",
+            "Karan Singh": "https://lh3.googleusercontent.com/aida-public/AB6AXuByI2CrqF6v_Qonz_KzXio14XggGQDQOMSBhqlze3pMtrQ6TVh67gH6vtAYsNf-RPvbqoUbf7eRX4AhHEAsH1oKD5GXs2gE5lcnZeJjL-wQ38zuVmg16bk4gvSK1_rbNi9T0tgwgasHKdRfYL6ihSu6V64EIuoj-DPC7JA7NdMXGoMndCPtRpvYM_AG-JJSFqWDZm7E76zcsg2RTb8FvgzaJiqIWlKJ94UGjWGwJ7YM5Hczh3KYtsS6k5l4_ACHXfNlNpMmCrDMbOI",
+            "Ananya Gupta": "https://lh3.googleusercontent.com/aida-public/AB6AXuDVdu4t4irUugvmeKbo6aB7_jT0QRTkww5fSbYFu4F8bhtM9pW7RgfOUibbCChT2dcDigkSsYz_enU6g_Doc2O54QZEGnf-GvVWzfCFcDDpJJRs0c-TTSVCRQl7KoyWxc0RZxn-0gZ3_VyvITVzBhyYwZRzms6t-oogkEnJExwRI4PUmiKjmOy-NhHhebkJh6ISih_qnaWPS28H2oJo7UFxVhTMFXYH8CY-PH5v_0INaV1C0KKUaptpjuTJWwazA9vmOdS_4y_aths",
+            "Vikram Joshi": "https://lh3.googleusercontent.com/aida-public/AB6AXuA1YGDGKuTK-AIme04k5hXKrRSqlRlu_bLsjv3TncTJWKQ7uzjO7FQK8O8tSMFiOowL3qyj2eOGfd3pndXrwDFEI_WbK5UrzwfNS22HT5gTTXCC08usLyngDBywJWX_LNqdHeakeI28_AbOXHCAQMDqQDrgWoReLe_dd44sb7YBdGmuoHaNRZPVQd8zMM-LhFjGfH4v1hwAe3XkbDnctICbNXE2dPzjPN582XH6C9xnZYwXXhvz8lRNVuwuAB4Md_put2KoNoXE8h8",
+            "Diya Nair": "https://lh3.googleusercontent.com/aida-public/AB6AXuBZONl9Pnc2rAVoXq_UNWoqaMSNu3LcjIR2kE9MKcwjtRUQvrKeVT-rNYO3cWYqwejPGgnrrxsjpAtTN7KbFLSSfbU6vm8Za95SxdFhhW4R2BUW40CCafbxoAfQFYq2Uv38G2X67tJpGqIW47E69DOWHLh7uMPbladUalVvUBjW1gQYa59ZTh4OPOLPFcY0GslCW9zkB1yWzCPzKZ2azCLP4Bg8FgLAyCwUM8hBeTHGTaForUYq4M2mt8CmmSgrO5Diecz84rHSYuM"
+        };
+
+        function getAvatar(name, profile_pic) {
+            if (profile_pic) {
+                return profile_pic;
+            }
+            return AVATARS[name] || AVATARS["default"];
+        }
+
+        let allStudentsList = [];
+        let activeChatId = null;
+        let activeChatPartnerId = null;
+        let activeChatPartnerName = null;
+        let chatPollInterval = null;
+
+        function showTab(tabName) {
+            const tabs = ["dashboard", "profile", "helpboard", "chats", "scheduler"];
+            
+            // Clear any active chat polling intervals when switching tabs
+            if (tabName !== "chats" && chatPollInterval) {
+                clearInterval(chatPollInterval);
+                chatPollInterval = null;
+            }
+
+            tabs.forEach(t => {
+                const content = document.getElementById(`${t}-main-content`);
+                const btn = document.getElementById(`nav-${t}-btn`);
+                if (content) {
+                    if (t === tabName) {
+                        content.classList.remove("hidden");
+                    } else {
+                        content.classList.add("hidden");
+                    }
+                }
+                if (btn) {
+                    if (t === tabName) {
+                        btn.className = "flex items-center gap-sm px-sm py-sm rounded bg-surface-variant border border-outline-variant/30 text-primary font-bold text-sm cursor-pointer";
+                    } else {
+                        btn.className = "flex items-center gap-sm px-sm py-sm rounded hover:bg-surface-variant transition-colors text-on-surface text-sm font-semibold text-gray-600 cursor-pointer";
+                    }
+                }
+            });
+
+            // Trigger specific tab loading functions
+            if (tabName === "profile") {
+                loadUserProfileView();
+            } else if (tabName === "helpboard") {
+                loadTicketsView();
+            } else if (tabName === "chats") {
+                loadChatsView();
+            } else if (tabName === "scheduler") {
+                loadSchedulerView();
+            } else if (tabName === "dashboard") {
+                loadDirectory();
+            }
+            
+            window.location.hash = tabName;
+        }
+
+        function loadUserProfileView() {
+            document.getElementById("profile-name").textContent = loggedInUser.name;
+            document.getElementById("profile-id").textContent = loggedInUser.student_id;
+            document.getElementById("profile-email").textContent = loggedInUser.email || (loggedInUser.name.toLowerCase().replace(/\s+/g, '.') + "@university.edu");
+            
+            document.getElementById("profile-avatar-large").src = getAvatar(loggedInUser.name, loggedInUser.profile_pic);
+            
+            document.getElementById("profile-branch").textContent = loggedInUser.branch;
+            document.getElementById("profile-year").textContent = loggedInUser.year;
+            
+            const studyStyleMap = {
+                "discussion": "Discussion & Group Study",
+                "reading": "Reading & Notes Review",
+                "practice-problems": "Practice Problems & Quiz Prep",
+                "visual": "Visual Aids & Video Lectures"
+            };
+            document.getElementById("profile-study-style").textContent = studyStyleMap[loggedInUser.study_style] || loggedInUser.study_style;
+            
+            const goalMap = {
+                "exam prep": "Exam Preparation",
+                "concept clarity": "Concept Clarity",
+                "project work": "Project Collaboration",
+                "competitive exam": "Competitive Exam Prep"
+            };
+            document.getElementById("profile-goal").textContent = goalMap[loggedInUser.goal] || loggedInUser.goal;
+            
+            const commMap = {
+                "online": "Online Only (Discord/Zoom)",
+                "in-person": "In-Person Only (Library/Classroom)",
+                "both": "Hybrid (Both Online & In-Person)"
+            };
+            document.getElementById("profile-comm").textContent = commMap[loggedInUser.communication_preference] || loggedInUser.communication_preference;
+            
+            const populateBadges = (elementId, list, colorClass) => {
+                const container = document.getElementById(elementId);
+                container.innerHTML = "";
+                if (!list || list.length === 0) {
+                    container.innerHTML = `<span class="text-xs text-on-surface-variant italic">None specified</span>`;
+                    return;
+                }
+                list.forEach(item => {
+                    const badge = document.createElement("span");
+                    badge.className = `${colorClass} px-2 py-0.5 rounded text-xs font-semibold mr-1 mb-1 inline-block`;
+                    badge.textContent = item;
+                    container.appendChild(badge);
+                });
+            };
+            
+            populateBadges("profile-strong-badges", loggedInUser.subjects_strong_in, "bg-secondary text-white");
+            populateBadges("profile-help-badges", loggedInUser.subjects_needing_help_in, "bg-[#d6e3ff] text-[#001b3d]");
+            populateBadges("profile-days-badges", loggedInUser.availability_days, "bg-surface-variant border border-outline-variant/30 text-primary");
+            populateBadges("profile-times-badges", loggedInUser.preferred_study_time, "bg-surface-variant border border-outline-variant/30 text-primary");
+        }
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            // Update user details
+            document.getElementById("user-display-name").textContent = loggedInUser.name;
+            document.getElementById("user-avatar").src = getAvatar(loggedInUser.name, loggedInUser.profile_pic);
+
+            // Handle hash routing
+            const hash = window.location.hash.substring(1);
+            if (["profile", "helpboard", "chats", "scheduler"].includes(hash)) {
+                showTab(hash);
+            } else {
+                showTab("dashboard");
+            }
+
+            window.addEventListener("hashchange", () => {
+                const newHash = window.location.hash.substring(1);
+                if (["profile", "helpboard", "chats", "scheduler"].includes(newHash)) {
+                    showTab(newHash);
+                } else {
+                    showTab("dashboard");
+                }
+            });
+
+            // Edit Avatar Listener
+            const editAvatarInput = document.getElementById("profile-edit-avatar-input");
+            if (editAvatarInput) {
+                editAvatarInput.addEventListener("change", (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        if (file.size > 2 * 1024 * 1024) {
+                            alert("Image size should not exceed 2MB.");
+                            editAvatarInput.value = "";
+                            return;
+                        }
+                        const reader = new FileReader();
+                        reader.onload = async (event) => {
+                            const base64Pic = event.target.result;
+                            
+                            try {
+                                const response = await fetch("/api/students/update-avatar", {
+                                    method: "POST",
+                                    headers: {
+                                        "Content-Type": "application/json"
+                                    },
+                                    body: JSON.stringify({
+                                        student_id: loggedInUser.student_id,
+                                        profile_pic: base64Pic
+                                    })
+                                });
+                                
+                                if (response.ok) {
+                                    const updatedStudent = await response.json();
+                                    localStorage.setItem("logged_in_user", JSON.stringify(updatedStudent));
+                                    loggedInUser.profile_pic = base64Pic; // update local session cache
+                                    
+                                    // Update display
+                                    document.getElementById("profile-avatar-large").src = base64Pic;
+                                    document.getElementById("user-avatar").src = base64Pic;
+                                    
+                                    // Reload directory table
+                                    loadDirectory();
+                                } else {
+                                    alert("Failed to update profile picture on database.");
+                                }
+                            } catch (err) {
+                                console.error("Update avatar error", err);
+                                alert("Failed to connect to backend database.");
+                            }
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+
+            // Load metrics
+            try {
+                const statRes = await fetch("/api/stats");
+                if (statRes.ok) {
+                    const stats = await statRes.json();
+                    document.getElementById("stat-students").textContent = stats.total_students;
+                    document.getElementById("stat-matches").textContent = stats.total_matches;
+                    document.getElementById("stat-groups").textContent = stats.total_groups;
+                }
+            } catch (err) {
+                console.error("Stats load error", err);
+            }
+
+            // Load students directory
+            await loadDirectory();
+
+            // Setup search listener
+            const searchInput = document.getElementById("search-input");
+            const clearBtn = document.getElementById("clear-search-btn");
+
+            searchInput.addEventListener("input", () => {
+                const query = searchInput.value.toLowerCase().trim();
+                if (query) {
+                    clearBtn.classList.remove("hidden");
+                } else {
+                    clearBtn.classList.add("hidden");
+                }
+                filterDirectory(query);
+            });
+        });
+
+        async function loadDirectory() {
+            const tbody = document.getElementById("directory-tbody");
+            try {
+                const res = await fetch("/api/students");
+                if (res.ok) {
+                    allStudentsList = await res.json();
+                    renderTable(allStudentsList);
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="6" class="p-lg text-center text-red-500">Failed to fetch student list.</td></tr>`;
+                }
+            } catch (err) {
+                console.error("Directory fetch error", err);
+                tbody.innerHTML = `<tr><td colspan="6" class="p-lg text-center text-red-500">Failed to connect to backend directory.</td></tr>`;
+            }
+        }
+
+        function renderTable(students) {
+            const tbody = document.getElementById("directory-tbody");
+            const pagText = document.getElementById("pagination-text");
+            
+            if (students.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-lg text-center text-gray-500">No students matching criteria found.</td></tr>`;
+                pagText.textContent = `Showing 0-0 of ${allStudentsList.length} students`;
+                return;
+            }
+
+            tbody.innerHTML = "";
+            students.forEach(s => {
+                const name = s.name;
+                const initials = name.split(" ").map(w => w[0]).join("").substring(0,2).toUpperCase();
+                
+                // Strong tags
+                const strongTags = s.subjects_strong_in.map(subj => 
+                    `<span class="bg-[#d6e3ff] text-[#001b3d] px-2 py-0.5 rounded-full text-xs font-semibold mr-1 mb-1 inline-block">${subj}</span>`
+                ).join("");
+                
+                // Help tags
+                const helpTags = s.subjects_needing_help_in.map(subj => 
+                    `<span class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full text-xs font-semibold border border-outline-variant mr-1 mb-1 inline-block">${subj}</span>`
+                ).join("");
+
+                // Study style icon
+                let styleIcon = "forum";
+                if (s.study_style === "reading") styleIcon = "menu_book";
+                else if (s.study_style === "practice-problems") styleIcon = "co_present";
+                else if (s.study_style === "visual") styleIcon = "headphones";
+
+                const styleDisplay = s.study_style.charAt(0).toUpperCase() + s.study_style.slice(1);
+                const goalDisplay = s.goal.charAt(0).toUpperCase() + s.goal.slice(1);
+
+                let avatarHTML = `
+                    <div class="w-8 h-8 rounded-full bg-[#d6e3ff] text-[#001b3d] flex items-center justify-center text-xs font-bold flex-shrink-0">
+                        ${initials}
+                    </div>`;
+                if (s.profile_pic) {
+                    avatarHTML = `
+                        <div class="w-8 h-8 rounded-full border border-outline-variant overflow-hidden flex-shrink-0">
+                            <img src="${s.profile_pic}" class="w-full h-full object-cover" alt="${name}" />
+                        </div>`;
+                }
+
+                const row = document.createElement("tr");
+                row.className = "hover:bg-surface-container-low transition-colors border-b border-outline-variant/30 h-14";
+                row.innerHTML = `
+                    <td class="p-md pl-4">
+                        <div class="flex items-center gap-sm">
+                            ${avatarHTML}
+                            <span class="font-semibold text-gray-900">${name}</span>
+                        </div>
+                    </td>
+                    <td class="p-md">
+                        <div class="flex flex-col">
+                            <span class="font-medium text-gray-900">${s.year}</span>
+                            <span class="text-xs text-on-surface-variant font-semibold text-gray-500">${s.branch}</span>
+                        </div>
+                    </td>
+                    <td class="p-md max-w-[200px]">${strongTags}</td>
+                    <td class="p-md max-w-[200px]">${helpTags}</td>
+                    <td class="p-md">
+                        <span class="flex items-center gap-xs text-xs font-semibold text-gray-700">
+                            <span class="material-symbols-outlined text-[16px] text-gray-500">${styleIcon}</span>
+                            ${styleDisplay}
+                        </span>
+                    </td>
+                    <td class="p-md pr-4 font-semibold text-gray-700">${goalDisplay}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            pagText.textContent = `Showing 1-${students.length} of ${students.length} students`;
+        }
+
+        function filterDirectory(query) {
+            if (!query) {
+                renderTable(allStudentsList);
+                return;
+            }
+
+            const filtered = allStudentsList.filter(s => {
+                const strongSubjs = s.subjects_strong_in.join(" ").toLowerCase();
+                const helpSubjs = s.subjects_needing_help_in.join(" ").toLowerCase();
+                return (
+                    s.name.toLowerCase().includes(query) ||
+                    s.year.toLowerCase().includes(query) ||
+                    s.branch.toLowerCase().includes(query) ||
+                    s.study_style.toLowerCase().includes(query) ||
+                    s.goal.toLowerCase().includes(query) ||
+                    strongSubjs.includes(query) ||
+                    helpSubjs.includes(query)
+                );
+            });
+
+            renderTable(filtered);
+        }
+
+        function clearSearch() {
+            const searchInput = document.getElementById("search-input");
+            searchInput.value = "";
+            document.getElementById("clear-search-btn").classList.add("hidden");
+            renderTable(allStudentsList);
+        }
+
+        function logout() {
+            localStorage.removeItem("logged_in_user");
+            window.location.href = "/index.html";
+        }
+
+        // ──────────────────────────────────────────────
+        //  3. Help Request Ticket Board Logic
+        // ──────────────────────────────────────────────
+        function openTicketModal() {
+            document.getElementById("ticket-modal").classList.remove("hidden");
+        }
+        function closeTicketModal() {
+            document.getElementById("ticket-modal").classList.add("hidden");
+            document.getElementById("ticket-form").reset();
+        }
+        async function handleTicketSubmit(e) {
+            e.preventDefault();
+            const subject = document.getElementById("ticket-subject").value.trim();
+            const topic = document.getElementById("ticket-topic").value.trim();
+            const description = document.getElementById("ticket-description").value.trim();
+            
+            if (!subject || !topic || !description) return;
+            
+            try {
+                const res = await fetch("/api/tickets", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        student_id: loggedInUser.student_id,
+                        subject: subject,
+                        topic: topic,
+                        description: description
+                    })
+                });
+                
+                if (res.ok) {
+                    closeTicketModal();
+                    loadTicketsView();
+                } else {
+                    alert("Failed to submit help ticket request.");
+                }
+            } catch (err) {
+                console.error("Ticket post error:", err);
+                alert("Connection failed. Unable to submit ticket.");
+            }
+        }
+        
+        async function loadTicketsView() {
+            const grid = document.getElementById("tickets-grid");
+            grid.innerHTML = `<p class="col-span-full text-center text-gray-500 py-10">Loading bulletin board tickets...</p>`;
+            
+            try {
+                const res = await fetch("/api/tickets");
+                if (!res.ok) throw new Error("Status " + res.status);
+                const tickets = await res.json();
+                
+                // Cache tickets globally to reference by ID in event handlers
+                window.currentTicketsList = tickets;
+                
+                grid.innerHTML = "";
+                if (tickets.length === 0) {
+                    grid.innerHTML = `<p class="col-span-full text-center text-gray-500 py-10">No active help requests on the bulletin board. Be the first to post!</p>`;
+                    return;
+                }
+                
+                tickets.forEach(ticket => {
+                    const isOpen = ticket.status === "open";
+                    const isOwnTicket = ticket.student_id === loggedInUser.student_id;
+                    const dateStr = ticket.created_at ? new Date(ticket.created_at).toLocaleDateString(undefined, {month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit'}) : 'Just now';
+                    
+                    const card = document.createElement("div");
+                    card.className = `bg-surface border ${isOpen ? 'border-outline-variant' : 'border-outline-variant/30 opacity-70'} rounded-xl p-lg flex flex-col justify-between gap-md shadow-[0px_4px_12px_rgba(0,33,71,0.02)] transition-all`;
+                    
+                    const avatarPic = getAvatar(ticket.student_name, null);
+                    
+                    card.innerHTML = `
+                        <div class="flex flex-col gap-sm">
+                            <div class="flex justify-between items-start">
+                                <div class="flex items-center gap-sm">
+                                    <div class="w-8 h-8 rounded-full border border-outline-variant overflow-hidden flex-shrink-0 bg-surface-variant">
+                                        <img src="${avatarPic}" class="w-full h-full object-cover" alt="${ticket.student_name}" />
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="font-semibold text-sm text-gray-900">${ticket.student_name}</span>
+                                        <span class="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">${ticket.student_id}</span>
+                                    </div>
+                                </div>
+                                <span class="px-2 py-[2px] rounded text-[10px] font-bold uppercase tracking-wider ${isOpen ? 'bg-[#e2f7ed] text-[#006c49]' : 'bg-gray-100 text-gray-500'}">
+                                    ${ticket.status}
+                                </span>
+                            </div>
+                            
+                            <div class="mt-xs">
+                                <span class="bg-[#d6e3ff] text-[#001b3d] px-2 py-0.5 rounded text-[10px] font-bold inline-block mb-1">${ticket.subject}</span>
+                                <h4 class="font-bold text-primary text-base">${ticket.topic}</h4>
+                                <p class="text-xs text-on-surface-variant mt-sm leading-relaxed text-gray-600">${ticket.description}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="border-t border-outline-variant/30 pt-md flex items-center justify-between mt-sm">
+                            <span class="text-[10px] font-semibold text-gray-400">${dateStr}</span>
+                            ${isOwnTicket 
+                                ? (isOpen 
+                                    ? `<button onclick="closeTicket('${ticket.ticket_id}')" class="bg-gray-100 hover:bg-gray-200 border border-outline-variant text-gray-700 text-xs font-bold px-md py-[6px] rounded transition-all">Close Request</button>`
+                                    : `<span class="text-xs text-gray-500 font-bold flex items-center gap-[2px]"><span class="material-symbols-outlined text-[16px] text-secondary">check_circle</span> Resolved</span>`
+                                  )
+                                : (isOpen
+                                    ? `<button onclick="offerHelp('${ticket.ticket_id}')" class="bg-primary text-on-primary hover:opacity-90 text-xs font-bold px-md py-[6px] rounded transition-all flex items-center gap-xs">
+                                        <span class="material-symbols-outlined text-[14px]">handshake</span>
+                                        Offer Help
+                                       </button>`
+                                    : `<span class="text-xs text-gray-400 italic">Resolved</span>`
+                                  )
+                            }
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+            } catch (err) {
+                console.error("Load tickets error:", err);
+                grid.innerHTML = `<p class="col-span-full text-center text-red-500 py-10">Failed to load Help Request bulletin board.</p>`;
+            }
+        }
+        
+        async function closeTicket(ticketId) {
+            try {
+                const res = await fetch(`/api/tickets/${ticketId}/close`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" }
+                });
+                if (res.ok) {
+                    loadTicketsView();
+                } else {
+                    alert("Failed to close ticket.");
+                }
+            } catch (err) {
+                console.error("Close ticket error:", err);
+            }
+        }
+        
+        async function offerHelp(ticketId) {
+            const ticket = (window.currentTicketsList || []).find(t => t.ticket_id === ticketId);
+            if (!ticket) {
+                alert("Study request details not found.");
+                return;
+            }
+            const chatId = `DM_${[loggedInUser.student_id, ticket.student_id].sort().join("_")}`;
+            const messageContent = `Hi ${ticket.student_name}! I saw your help request on "${ticket.subject}: ${ticket.topic}" and would love to help you study this topic. Let's study together!`;
+            
+            try {
+                const res = await fetch(`/api/chats/${chatId}/messages`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        sender_id: loggedInUser.student_id,
+                        sender_name: loggedInUser.name,
+                        content: messageContent
+                    })
+                });
+                
+                if (res.ok) {
+                    activeChatId = chatId;
+                    activeChatPartnerId = ticket.student_id;
+                    activeChatPartnerName = ticket.student_name;
+                    showTab("chats");
+                } else {
+                    alert("Failed to initialize study chat room.");
+                }
+            } catch (err) {
+                console.error("Offer help error:", err);
+                alert("Error connecting to chat server.");
+            }
+        }
+
+        // ──────────────────────────────────────────────
+        //  4. Live Chats Logic
+        // ──────────────────────────────────────────────
+        let allChatsList = [];
+        async function loadChatsView() {
+            const chatsListContainer = document.getElementById("chats-list");
+            chatsListContainer.innerHTML = `<p class="text-center text-gray-500 py-6 text-xs">Loading chats...</p>`;
+            
+            try {
+                const res = await fetch(`/api/chats?student_id=${loggedInUser.student_id}`);
+                if (!res.ok) throw new Error("Status " + res.status);
+                allChatsList = await res.json();
+                renderChatsList(allChatsList);
+                
+                if (activeChatId) {
+                    selectChatRoom(activeChatId);
+                }
+            } catch (err) {
+                console.error("Load chats error:", err);
+                chatsListContainer.innerHTML = `<p class="text-center text-red-500 py-6 text-xs">Failed to load conversations.</p>`;
+            }
+        }
+        
+        function renderChatsList(chats) {
+            const container = document.getElementById("chats-list");
+            container.innerHTML = "";
+            
+            if (chats.length === 0) {
+                container.innerHTML = `<p class="text-center text-gray-500 py-10 text-xs">No active chats. Start one from the Help Board!</p>`;
+                return;
+            }
+            
+            chats.forEach(chat => {
+                const item = document.createElement("div");
+                const isActive = chat.chat_id === activeChatId;
+                item.className = `p-md flex items-center gap-sm cursor-pointer hover:bg-surface-container-low transition-colors ${isActive ? 'bg-surface-variant/70 border-l-4 border-primary' : ''}`;
+                item.id = `chat-item-${chat.chat_id}`;
+                item.onclick = () => selectChatRoom(chat.chat_id);
+                
+                const avatarPic = getAvatar(chat.other_name, chat.other_pic);
+                const lastMsg = chat.last_message || "No messages yet";
+                const timeStr = chat.last_timestamp ? new Date(chat.last_timestamp).toLocaleTimeString(undefined, {hour: '2-digit', minute:'2-digit'}) : '';
+                
+                item.innerHTML = `
+                    <div class="w-10 h-10 rounded-full border border-outline-variant overflow-hidden bg-surface-variant flex-shrink-0">
+                        <img src="${avatarPic}" class="w-full h-full object-cover" alt="${chat.other_name}" />
+                    </div>
+                    <div class="flex-grow min-w-0 flex flex-col gap-[2px]">
+                        <div class="flex justify-between items-baseline">
+                            <span class="font-bold text-sm text-gray-900 truncate">${chat.other_name}</span>
+                            <span class="text-[10px] text-gray-400 font-semibold">${timeStr}</span>
+                        </div>
+                        <p class="text-xs text-on-surface-variant truncate text-gray-500">${lastMsg}</p>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+        
+        function filterChatsList() {
+            const query = document.getElementById("chat-search").value.toLowerCase().trim();
+            const filtered = allChatsList.filter(c => c.other_name.toLowerCase().includes(query));
+            renderChatsList(filtered);
+        }
+        
+        async function selectChatRoom(chatId) {
+            if (chatPollInterval) {
+                clearInterval(chatPollInterval);
+                chatPollInterval = null;
+            }
+            
+            activeChatId = chatId;
+            
+            allChatsList.forEach(chat => {
+                const el = document.getElementById(`chat-item-${chat.chat_id}`);
+                if (el) {
+                    if (chat.chat_id === chatId) {
+                        el.className = `p-md flex items-center gap-sm cursor-pointer bg-surface-variant/70 border-l-4 border-primary transition-colors`;
+                    } else {
+                        el.className = `p-md flex items-center gap-sm cursor-pointer hover:bg-surface-container-low transition-colors`;
+                    }
+                }
+            });
+            
+            const selectedChat = allChatsList.find(c => c.chat_id === chatId);
+            if (selectedChat) {
+                activeChatPartnerName = selectedChat.other_name;
+                const parts = chatId.split("_").slice(1) || [];
+                activeChatPartnerId = parts.find(p => p !== loggedInUser.student_id) || "";
+            } else {
+                if (!activeChatPartnerName) activeChatPartnerName = "Study Partner";
+                if (!activeChatPartnerId) {
+                    const parts = chatId.split("_").slice(1) || [];
+                    activeChatPartnerId = parts.find(p => p !== loggedInUser.student_id) || "";
+                }
+            }
+            
+            document.getElementById("chat-header-name").textContent = activeChatPartnerName;
+            document.getElementById("chat-header-status").textContent = "Direct Message • Online";
+            document.getElementById("chat-header-avatar").src = getAvatar(activeChatPartnerName, selectedChat ? selectedChat.other_pic : null);
+            
+            document.getElementById("chat-header-actions").classList.remove("hidden");
+            document.getElementById("message-form").classList.remove("hidden");
+            
+            // Hook up the Schedule Session button action
+            document.getElementById("schedule-from-chat-btn").onclick = () => {
+                showTab("scheduler");
+            };
+            
+            await fetchMessages(chatId);
+            
+            const container = document.getElementById("messages-container");
+            container.scrollTop = container.scrollHeight;
+            
+            chatPollInterval = setInterval(() => fetchMessages(chatId, true), 3000);
+        }
+        
+        async function fetchMessages(chatId, isPolling = false) {
+            try {
+                const res = await fetch(`/api/chats/${chatId}/messages`);
+                if (!res.ok) return;
+                const messages = await res.json();
+                
+                const container = document.getElementById("messages-container");
+                const currentBubbles = container.querySelectorAll(".message-bubble").length;
+                
+                if (!isPolling || messages.length !== currentBubbles) {
+                    renderMessages(messages);
+                }
+            } catch (err) {
+                console.error("Fetch messages error:", err);
+            }
+        }
+        
+        function renderMessages(messages) {
+            const container = document.getElementById("messages-container");
+            const noChatPlaceholder = document.getElementById("no-chat-selected");
+            if (noChatPlaceholder) noChatPlaceholder.remove();
+            
+            container.innerHTML = "";
+            if (messages.length === 0) {
+                container.innerHTML = `<div class="flex-grow flex items-center justify-center text-xs text-gray-500 py-10 italic">No messages yet. Send a greeting to start studying!</div>`;
+                return;
+            }
+            
+            messages.forEach(msg => {
+                const isOwn = msg.sender_id === loggedInUser.student_id;
+                const bubble = document.createElement("div");
+                bubble.className = `flex flex-col max-w-[70%] ${isOwn ? 'self-end items-end' : 'self-start items-start'} message-bubble`;
+                
+                const timeStr = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString(undefined, {hour: '2-digit', minute:'2-digit'}) : '';
+                
+                bubble.innerHTML = `
+                    <span class="text-[10px] text-gray-400 font-semibold mb-1">${isOwn ? 'You' : msg.sender_name}</span>
+                    <div class="px-md py-sm rounded-2xl text-sm leading-relaxed ${isOwn ? 'bg-primary text-white rounded-tr-none' : 'bg-surface border border-outline-variant text-gray-900 rounded-tl-none'} shadow-[0px_2px_4px_rgba(0,0,0,0.02)]">
+                        ${msg.content}
+                    </div>
+                    <span class="text-[9px] text-gray-400 mt-[2px] font-semibold">${timeStr}</span>
+                `;
+                container.appendChild(bubble);
+            });
+            
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        async function handleSendMessage(e) {
+            e.preventDefault();
+            const input = document.getElementById("message-input");
+            const text = input.value.trim();
+            if (!text || !activeChatId) return;
+            
+            input.value = "";
+            
+            try {
+                const res = await fetch(`/api/chats/${activeChatId}/messages`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        sender_id: loggedInUser.student_id,
+                        sender_name: loggedInUser.name,
+                        content: text
+                    })
+                });
+                if (res.ok) {
+                    const messages = await res.json();
+                    renderMessages(messages);
+                    
+                    const lastChat = allChatsList.find(c => c.chat_id === activeChatId);
+                    if (lastChat) {
+                        lastChat.last_message = text;
+                        lastChat.last_timestamp = new Date().toISOString();
+                        renderChatsList(allChatsList);
+                    } else {
+                        loadChatsView();
+                    }
+                }
+            } catch (err) {
+                console.error("Send message error:", err);
+            }
+        }
+
+        // ──────────────────────────────────────────────
+        //  5. Scheduler Logic
+        // ──────────────────────────────────────────────
+        async function loadSchedulerView() {
+            const partnerSelect = document.getElementById("schedule-partner");
+            partnerSelect.innerHTML = `<option value="">-- Choose a Match --</option>`;
+            
+            try {
+                const res = await fetch("/api/students");
+                if (res.ok) {
+                    const students = await res.json();
+                    students.forEach(s => {
+                        if (s.student_id !== loggedInUser.student_id) {
+                            const option = document.createElement("option");
+                            option.value = s.student_id;
+                            option.textContent = `${s.name} (${s.branch} - Year ${s.year})`;
+                            partnerSelect.appendChild(option);
+                        }
+                    });
+                }
+                
+                if (activeChatPartnerId) {
+                    partnerSelect.value = activeChatPartnerId;
+                }
+            } catch (err) {
+                console.error("Load scheduler partners error:", err);
+            }
+            
+            await loadUpcomingSessions();
+        }
+        
+        async function loadUpcomingSessions() {
+            const container = document.getElementById("sessions-timeline");
+            container.innerHTML = `<p class="text-center text-gray-500 py-10">Loading study sessions schedule...</p>`;
+            
+            try {
+                const res = await fetch(`/api/sessions?student_id=${loggedInUser.student_id}`);
+                if (!res.ok) throw new Error("Status " + res.status);
+                const sessions = await res.json();
+                
+                container.innerHTML = "";
+                if (sessions.length === 0) {
+                    container.innerHTML = `
+                        <div class="flex-grow flex flex-col items-center justify-center gap-sm text-center text-gray-500 py-12">
+                            <span class="material-symbols-outlined text-4xl text-outline-variant">calendar_today</span>
+                            <p class="text-sm font-semibold">No Scheduled Sessions</p>
+                            <p class="text-xs text-on-surface-variant max-w-xs">Use the schedule form to plan study sessions with classmates.</p>
+                        </div>`;
+                    return;
+                }
+                
+                sessions.sort((a, b) => new Date(a.date + "T" + a.time) - new Date(b.date + "T" + b.time));
+                
+                sessions.forEach(sess => {
+                    const isCreator = sess.creator_id === loggedInUser.student_id;
+                    const dateObj = new Date(sess.date + "T" + sess.time);
+                    
+                    const dayStr = dateObj.toLocaleDateString(undefined, {weekday: 'short', month: 'short', day: 'numeric'});
+                    const timeStr = dateObj.toLocaleTimeString(undefined, {hour: '2-digit', minute: '2-digit'});
+                    
+                    const card = document.createElement("div");
+                    card.className = "flex items-start gap-md border border-outline-variant bg-surface rounded-xl p-md shadow-[0px_2px_8px_rgba(0,33,71,0.01)] hover:bg-surface-container-low transition-colors";
+                    
+                    const initials = isCreator 
+                        ? (sess.partner_name ? sess.partner_name.split(" ").map(w => w[0]).join("").substring(0,2).toUpperCase() : "SP")
+                        : (sess.creator_name ? sess.creator_name.split(" ").map(w => w[0]).join("").substring(0,2).toUpperCase() : "SP");
+                        
+                    card.innerHTML = `
+                        <div class="flex-shrink-0 w-16 bg-surface-variant text-primary border border-outline-variant rounded-lg p-xs flex flex-col items-center justify-center">
+                            <span class="text-[10px] font-bold uppercase text-gray-500">${dateObj.toLocaleDateString(undefined, {month: 'short'})}</span>
+                            <span class="text-xl font-bold font-display-sm leading-none">${dateObj.getDate()}</span>
+                            <span class="text-[9px] font-semibold text-gray-400 mt-1">${timeStr}</span>
+                        </div>
+                        
+                        <div class="flex-grow min-w-0 flex flex-col gap-1">
+                            <h4 class="font-bold text-sm text-primary truncate">${sess.title}</h4>
+                            <p class="text-xs text-gray-600 line-clamp-2 leading-relaxed">${sess.description || 'No agenda specified.'}</p>
+                            <div class="flex items-center gap-xs mt-1">
+                                <div class="w-5 h-5 rounded-full bg-primary-fixed text-on-primary-fixed flex items-center justify-center text-[8px] font-bold">
+                                    ${initials}
+                                </div>
+                                <span class="text-[10px] font-semibold text-gray-500">
+                                    ${isCreator 
+                                        ? `Scheduled with <strong>${sess.partner_name}</strong>`
+                                        : `Scheduled by <strong>${sess.creator_name}</strong>`
+                                    }
+                                </span>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (err) {
+                console.error("Load sessions error:", err);
+                container.innerHTML = `<p class="text-center text-red-500 py-10">Failed to load study sessions.</p>`;
+            }
+        }
+        
+        async function handleScheduleSubmit(e) {
+            e.preventDefault();
+            const title = document.getElementById("schedule-title").value.trim();
+            const date = document.getElementById("schedule-date").value;
+            const time = document.getElementById("schedule-time").value;
+            const partnerId = document.getElementById("schedule-partner").value;
+            const description = document.getElementById("schedule-agenda").value.trim();
+            
+            if (!title || !date || !time) return;
+            
+            try {
+                const res = await fetch("/api/sessions", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        title: title,
+                        date: date,
+                        time: time,
+                        partner_id: partnerId,
+                        creator_id: loggedInUser.student_id,
+                        description: description
+                    })
+                });
+                
+                if (res.ok) {
+                    document.getElementById("schedule-form").reset();
+                    if (activeChatPartnerId) {
+                        document.getElementById("schedule-partner").value = activeChatPartnerId;
+                    }
+                    await loadUpcomingSessions();
+                } else {
+                    alert("Failed to schedule session.");
+                }
+            } catch (err) {
+                console.error("Schedule post error:", err);
+                alert("Connection failed. Unable to schedule session.");
+            }
+        }
+    </script>
+</body>
+</html>
