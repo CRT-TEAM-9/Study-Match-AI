@@ -16,6 +16,7 @@ _DB_DIR = os.path.dirname(os.path.abspath(__file__))
 _SESSIONS_PATH = os.path.join(_DB_DIR, "sessions_db.json")
 _CHATS_PATH = os.path.join(_DB_DIR, "chats_db.json")
 _TICKETS_PATH = os.path.join(_DB_DIR, "tickets_db.json")
+_NOTIFICATIONS_PATH = os.path.join(_DB_DIR, "notifications_db.json")
 
 # Lock for thread safety
 _lock = threading.Lock()
@@ -209,3 +210,51 @@ def save_ticket(ticket: dict) -> dict:
 
         _write_json(_TICKETS_PATH, tickets)
         return ticket
+
+# ──────────────────────────────────────────────
+#  4. Notifications & Message Requests
+# ──────────────────────────────────────────────
+
+def load_notifications() -> list[dict]:
+    """Load all notifications from notifications_db.json."""
+    with _lock:
+        return _read_json(_NOTIFICATIONS_PATH)
+
+def save_notification(notification: dict) -> dict:
+    """Save a notification. Generates notification_id if missing."""
+    with _lock:
+        notifications = _read_json(_NOTIFICATIONS_PATH)
+        
+        if not notification.get("notification_id"):
+            max_num = 0
+            for n in notifications:
+                nid = n.get("notification_id", "")
+                if nid.startswith("NOT"):
+                    try:
+                        num = int(nid[3:])
+                        max_num = max(max_num, num)
+                    except ValueError:
+                        continue
+            notification["notification_id"] = f"NOT{max_num + 1:03d}"
+
+        updated = False
+        for i, n in enumerate(notifications):
+            if n.get("notification_id") == notification["notification_id"]:
+                notifications[i] = notification
+                updated = True
+                break
+        if not updated:
+            notifications.append(notification)
+
+        _write_json(_NOTIFICATIONS_PATH, notifications)
+        return notification
+
+def delete_notification(notification_id: str) -> bool:
+    """Delete a notification by ID."""
+    with _lock:
+        notifications = _read_json(_NOTIFICATIONS_PATH)
+        new_list = [n for n in notifications if n.get("notification_id") != notification_id]
+        if len(new_list) != len(notifications):
+            _write_json(_NOTIFICATIONS_PATH, new_list)
+            return True
+        return False

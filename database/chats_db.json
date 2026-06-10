@@ -25,5 +25,41 @@
                 "timestamp": "2026-06-09T23:55:17.000624"
             }
         ]
+    },
+    {
+        "chat_id": "GROUP_e5e4b033",
+        "participants": [
+            "STU009",
+            "STU013",
+            "STU025",
+            "STU014",
+            "STU024",
+            "STU018"
+        ],
+        "group_name": "Study Group",
+        "is_group": true,
+        "messages": [
+            {
+                "sender_id": "STU009",
+                "sender_name": "Yashwanth Ponnam",
+                "content": "hello all!",
+                "timestamp": "2026-06-10T23:45:11.324864"
+            },
+            {
+                "sender_id": "STU009",
+                "sender_name": "Yashwanth Ponnam",
+                "content": "",
+                "timestamp": "2026-06-11T00:16:18.057117",
+                "file_url": "/uploads/0c05bd1f90144f4fa43fe7da962e43ed.md",
+                "file_name": "DESIGN.md",
+                "file_type": "text/markdown"
+            },
+            {
+                "sender_id": "STU009",
+                "sender_name": "Yashwanth Ponnam",
+                "content": "Hey check this out",
+                "timestamp": "2026-06-11T00:16:40.617591"
+            }
+        ]
     }
 ]

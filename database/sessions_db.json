@@ -13,5 +13,20 @@
             "STU002"
         ],
         "session_id": "SES001"
+    },
+    {
+        "title": "Session",
+        "date": "2026-06-11",
+        "time": "01:47",
+        "description": "Just  a Demo",
+        "partner_id": "STU002",
+        "partner_name": "Priya Patel",
+        "creator_id": "STU009",
+        "creator_name": "Yashwanth Ponnam",
+        "attendees": [
+            "STU009",
+            "STU002"
+        ],
+        "session_id": "SES002"
     }
 ]

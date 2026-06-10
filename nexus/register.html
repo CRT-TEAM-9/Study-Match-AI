@@ -384,6 +384,32 @@
                         </select>
                     </div>
 
+                    <!-- Social Links -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-md">
+                        <div class="flex flex-col gap-xs">
+                            <label class="text-sm text-primary font-medium" for="linkedin">LinkedIn URL</label>
+                            <input class="w-full bg-surface rounded border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all py-sm px-md text-base" id="linkedin" name="linkedin" placeholder="https://linkedin.com/in/..." type="url" />
+                        </div>
+                        <div class="flex flex-col gap-xs">
+                            <label class="text-sm text-primary font-medium" for="github">GitHub URL</label>
+                            <input class="w-full bg-surface rounded border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all py-sm px-md text-base" id="github" name="github" placeholder="https://github.com/..." type="url" />
+                        </div>
+                        <div class="flex flex-col gap-xs">
+                            <label class="text-sm text-primary font-medium" for="instagram">Instagram URL</label>
+                            <input class="w-full bg-surface rounded border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all py-sm px-md text-base" id="instagram" name="instagram" placeholder="https://instagram.com/..." type="url" />
+                        </div>
+                    </div>
+
+                    <!-- Profile Visibility -->
+                    <div class="flex flex-col gap-xs">
+                        <label class="text-sm text-primary font-medium" for="visibility">Profile Visibility</label>
+                        <select class="w-full bg-surface rounded border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all py-sm px-md text-base" id="visibility" name="visibility" required>
+                            <option value="public">Public (Visible to everyone, sharable across web)</option>
+                            <option value="private">Private (Only visible to Nexus matches & groups)</option>
+                        </select>
+                        <p class="text-xs text-on-surface-variant">Public profiles can be shared via a custom link so others can view your profile and contact you.</p>
+                    </div>
+
                     <!-- Availability Days -->
                     <div class="flex flex-col gap-xs">
                         <span class="text-sm text-primary font-medium">Availability Days</span>
@@ -634,6 +660,14 @@
                 const subjects_strong_in = strongVal.split(",").map(s => s.trim()).filter(s => s);
                 const subjects_needing_help_in = helpVal.split(",").map(s => s.trim()).filter(s => s);
 
+                // Collect Social Links & Visibility
+                const social_links = {
+                    linkedin: document.getElementById("linkedin") ? document.getElementById("linkedin").value.trim() : "",
+                    github: document.getElementById("github") ? document.getElementById("github").value.trim() : "",
+                    instagram: document.getElementById("instagram") ? document.getElementById("instagram").value.trim() : ""
+                };
+                const profile_visibility = document.getElementById("visibility") ? document.getElementById("visibility").value : "public";
+
                 // Build registration JSON payload
                 const payload = {
                     name,
@@ -648,7 +682,9 @@
                     availability_days: availability,
                     goal: document.getElementById("goal").value,
                     communication_preference: document.getElementById("comm").value,
-                    profile_pic: base64ProfilePic
+                    profile_pic: base64ProfilePic,
+                    social_links,
+                    profile_visibility
                 };
 
                 try {

@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Public Profile - Nexus</title>
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+    <!-- Configuration Reference -->
+    <script src="/config.js"></script>
+    <!-- Load Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Load Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <script>
+        // Inline theme manager to prevent white flash
+        function applyTheme() {
+            const theme = localStorage.getItem("theme") || "system";
+            let isDark = false;
+            let themeLabel = "";
+            let themeIcon = "desktop_windows";
+            
+            if (theme === "dark") {
+                isDark = true;
+                themeLabel = "Dark";
+                themeIcon = "dark_mode";
+            } else if (theme === "light") {
+                isDark = false;
+                themeLabel = "Light";
+                themeIcon = "light_mode";
+            } else {
+                isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+                themeLabel = "System (" + (isDark ? "Dark" : "Light") + ")";
+                themeIcon = "desktop_windows";
+            }
+            
+            if (isDark) {
+                document.documentElement.classList.add("dark");
+            } else {
+                document.documentElement.classList.remove("dark");
+            }
+            
+            const updateUI = () => {
+                const icon = document.getElementById("theme-icon");
+                const text = document.getElementById("theme-text");
+                if (icon) icon.textContent = themeIcon;
+                if (text) text.textContent = themeLabel;
+            };
+            
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", updateUI);
+            } else {
+                updateUI();
+            }
+        }
+        function toggleTheme() {
+            const theme = localStorage.getItem("theme") || "system";
+            let nextTheme = "light";
+            if (theme === "system") {
+                nextTheme = "light";
+            } else if (theme === "light") {
+                nextTheme = "dark";
+            } else if (theme === "dark") {
+                nextTheme = "system";
+            }
+            localStorage.setItem("theme", nextTheme);
+            applyTheme();
+        }
+        
+        // Listen for system theme changes
+        window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+            if ((localStorage.getItem("theme") || "system") === "system") {
+                applyTheme();
+            }
+        });
+        
+        applyTheme();
+    </script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "var(--color-primary)",
+                        "secondary": "var(--color-secondary)",
+                        "tertiary": "var(--color-tertiary)",
+                        "surface": "var(--color-surface)",
+                        "background": "var(--color-background)",
+                        "outline-variant": "var(--color-outline-variant)",
+                        "on-surface-variant": "var(--color-on-surface-variant)",
+                        "surface-container-high": "var(--color-surface-container-high)",
+                        "surface-container-low": "var(--color-surface-container-low)",
+                        "surface-container-lowest": "var(--color-surface-container-lowest)",
+                        "surface-container-highest": "var(--color-surface-container-highest)",
+                        "surface-variant": "var(--color-surface-variant)",
+                        "surface-bright": "var(--color-surface-bright)",
+                        "on-primary": "var(--color-on-primary)",
+                        "on-secondary": "var(--color-on-secondary)",
+                        "primary-fixed": "var(--color-primary-fixed)",
+                        "on-primary-fixed": "var(--color-on-primary-fixed)"
+                    },
+                    spacing: {
+                        "xs": "4px",
+                        "sm": "8px",
+                        "md": "16px",
+                        "lg": "24px",
+                        "xl": "32px",
+                        "max-width": "1280px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "40px",
+                        "gutter": "20px"
+                    },
+                    fontFamily: {
+                        "Inter": ["Inter", "sans-serif"],
+                        "Geist": ["Geist", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* CSS custom properties for Light/Dark themes */
+        :root {
+            --color-primary: #000a1e;
+            --color-secondary: #006c49;
+            --color-tertiary: #000a22;
+            --color-surface: #f8f9ff;
+            --color-background: #f8f9ff;
+            --color-outline-variant: #c4c6cf;
+            --color-on-surface-variant: #44474e;
+            --color-surface-container-high: #dce9ff;
+            --color-surface-container-low: #eff4ff;
+            --color-surface-container-lowest: #ffffff;
+            --color-surface-container-highest: #d3e4fe;
+            --color-surface-variant: #d3e4fe;
+            --color-surface-bright: #f8f9ff;
+            --color-on-primary: #ffffff;
+            --color-on-secondary: #ffffff;
+            --color-primary-fixed: #d6e3ff;
+            --color-on-primary-fixed: #001b3d;
+        }
+        :root.dark {
+            --color-primary: #aec7f6;
+            --color-secondary: #4edea3;
+            --color-tertiary: #adc6ff;
+            --color-surface: #0b1c30;
+            --color-background: #000a1e;
+            --color-outline-variant: #44474e;
+            --color-on-surface-variant: #c4c6cf;
+            --color-surface-container-high: #213145;
+            --color-surface-container-low: #0f233a;
+            --color-surface-container-lowest: #071324;
+            --color-surface-container-highest: #2d476f;
+            --color-surface-variant: #2d476f;
+            --color-surface-bright: #0f233a;
+            --color-on-primary: #071324;
+            --color-on-secondary: #002113;
+            --color-primary-fixed: #002147;
+            --color-on-primary-fixed: #d6e3ff;
+        }
+        /* Contrast overrides for dark mode standard text */
+        .dark .text-gray-900 { color: #f8f9ff !important; }
+        .dark .text-gray-800 { color: #f8f9ff !important; }
+        .dark .text-gray-700 { color: #eff4ff !important; }
+        .dark .text-gray-600 { color: #c4c6cf !important; }
+        .dark .text-gray-500 { color: #9aa0a6 !important; }
+        
+        .fill-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-Inter transition-colors duration-200">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-surface sticky top-0 z-50 border-b border-outline-variant w-full h-16 flex justify-between items-center px-margin-mobile md:px-margin-desktop">
+        <div class="flex items-center gap-lg">
+            <a class="font-Inter text-headline-md font-bold text-primary flex items-center gap-sm text-2xl" href="/index.html">
+                <span class="material-symbols-outlined text-secondary fill-icon text-[28px]">school</span>
+                Nexus
+            </a>
+        </div>
+        <div class="flex items-center gap-md">
+            <button onclick="toggleTheme()" class="h-10 px-3 rounded-full bg-surface-variant hover:bg-outline-variant/30 flex items-center gap-2 text-primary transition-colors border border-outline-variant/30" title="Toggle Theme (System / Light / Dark)">
+                <span class="material-symbols-outlined text-[20px]" id="theme-icon">desktop_windows</span>
+                <span class="text-xs font-semibold" id="theme-text">System</span>
+            </button>
+            <a href="/login.html" class="bg-primary text-on-primary px-lg py-[8px] rounded hover:opacity-90 transition-all font-bold text-sm">Join Nexus</a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex justify-center py-xl px-margin-mobile">
+        <div id="loading-state" class="w-full max-w-4xl flex flex-col items-center justify-center p-xl">
+            <span class="material-symbols-outlined text-4xl animate-spin text-primary">progress_activity</span>
+            <p class="mt-4 text-on-surface-variant font-medium">Loading profile...</p>
+        </div>
+
+        <div id="error-state" class="w-full max-w-4xl flex flex-col items-center justify-center p-xl hidden">
+            <span class="material-symbols-outlined text-6xl text-red-500 mb-4">error</span>
+            <h2 class="text-2xl font-bold text-primary mb-2">Profile Unavailable</h2>
+            <p id="error-message" class="text-on-surface-variant text-center">This profile might be set to private or does not exist.</p>
+            <a href="/index.html" class="mt-8 bg-primary text-on-primary px-lg py-sm rounded hover:opacity-90 transition-all font-bold">Go Home</a>
+        </div>
+
+        <div id="profile-content" class="w-full max-w-4xl flex flex-col gap-xl hidden">
+            <!-- Header Section -->
+            <div>
+                <h1 class="text-3xl font-bold text-primary tracking-tight">Public Profile</h1>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-lg items-start">
+                <!-- Left column: Avatar Card (Col 1-4) -->
+                <div class="lg:col-span-4 bg-surface-bright border border-outline-variant rounded-xl p-lg flex flex-col items-center text-center gap-md shadow-[0px_4px_12px_rgba(0,33,71,0.02)]">
+                    <div class="relative w-32 h-32 rounded-full border-4 border-outline-variant overflow-hidden flex-shrink-0 bg-surface-variant flex items-center justify-center">
+                        <img id="profile-avatar-large" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAaWpT7Rd7ve76MWmBgfDlHrBGYqlRZ3Hag58hyQDW4DUTcXFVBiVoT3VTy2mlakkS-5l-7AFjyGI7UEKw05Bdh7eYL4IZ-EFc2HqoqZrG4UgeuBXcUtxaLRaXjRuxbCcS5Wn-oug8gV05b7X4Cc5JUiYyCM2L_AFG5QrUktB3Z96wfyUGhfsDQnfS0NpUfvBMpCUEbLMrq7QD1uJPyb4fBkVu2Zf6sBLVaNzC9Rhla_qnX61plWcUhxEIRwRcQLEmqVhNicxr_0s4" alt="Large Avatar" />
+                    </div>
+                    <div class="flex flex-col gap-xs">
+                        <h2 id="profile-name" class="text-xl font-bold text-primary">Student Name</h2>
+                        <span id="profile-id" class="text-xs font-semibold px-2 py-0.5 bg-surface-container-high rounded-full border border-outline-variant/30 text-primary self-center">STU001</span>
+                    </div>
+                    <div id="social-links-container" class="border-t border-outline-variant/30 pt-md w-full flex flex-col gap-sm">
+                        <h4 class="text-sm font-bold text-primary text-left">Connect</h4>
+                        <!-- Links injected here -->
+                    </div>
+                    <button onclick="openMessageModal()" class="w-full mt-4 bg-secondary text-on-secondary px-lg py-[8px] rounded hover:opacity-90 transition-all font-bold text-sm flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]">send</span> Send Message Request
+                    </button>
+                </div>
+
+                <!-- Right column: Detailed Academic Info (Col 5-12) -->
+                <div class="lg:col-span-8 bg-surface-bright border border-outline-variant rounded-xl p-lg flex flex-col gap-lg shadow-[0px_4px_12px_rgba(0,33,71,0.02)]">
+                    <div>
+                        <h3 class="text-lg font-bold text-primary border-b border-outline-variant/30 pb-xs mb-md">Academic Profile</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-md text-sm">
+                            <div>
+                                <span class="text-xs font-semibold text-on-surface-variant text-gray-500">College / University</span>
+                                <p id="profile-college" class="text-base font-semibold text-primary mt-[2px]">-</p>
+                            </div>
+                            <div>
+                                <span class="text-xs font-semibold text-on-surface-variant text-gray-500">Major / Branch</span>
+                                <p id="profile-branch" class="text-base font-semibold text-primary mt-[2px]">-</p>
+                            </div>
+                            <div>
+                                <span class="text-xs font-semibold text-on-surface-variant text-gray-500">Academic Year</span>
+                                <p id="profile-year" class="text-base font-semibold text-primary mt-[2px]">-</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-lg font-bold text-primary border-b border-outline-variant/30 pb-xs mb-md">Academic Focus</h3>
+                        <div class="flex flex-col gap-md text-sm">
+                            <div>
+                                <span class="text-xs font-semibold text-on-surface-variant text-gray-500 mb-xs block">Strong Subjects</span>
+                                <div id="profile-strong-badges" class="flex flex-wrap gap-xs"></div>
+                            </div>
+                            <div>
+                                <span class="text-xs font-semibold text-on-surface-variant text-gray-500 mb-xs block">Subjects Needing Help In</span>
+                                <div id="profile-help-badges" class="flex flex-wrap gap-xs"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-lg font-bold text-primary border-b border-outline-variant/30 pb-xs mb-md">Matchmaker Preferences</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-md text-sm">
+                            <div>
+                                <span class="text-xs font-semibold text-on-surface-variant text-gray-500">Study Style</span>
+                                <p id="profile-study-style" class="text-base font-semibold text-primary mt-[2px]">-</p>
+                            </div>
+                            <div>
+                                <span class="text-xs font-semibold text-on-surface-variant text-gray-500">Shared Goal</span>
+                                <p id="profile-goal" class="text-base font-semibold text-primary mt-[2px]">-</p>
+                            </div>
+                            <div>
+                                <span class="text-xs font-semibold text-on-surface-variant text-gray-500">Communication Mode</span>
+                                <p id="profile-comm" class="text-base font-semibold text-primary mt-[2px]">-</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-lg font-bold text-primary border-b border-outline-variant/30 pb-xs mb-md">Schedule & Availability</h3>
+                        <div class="flex flex-col gap-md text-sm">
+                            <div>
+                                <span class="text-xs font-semibold text-on-surface-variant text-gray-500 mb-xs block">Available Days</span>
+                                <div id="profile-days-badges" class="flex flex-wrap gap-xs"></div>
+                            </div>
+                            <div>
+                                <span class="text-xs font-semibold text-on-surface-variant text-gray-500 mb-xs block">Preferred Study Times</span>
+                                <div id="profile-times-badges" class="flex flex-wrap gap-xs"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Message Request Modal -->
+    <div id="message-modal" class="fixed inset-0 bg-black/50 z-[100] hidden items-center justify-center p-4">
+        <div class="bg-surface border border-outline-variant rounded-xl w-full max-w-md flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-4 border-b border-outline-variant/30 flex justify-between items-center bg-surface-container-low">
+                <h3 class="text-lg font-bold text-primary flex items-center gap-2">
+                    <span class="material-symbols-outlined text-secondary">send</span> Send Message Request
+                </h3>
+                <button onclick="closeMessageModal()" class="text-on-surface-variant hover:text-primary transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="p-4 flex flex-col gap-4">
+                <div id="guest-fields" class="flex flex-col gap-4 hidden">
+                    <div>
+                        <label class="block text-sm font-semibold text-primary mb-1">Your Name</label>
+                        <input type="text" id="msg-sender-name" class="w-full bg-surface-bright border border-outline-variant rounded p-2 text-primary focus:outline-none focus:border-secondary" placeholder="John Doe">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-primary mb-1">Your Email</label>
+                        <input type="email" id="msg-sender-email" class="w-full bg-surface-bright border border-outline-variant rounded p-2 text-primary focus:outline-none focus:border-secondary" placeholder="john@example.com">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-primary mb-1">Message</label>
+                    <textarea id="msg-text" rows="4" class="w-full bg-surface-bright border border-outline-variant rounded p-2 text-primary focus:outline-none focus:border-secondary resize-none" placeholder="Hi! I saw your profile and would love to study together..."></textarea>
+                </div>
+                <div id="msg-error" class="text-red-500 text-sm hidden font-medium"></div>
+                <div id="msg-success" class="text-secondary text-sm hidden font-medium bg-secondary/10 p-2 rounded">Message request sent successfully!</div>
+            </div>
+            <div class="p-4 border-t border-outline-variant/30 flex justify-end gap-2 bg-surface-container-low">
+                <button onclick="closeMessageModal()" class="px-4 py-2 text-primary hover:bg-outline-variant/20 rounded font-semibold text-sm transition-colors">Cancel</button>
+                <button onclick="sendMessageRequest()" id="send-msg-btn" class="px-4 py-2 bg-primary text-on-primary rounded hover:opacity-90 font-bold text-sm transition-opacity flex items-center gap-2">
+                    Send Request
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-surface-container-low border-t border-outline-variant py-lg px-margin-mobile md:px-margin-desktop mt-auto">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-md max-w-max-width mx-auto">
+            <div class="flex items-center gap-sm">
+                <span class="material-symbols-outlined text-primary fill-icon">school</span>
+                <span class="font-Inter text-headline-sm font-semibold text-primary font-bold text-lg">Nexus</span>
+            </div>
+            <div class="text-label-sm text-on-surface-variant text-xs">
+                © 2026 Nexus. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const AVATARS = {
+            "default": "https://lh3.googleusercontent.com/aida-public/AB6AXuAaWpT7Rd7ve76MWmBgfDlHrBGYqlRZ3Hag58hyQDW4DUTcXFVBiVoT3VTy2mlakkS-5l-7AFjyGI7UEKw05Bdh7eYL4IZ-EFc2HqoqZrG4UgeuBXcUtxaLRaXjRuxbCcS5Wn-oug8gV05b7X4Cc5JUiYyCM2L_AFG5QrUktB3Z96wfyUGhfsDQnfS0NpUfvBMpCUEbLMrq7QD1uJPyb4fBkVu2Zf6sBLVaNzC9Rhla_qnX61plWcUhxEIRwRcQLEmqVhNicxr_0s4",
+            "Aarav Sharma": "https://lh3.googleusercontent.com/aida-public/AB6AXuC47hAeFbFWvWEcnFQF_x1_IoTMwooACagZUjHoNyFR_qx_g_hL-9LRserDCsSkPtapue1b9q3ZKQDqw9fo4DOZ7B7I6WTChT1RJ2dY1s5bWY5Fzh-yFAltSfLUxGuhQICPJ8ujcJ1D1HoPT4llrRti3x20z6GGDCJrtuZOWVudNapEXC1ZLAzN7_xhPhMb_7VYNzZjg-CJ3fAstiwZrpPCkdQ1T_9fmspQXhDf9qxi-88vAzzBK9iYB5rUK9QZ5AMPVi27pVG6Q2A",
+            "Priya Patel": "https://lh3.googleusercontent.com/aida-public/AB6AXuAZKNhBYpKdoSGngg3aCnp1LSPmkJ6YpP_x6GSqkQ8QTClu1IYXiiGprd_1CVAn5xWiks3rmkWUj_t8-i42HR79lTi_CiHaScFfo5kzGP6sr5o0Bk-8wfZwTXmEptXDRfaGW-5HjBCXK5__Hy5rZ_yJZIoqbmKpyJZW6-oPYNclPgYLQSfDTWXAsSYaL6ZVn5QCzQJRecgV2gVG89KZDl3fa9LszQXz-9m0cvs4kQDPKGF65oaYwxJ1Wkpie16VgucyYtaKB5Vm3_U",
+            "Rohan Mehta": "https://lh3.googleusercontent.com/aida-public/AB6AXuAaWpT7Rd7ve76MWmBgfDlHrBGYqlRZ3Hag58hyQDW4DUTcXFVBiVoT3VTy2mlakkS-5l-7AFjyGI7UEKw05Bdh7eYL4IZ-EFc2HqoqZrG4UgeuBXcUtxaLRaXjRuxbCcS5Wn-oug8gV05b7X4Cc5JUiYyCM2L_AFG5QrUktB3Z96wfyUGhfsDQnfS0NpUfvBMpCUEbLMrq7QD1uJPyb4fBkVu2Zf6sBLVaNzC9Rhla_qnX61plWcUhxEIRwRcQLEmqVhNicxr_0s4"
+        };
+
+        function getAvatar(name, profile_pic) {
+            if (profile_pic) return profile_pic;
+            return AVATARS[name] || AVATARS["default"];
+        }
+
+        const populateBadges = (elementId, list, colorClass) => {
+            const container = document.getElementById(elementId);
+            container.innerHTML = "";
+            if (!list || list.length === 0) {
+                container.innerHTML = `<span class="text-xs text-on-surface-variant italic">None specified</span>`;
+                return;
+            }
+            list.forEach(item => {
+                const badge = document.createElement("span");
+                badge.className = `${colorClass} px-2 py-0.5 rounded text-xs font-semibold mr-1 mb-1 inline-block`;
+                badge.textContent = item;
+                container.appendChild(badge);
+            });
+        };
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            const params = new URLSearchParams(window.location.search);
+            const studentId = params.get("id");
+            
+            const loading = document.getElementById("loading-state");
+            const error = document.getElementById("error-state");
+            const content = document.getElementById("profile-content");
+            
+            if (!studentId) {
+                loading.classList.add("hidden");
+                error.classList.remove("hidden");
+                return;
+            }
+            
+            try {
+                const res = await fetch(window.getApiUrl(`/api/public-profile/${studentId}`));
+                
+                if (res.ok) {
+                    const student = await res.json();
+                    
+                    document.getElementById("profile-name").textContent = student.name;
+                    document.getElementById("profile-id").textContent = student.student_id;
+                    document.getElementById("profile-avatar-large").src = getAvatar(student.name, student.profile_pic);
+                    
+                    document.getElementById("profile-college").textContent = student.college || "Nexus University";
+                    document.getElementById("profile-branch").textContent = student.branch;
+                    document.getElementById("profile-year").textContent = student.year;
+                    
+                    const studyStyleMap = {
+                        "discussion": "Discussion & Group Study",
+                        "reading": "Reading & Notes Review",
+                        "practice-problems": "Practice Problems & Quiz Prep",
+                        "visual": "Visual Aids & Video Lectures"
+                    };
+                    document.getElementById("profile-study-style").textContent = studyStyleMap[student.study_style] || student.study_style;
+                    
+                    const goalMap = {
+                        "exam prep": "Exam Preparation",
+                        "concept clarity": "Concept Clarity",
+                        "project work": "Project Collaboration",
+                        "competitive exam": "Competitive Exam Prep"
+                    };
+                    document.getElementById("profile-goal").textContent = goalMap[student.goal] || student.goal;
+                    
+                    const commMap = {
+                        "online": "Online Only (Discord/Zoom)",
+                        "in-person": "In-Person Only (Library/Classroom)",
+                        "both": "Hybrid (Both Online & In-Person)"
+                    };
+                    document.getElementById("profile-comm").textContent = commMap[student.communication_preference] || student.communication_preference;
+                    
+                    populateBadges("profile-strong-badges", student.subjects_strong_in, "bg-secondary text-on-secondary");
+                    populateBadges("profile-help-badges", student.subjects_needing_help_in, "bg-primary-fixed text-on-primary-fixed border border-outline-variant/20");
+                    populateBadges("profile-days-badges", student.availability_days, "bg-surface-variant border border-outline-variant/30 text-primary");
+                    populateBadges("profile-times-badges", student.preferred_study_time, "bg-surface-variant border border-outline-variant/30 text-primary");
+                    
+                    // Social Links
+                    const social = student.social_links || {};
+                    const socialContainer = document.getElementById("social-links-container");
+                    
+                    if (student.email) {
+                        socialContainer.innerHTML += `
+                            <a href="mailto:${student.email}" class="flex items-center gap-2 text-sm text-blue-600 hover:underline bg-surface-container-low p-2 rounded">
+                                <span class="material-symbols-outlined text-[18px]">email</span> Email Contact
+                            </a>
+                        `;
+                    }
+                    if (social.linkedin) {
+                        socialContainer.innerHTML += `
+                            <a href="${social.linkedin}" target="_blank" class="flex items-center gap-2 text-sm text-blue-600 hover:underline bg-surface-container-low p-2 rounded">
+                                <span class="material-symbols-outlined text-[18px]">link</span> LinkedIn
+                            </a>
+                        `;
+                    }
+                    if (social.github) {
+                        socialContainer.innerHTML += `
+                            <a href="${social.github}" target="_blank" class="flex items-center gap-2 text-sm text-blue-600 hover:underline bg-surface-container-low p-2 rounded">
+                                <span class="material-symbols-outlined text-[18px]">code</span> GitHub
+                            </a>
+                        `;
+                    }
+                    if (social.instagram) {
+                        socialContainer.innerHTML += `
+                            <a href="${social.instagram}" target="_blank" class="flex items-center gap-2 text-sm text-blue-600 hover:underline bg-surface-container-low p-2 rounded">
+                                <span class="material-symbols-outlined text-[18px]">photo_camera</span> Instagram
+                            </a>
+                        `;
+                    }
+                    if (!student.email && !social.linkedin && !social.github && !social.instagram) {
+                        socialContainer.innerHTML += `<span class="text-xs text-gray-500">No contact methods shared.</span>`;
+                    }
+
+                    loading.classList.add("hidden");
+                    content.classList.remove("hidden");
+                } else {
+                    const errData = await res.json();
+                    document.getElementById("error-message").textContent = errData.detail || "This profile is private or unavailable.";
+                    loading.classList.add("hidden");
+                    error.classList.remove("hidden");
+                }
+            } catch (err) {
+                console.error(err);
+                document.getElementById("error-message").textContent = "Network error while fetching the profile.";
+                loading.classList.add("hidden");
+                error.classList.remove("hidden");
+            }
+        });
+
+        // Modal Logic
+        const loggedInUserStr = localStorage.getItem("nexus_user");
+        const loggedInUser = loggedInUserStr ? JSON.parse(loggedInUserStr) : null;
+
+        function openMessageModal() {
+            document.getElementById("message-modal").classList.remove("hidden");
+            document.getElementById("message-modal").classList.add("flex");
+            document.getElementById("msg-error").classList.add("hidden");
+            document.getElementById("msg-success").classList.add("hidden");
+            document.getElementById("msg-text").value = "";
+            
+            if (!loggedInUser) {
+                document.getElementById("guest-fields").classList.remove("hidden");
+                document.getElementById("msg-sender-name").value = "";
+                document.getElementById("msg-sender-email").value = "";
+            } else {
+                document.getElementById("guest-fields").classList.add("hidden");
+            }
+        }
+
+        function closeMessageModal() {
+            document.getElementById("message-modal").classList.add("hidden");
+            document.getElementById("message-modal").classList.remove("flex");
+        }
+
+        async function sendMessageRequest() {
+            const btn = document.getElementById("send-msg-btn");
+            const errDiv = document.getElementById("msg-error");
+            const succDiv = document.getElementById("msg-success");
+            const text = document.getElementById("msg-text").value.trim();
+            
+            errDiv.classList.add("hidden");
+            succDiv.classList.add("hidden");
+            
+            if (!text) {
+                errDiv.textContent = "Please enter a message.";
+                errDiv.classList.remove("hidden");
+                return;
+            }
+            
+            const payload = {
+                recipient_id: new URLSearchParams(window.location.search).get("id"),
+                message: text
+            };
+            
+            if (loggedInUser) {
+                payload.sender_id = loggedInUser.student_id;
+                payload.sender_name = loggedInUser.name;
+            } else {
+                const name = document.getElementById("msg-sender-name").value.trim();
+                const email = document.getElementById("msg-sender-email").value.trim();
+                if (!name || !email) {
+                    errDiv.textContent = "Please enter your name and email.";
+                    errDiv.classList.remove("hidden");
+                    return;
+                }
+                payload.sender_name = name;
+                payload.sender_email = email;
+            }
+            
+            btn.disabled = true;
+            btn.innerHTML = `<span class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span> Sending...`;
+            
+            try {
+                const res = await fetch(window.getApiUrl("/api/notifications"), {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                
+                if (res.ok) {
+                    succDiv.classList.remove("hidden");
+                    setTimeout(() => closeMessageModal(), 2000);
+                } else {
+                    const data = await res.json();
+                    errDiv.textContent = data.detail || "Failed to send request.";
+                    errDiv.classList.remove("hidden");
+                }
+            } catch (err) {
+                console.error(err);
+                errDiv.textContent = "Network error. Please try again.";
+                errDiv.classList.remove("hidden");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = "Send Request";
+            }
+        }
+    </script>
+</body>
+</html>

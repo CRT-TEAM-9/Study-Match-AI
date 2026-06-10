@@ -28,7 +28,10 @@ from database.db_helper_extended import (
     save_ticket,
     create_group_chat,
     rename_group_chat,
-    remove_participant_from_group
+    remove_participant_from_group,
+    load_notifications,
+    save_notification,
+    delete_notification
 )
 import datetime
 
@@ -698,6 +701,92 @@ def api_close_ticket(ticket_id):
     save_ticket(target_ticket)
     return jsonify(target_ticket)
 
+
+# ──────────────────────────────────────────────
+#  Notifications & Message Requests Endpoints
+# ──────────────────────────────────────────────
+
+@app.route('/api/notifications', methods=['GET'])
+def api_get_notifications():
+    student_id = request.args.get('student_id')
+    if not student_id:
+        return jsonify({"detail": "student_id is required"}), 400
+        
+    notifications = load_notifications()
+    user_notifications = [n for n in notifications if n.get("recipient_id") == student_id]
+    
+    # Sort by created_at descending
+    user_notifications.sort(key=lambda x: x.get("created_at", ""), reverse=True)
+    return jsonify(user_notifications)
+
+@app.route('/api/notifications', methods=['POST'])
+def api_create_notification():
+    data = request.json
+    recipient_id = data.get("recipient_id")
+    sender_name = data.get("sender_name")
+    sender_email = data.get("sender_email")
+    sender_id = data.get("sender_id")
+    message = data.get("message")
+    
+    if not recipient_id or not message:
+        return jsonify({"detail": "recipient_id and message are required"}), 400
+        
+    if not sender_id and not (sender_name and sender_email):
+        return jsonify({"detail": "Either sender_id, or both sender_name and sender_email are required"}), 400
+        
+    new_notif = {
+        "recipient_id": recipient_id,
+        "sender_name": sender_name,
+        "sender_email": sender_email,
+        "sender_id": sender_id,
+        "message": message,
+        "type": "message_request",
+        "status": "pending",
+        "created_at": datetime.datetime.utcnow().isoformat() + "Z"
+    }
+    
+    saved = save_notification(new_notif)
+    return jsonify(saved), 201
+
+@app.route('/api/notifications/<notification_id>/resolve', methods=['POST'])
+def api_resolve_notification(notification_id):
+    data = request.json
+    action = data.get("action")  # 'accept' or 'decline'
+    
+    notifications = load_notifications()
+    target = None
+    for n in notifications:
+        if n.get("notification_id") == notification_id:
+            target = n
+            break
+            
+    if not target:
+        return jsonify({"detail": "Notification not found"}), 404
+        
+    if action == "accept":
+        # If it's a registered user, create a chat
+        sender_id = target.get("sender_id")
+        recipient_id = target.get("recipient_id")
+        if sender_id and recipient_id:
+            chat_id = f"DM_{min(sender_id, recipient_id)}_{max(sender_id, recipient_id)}"
+            initial_msg = {
+                "sender_id": sender_id,
+                "text": target.get("message", "Let's study together!"),
+                "timestamp": target.get("created_at")
+            }
+            save_message(chat_id, initial_msg)
+            
+        target["status"] = "accepted"
+        save_notification(target)
+        # We can safely delete it or leave it as accepted. Let's delete it so it clears out.
+        delete_notification(notification_id)
+        return jsonify({"detail": "Accepted and chat created" if sender_id else "Accepted request"})
+        
+    elif action == "decline":
+        delete_notification(notification_id)
+        return jsonify({"detail": "Declined and removed"})
+        
+    return jsonify({"detail": "Invalid action"}), 400
 
 # ──────────────────────────────────────────────
 #  File Upload Endpoints
