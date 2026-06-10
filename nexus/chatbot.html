@@ -700,7 +700,9 @@
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         student_ids: studentIds,
-                        group_name: groupName
+                        group_name: groupName,
+                        creator_id: loggedInUser.student_id,
+                        creator_name: loggedInUser.name
                     })
                 });
                 

@@ -845,17 +845,18 @@ def api_resolve_notification(notification_id):
         return jsonify({"detail": "Notification not found"}), 404
         
     if action == "accept":
+        chat_id = None
+        sender_id = target.get("sender_id")
+        recipient_id = target.get("recipient_id")
+        
         if target.get("type") == "group_invite":
             chat_id = target.get("chat_id")
-            recipient_id = target.get("recipient_id")
             if chat_id and recipient_id:
                 # Add user to group
                 from database.db_helper_extended import add_participant_to_group
                 add_participant_to_group(chat_id, recipient_id)
         else:
             # If it's a registered user, create a DM chat
-            sender_id = target.get("sender_id")
-            recipient_id = target.get("recipient_id")
             if sender_id and recipient_id:
                 chat_id = f"DM_{min(sender_id, recipient_id)}_{max(sender_id, recipient_id)}"
                 initial_msg = {
@@ -867,12 +868,11 @@ def api_resolve_notification(notification_id):
             
         target["status"] = "accepted"
         save_notification(target)
-        # We can safely delete it or leave it as accepted. Let's delete it so it clears out.
         delete_notification(notification_id)
         
         return jsonify({
-            "detail": "Accepted and chat created" if sender_id else "Accepted request",
-            "chat_id": chat_id if sender_id and recipient_id else None
+            "detail": "Accepted and chat created" if chat_id else "Accepted request",
+            "chat_id": chat_id
         })
         
     elif action == "decline":

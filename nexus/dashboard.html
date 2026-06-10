@@ -1595,7 +1595,20 @@
             }
             
             document.getElementById("chat-header-actions").classList.remove("hidden");
-            document.getElementById("chat-header-status").textContent = selectedChat.is_group ? "Group Chat" : "Direct Message • Online";
+            
+            if (selectedChat.is_group) {
+                let membersStr = "Group Chat";
+                if (selectedChat.participants && allStudentsList) {
+                    const memberNames = selectedChat.participants.map(id => {
+                        const s = allStudentsList.find(st => st.student_id === id);
+                        return s ? s.name : id;
+                    });
+                    membersStr = `Group Chat • ${memberNames.join(', ')}`;
+                }
+                document.getElementById("chat-header-status").textContent = membersStr;
+            } else {
+                document.getElementById("chat-header-status").textContent = "Direct Message • Online";
+            }
             
             document.getElementById("message-input-container").classList.remove("hidden");
             document.getElementById("message-input-container").classList.add("flex");
