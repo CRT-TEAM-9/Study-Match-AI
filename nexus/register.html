@@ -6,15 +6,21 @@
     <title>Register - Nexus</title>
     <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+    <!-- Configuration Reference -->
+    <script src="/config.js"></script>
     <!-- Offline Connection Status Handler -->
     <script src="/offline-handler.js" defer></script>
     <!-- Firebase SDK Integration -->
-    <script src="/firebase-config.js"></script>
+    <script>
+      document.write('<script src="' + window.getApiUrl("/firebase-config.js") + '"><\/script>');
+    </script>
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
       import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
+      import { getFirestore } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
       const app = initializeApp(window.firebaseConfig);
       const analytics = getAnalytics(app);
+      window.db = getFirestore(app);
     </script>
     <!-- Load Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -313,6 +319,12 @@
                         <input class="w-full bg-surface rounded border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all py-sm px-md text-base" id="password" name="password" placeholder="At least 6 characters" type="password" minlength="6" />
                     </div>
 
+                    <!-- College / University -->
+                    <div class="flex flex-col gap-xs">
+                        <label class="text-sm text-primary font-medium" for="college">College / University</label>
+                        <input class="w-full bg-surface rounded border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all py-sm px-md text-base" id="college" name="college" placeholder="Nexus University" type="text" required />
+                    </div>
+
                     <!-- Year & Branch -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
                         <div class="flex flex-col gap-xs">
@@ -546,7 +558,7 @@
                     const user = result.user;
                     
                     // Verify if they already exist in database
-                    const res = await fetch("/api/students");
+                    const res = await fetch(window.getApiUrl("/api/students"));
                     if (res.ok) {
                         const students = await res.json();
                         const found = students.find(s => s.email && s.email.toLowerCase() === user.email.toLowerCase());
@@ -628,6 +640,7 @@
                 const payload = {
                     name,
                     email,
+                    college: document.getElementById("college").value.trim(),
                     year: document.getElementById("year").value,
                     branch: document.getElementById("branch").value.trim(),
                     subjects_strong_in,
@@ -641,7 +654,7 @@
                 };
 
                 try {
-                    const res = await fetch("/api/register", {
+                    const res = await fetch(window.getApiUrl("/api/register"), {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json"
@@ -651,6 +664,17 @@
 
                     if (res.ok) {
                         const savedStudent = await res.json();
+                        
+                        // Sync profile data to Firestore
+                        if (window.db) {
+                            try {
+                                const { doc, setDoc } = await import("https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js");
+                                await setDoc(doc(window.db, "students", savedStudent.student_id), savedStudent);
+                            } catch (fsErr) {
+                                console.error("Firestore sync error:", fsErr);
+                            }
+                        }
+
                         localStorage.setItem("logged_in_user", JSON.stringify(savedStudent));
                         sessionStorage.removeItem("temp_auth_user");
                         window.location.href = "/dashboard.html";

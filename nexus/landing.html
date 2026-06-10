@@ -6,15 +6,21 @@
     <title>Nexus - Find Your Perfect Study Peer</title>
     <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+    <!-- Configuration Reference -->
+    <script src="/config.js"></script>
     <!-- Offline Connection Status Handler -->
     <script src="/offline-handler.js" defer></script>
     <!-- Firebase SDK Integration -->
-    <script src="/firebase-config.js"></script>
+    <script>
+      document.write('<script src="' + window.getApiUrl("/firebase-config.js") + '"><\/script>');
+    </script>
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
       import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
+      import { getFirestore } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
       const app = initializeApp(window.firebaseConfig);
       const analytics = getAnalytics(app);
+      window.db = getFirestore(app);
     </script>
     <!-- Load Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -230,7 +236,7 @@
                             Leverage advanced conversational AI to discover compatible study partners based on your academic goals, learning style, and schedule. Elevate your university experience through targeted peer-to-peer collaboration.
                         </p>
                         <div class="flex flex-col sm:flex-row gap-md w-full sm:w-auto mt-md">
-                            <a href="/register.html" class="bg-secondary text-on-secondary font-label-md text-label-md px-xl py-md rounded shadow-[0px_4px_12px_rgba(0,33,71,0.05)] hover:opacity-95 transition-opacity flex items-center justify-center gap-sm text-white font-bold">
+                            <a href="/register.html" class="bg-secondary text-on-secondary font-label-md text-label-md px-xl py-md rounded shadow-[0px_4px_12px_rgba(0,33,71,0.05)] hover:opacity-95 transition-opacity flex items-center justify-center gap-sm font-bold">
                                 Find Your Match
                                 <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
                             </a>
@@ -239,8 +245,37 @@
                             </a>
                         </div>
                     </div>
-                    <div class="relative w-full aspect-square md:aspect-[4/3] rounded-xl overflow-hidden border border-outline-variant bg-surface shadow-[0px_12px_32px_rgba(0,0,0,0.05)]">
-                        <img alt="Nexus Illustration" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBZONl9Pnc2rAVoXq_UNWoqaMSNu3LcjIR2kE9MKcwjtRUQvrKeVT-rNYO3cWYqwejPGgnrrxsjpAtTN7KbFLSSfbU6vm8Za95SxdFhhW4R2BUW40CCafbxoAfQFYq2Uv38G2X67tJpGqIW47E69DOWHLh7uMPbladUalVvUBjW1gQYa59ZTh4OPOLPFcY0GslCW9zkB1yWzCPzKZ2azCLP4Bg8FgLAyCwUM8hBeTHGTaForUYq4M2mt8CmmSgrO5Diecz84rHSYuM"/>
+                    <!-- Interactive Conversational Registration Chatbot Card -->
+                    <div class="w-full flex flex-col rounded-2xl border border-outline-variant bg-surface shadow-[0px_12px_32px_rgba(0,0,0,0.05)] h-[460px] overflow-hidden relative z-10">
+                        <!-- Chat Header -->
+                        <div class="px-md py-sm border-b border-outline-variant bg-surface-container-low flex items-center justify-between">
+                            <div class="flex items-center gap-sm">
+                                <div class="w-8 h-8 rounded bg-secondary/10 flex items-center justify-center text-secondary">
+                                    <span class="material-symbols-outlined text-[18px]">smart_toy</span>
+                                </div>
+                                <div class="flex flex-col text-left">
+                                    <span class="font-bold text-sm text-primary">Nexus AI Assistant</span>
+                                    <span class="text-[10px] text-secondary font-semibold">Online • Registration Agent</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-xs">
+                                <span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+                                <span class="text-[10px] text-on-surface-variant font-semibold text-gray-500">Live</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Messages Thread -->
+                        <div id="landing-chat-thread" class="flex-grow p-md overflow-y-auto space-y-md flex flex-col bg-surface-container-lowest text-left scrollbar-thin">
+                            <!-- Dynamic messages loaded here -->
+                        </div>
+                        
+                        <!-- Input Box -->
+                        <form id="landing-chat-form" class="p-sm border-t border-outline-variant bg-surface flex gap-sm items-center">
+                            <input id="landing-chat-input" class="flex-grow bg-surface-container-low p-sm pl-md rounded border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-xs h-9 text-gray-900" placeholder="Type your answer here..." type="text" autocomplete="off" required />
+                            <button type="submit" class="bg-primary hover:opacity-90 text-on-primary w-9 h-9 rounded flex items-center justify-center transition-all shadow-sm flex-shrink-0">
+                                <span class="material-symbols-outlined text-[18px]">send</span>
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -466,6 +501,173 @@
             }
             
             animate();
+        })();
+    </script>
+    <script>
+        // Landing Page Chatbot Logic
+        (function() {
+            let landingChatHistory = [];
+            let landingRegisterStep = 0;
+            let landingRegisterProfile = {};
+            let isLandingUserLoggedIn = false;
+            let landingLoggedInUser = null;
+
+            const sessionUser = localStorage.getItem("logged_in_user");
+            if (sessionUser) {
+                isLandingUserLoggedIn = true;
+                landingLoggedInUser = JSON.parse(sessionUser);
+            }
+
+            function initLandingChat() {
+                const thread = document.getElementById("landing-chat-thread");
+                if (!thread) return;
+                thread.innerHTML = "";
+                
+                if (isLandingUserLoggedIn) {
+                    const greeting = {
+                        role: "assistant",
+                        content: `👋 Hello again, **${landingLoggedInUser.name}**!<br><br>You are already registered and logged in as a Nexus member.<br><br>Click the link below to go straight to your study matching dashboard and find your partners!<br><br><a href="/dashboard.html" class="inline-flex bg-primary text-on-primary font-bold px-lg py-sm rounded-lg hover:opacity-90 transition-all text-xs shadow-md mt-sm">Go to Dashboard</a>`
+                    };
+                    landingChatHistory.push(greeting);
+                    renderLandingMessage(greeting);
+                    
+                    // Hide input form since they are logged in
+                    const form = document.getElementById("landing-chat-form");
+                    if (form) form.style.display = "none";
+                } else {
+                    const greeting = {
+                        role: "assistant",
+                        content: `👋 Hello! I am your conversational Nexus registration assistant. I will guide you step-by-step to create your study profile.<br><br>Let's get started!<br><br>**Question 1: What is your name?**`
+                    };
+                    landingChatHistory.push(greeting);
+                    renderLandingMessage(greeting);
+                }
+            }
+
+            function renderLandingMessage(msg) {
+                const thread = document.getElementById("landing-chat-thread");
+                if (!thread) return;
+                let htmlContent = msg.content;
+                htmlContent = htmlContent.replace(/\*\*(.*?)\*\"/g, '<strong>$1</strong>');
+                htmlContent = htmlContent.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                htmlContent = htmlContent.replace(/_(.*?)_/g, '<em>$1</em>');
+                htmlContent = htmlContent.replace(/\n/g, '<br>');
+                
+                const msgDiv = document.createElement("div");
+                if (msg.role === "user") {
+                    msgDiv.className = "flex gap-md w-full max-w-[85%] self-end flex-row-reverse text-right items-start";
+                    msgDiv.innerHTML = `
+                        <div class="bg-primary text-on-primary p-sm rounded-xl rounded-tr-none shadow-sm text-left inline-block">
+                            <p class="text-xs font-semibold">${htmlContent}</p>
+                        </div>
+                    `;
+                } else {
+                    msgDiv.className = "flex gap-md w-full max-w-[85%] self-start text-left items-start";
+                    msgDiv.innerHTML = `
+                        <div class="w-6 h-6 rounded bg-secondary/10 flex items-center justify-center flex-shrink-0 shadow-sm text-secondary">
+                            <span class="material-symbols-outlined text-[14px]">smart_toy</span>
+                        </div>
+                        <div class="bg-surface-container p-sm rounded-xl rounded-tl-none border border-outline-variant shadow-sm inline-block">
+                            <p class="text-xs font-medium text-gray-800">${htmlContent}</p>
+                        </div>
+                    `;
+                }
+                thread.appendChild(msgDiv);
+                thread.scrollTop = thread.scrollHeight;
+            }
+
+            async function handleLandingSendMessage(e) {
+                e.preventDefault();
+                const inputEl = document.getElementById("landing-chat-input");
+                if (!inputEl) return;
+                const msgText = inputEl.value.trim();
+                if (!msgText) return;
+                
+                inputEl.value = "";
+                
+                const userMsg = { role: "user", content: msgText };
+                landingChatHistory.push(userMsg);
+                renderLandingMessage(userMsg);
+                
+                await sendLandingRegistrationChat(msgText);
+            }
+
+            async function sendLandingRegistrationChat(msgText) {
+                try {
+                    const res = await fetch(window.getApiUrl("/api/chat/register-step"), {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            step: landingRegisterStep,
+                            message: msgText,
+                            profile: landingRegisterProfile,
+                            history: landingChatHistory.map(m => ({ role: m.role, content: m.content }))
+                        })
+                    });
+                    
+                    if (res.ok) {
+                        const data = await res.json();
+                        
+                        if (data.success) {
+                            landingRegisterStep = data.step;
+                            landingRegisterProfile = data.profile;
+                            
+                            if (data.complete) {
+                                // Sync profile to Firestore
+                                if (window.db) {
+                                    try {
+                                        const { doc, setDoc } = await import("https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js");
+                                        await setDoc(doc(window.db, "students", data.profile.student_id), data.profile);
+                                    } catch (fsErr) {
+                                        console.error("Firestore sync error:", fsErr);
+                                    }
+                                }
+
+                                // Save profile and log in
+                                localStorage.setItem("logged_in_user", JSON.stringify(data.profile));
+                                
+                                const botMsg = { role: "assistant", content: data.response };
+                                landingChatHistory.push(botMsg);
+                                renderLandingMessage(botMsg);
+                                
+                                // Redirect message
+                                const congratsMsg = {
+                                    role: "assistant",
+                                    content: `🎉 Redirecting you to your new Student Directory Dashboard in 3 seconds...`
+                                };
+                                setTimeout(() => {
+                                    renderLandingMessage(congratsMsg);
+                                }, 1000);
+                                
+                                setTimeout(() => {
+                                    window.location.href = "/dashboard.html";
+                                }, 4000);
+                            } else {
+                                const botMsg = { role: "assistant", content: data.prompt };
+                                landingChatHistory.push(botMsg);
+                                renderLandingMessage(botMsg);
+                            }
+                        } else {
+                            const botMsg = { role: "assistant", content: data.prompt };
+                            landingChatHistory.push(botMsg);
+                            renderLandingMessage(botMsg);
+                        }
+                    }
+                } catch (err) {
+                    console.error("Landing chat register error:", err);
+                    renderLandingMessage({ role: "assistant", content: "⚠️ Connection error. Please make sure the server is online." });
+                }
+            }
+
+            document.addEventListener("DOMContentLoaded", () => {
+                initLandingChat();
+                const form = document.getElementById("landing-chat-form");
+                if (form) {
+                    form.addEventListener("submit", handleLandingSendMessage);
+                }
+            });
         })();
     </script>
 </body>

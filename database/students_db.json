@@ -272,5 +272,54 @@
         "communication_preference": "both",
         "student_id": "STU010",
         "email": "yas@university.edu"
+    },
+    {
+        "student_id": "STU011",
+        "name": "Yashwanth Ponnam",
+        "email": "yashwanth55@gmail.com",
+        "year": "1st Year",
+        "branch": "Data Science",
+        "subjects_strong_in": [
+            "Python"
+        ],
+        "subjects_needing_help_in": [
+            "DBMS"
+        ],
+        "study_style": "discussion",
+        "preferred_study_time": [
+            "morning",
+            "afternoon"
+        ],
+        "availability_days": [
+            "Monday",
+            "Tuesday"
+        ],
+        "goal": "exam prep",
+        "communication_preference": "both",
+        "profile_pic": ""
+    },
+    {
+        "availability_days": [
+            "Monday"
+        ],
+        "branch": "AI/ML",
+        "goal": "exam prep",
+        "name": "Yash",
+        "preferred_study_time": [
+            "morning"
+        ],
+        "study_style": "visual",
+        "subjects_needing_help_in": [
+            "DSA in Python"
+        ],
+        "subjects_strong_in": [
+            "DBMS",
+            "Python",
+            "C++"
+        ],
+        "year": "1st Year",
+        "communication_preference": "both",
+        "student_id": "STU012",
+        "email": "yash@university.edu"
     }
 ]

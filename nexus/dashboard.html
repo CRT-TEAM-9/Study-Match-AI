@@ -6,15 +6,21 @@
     <title>Student Directory - Nexus</title>
     <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+    <!-- Configuration Reference -->
+    <script src="/config.js"></script>
     <!-- Offline Connection Status Handler -->
     <script src="/offline-handler.js" defer></script>
     <!-- Firebase SDK Integration -->
-    <script src="/firebase-config.js"></script>
+    <script>
+      document.write('<script src="' + window.getApiUrl("/firebase-config.js") + '"><\/script>');
+    </script>
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
       import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
+      import { getFirestore } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
       const app = initializeApp(window.firebaseConfig);
       const analytics = getAnalytics(app);
+      window.db = getFirestore(app);
     </script>
     <!-- Load Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -210,7 +216,6 @@
                 <span class="material-symbols-outlined text-[20px]" id="theme-icon">desktop_windows</span>
                 <span class="text-xs font-semibold" id="theme-text">System</span>
             </button>
-            <a href="/chatbot.html?objective=register" class="hidden md:flex bg-primary text-on-primary px-lg py-[10px] rounded hover:opacity-90 transition-all text-sm items-center gap-sm font-bold">Create Profile</a>
             <div class="flex items-center gap-sm">
                 <span id="user-display-name" class="text-sm font-semibold text-primary hidden md:inline">Student</span>
                 <div class="w-10 h-10 rounded-full bg-surface-variant border border-outline-variant overflow-hidden flex-shrink-0">
@@ -255,9 +260,6 @@
                         </a>
                     </nav>
                 </div>
-                <div class="border-t border-outline-variant/50 pt-lg">
-                    <a href="/register.html" class="mt-sm bg-transparent border border-primary text-primary px-md py-[10px] rounded-xl hover:bg-surface-variant transition-colors text-sm font-bold w-full flex justify-center items-center gap-sm">Register Profile</a>
-                </div>
             </div>
 
             <!-- Bottom Sidebar Links -->
@@ -289,7 +291,7 @@
                     </div>
                     <div class="flex items-end gap-md">
                         <span id="stat-students" class="text-4xl font-bold text-primary font-display-lg">--</span>
-                        <span class="text-xs font-semibold text-secondary-container bg-secondary px-sm py-[2px] rounded mb-1 text-white flex items-center gap-[2px]">
+                        <span class="text-xs font-semibold text-secondary-container bg-secondary px-sm py-[2px] rounded mb-1 text-on-secondary flex items-center gap-[2px]">
                             <span class="material-symbols-outlined text-[12px] font-bold">trending_up</span> +12%
                         </span>
                     </div>
@@ -403,7 +405,11 @@
                 <div class="lg:col-span-8 bg-surface-bright border border-outline-variant rounded-xl p-lg flex flex-col gap-lg shadow-[0px_4px_12px_rgba(0,33,71,0.02)]">
                     <div>
                         <h3 class="text-lg font-bold text-primary border-b border-outline-variant/30 pb-xs mb-md">Academic Profile</h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-md text-sm">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-md text-sm">
+                            <div>
+                                <span class="text-xs font-semibold text-on-surface-variant text-gray-500">College / University</span>
+                                <p id="profile-college" class="text-base font-semibold text-primary mt-[2px]">-</p>
+                            </div>
                             <div>
                                 <span class="text-xs font-semibold text-on-surface-variant text-gray-500">Major / Branch</span>
                                 <p id="profile-branch" class="text-base font-semibold text-primary mt-[2px]">-</p>
@@ -561,7 +567,7 @@
                             </div>
                         </div>
                         <div id="chat-header-actions" class="hidden">
-                            <button id="schedule-from-chat-btn" class="flex items-center gap-[4px] bg-secondary text-white text-xs font-bold px-md py-[6px] rounded hover:opacity-90 transition-all shadow-[0px_2px_4px_rgba(0,0,0,0.02)]">
+                            <button id="schedule-from-chat-btn" class="flex items-center gap-[4px] bg-secondary text-on-secondary text-xs font-bold px-md py-[6px] rounded hover:opacity-90 transition-all shadow-[0px_2px_4px_rgba(0,0,0,0.02)]">
                                 <span class="material-symbols-outlined text-[16px]">calendar_month</span>
                                 Schedule Session
                             </button>
@@ -742,6 +748,7 @@
             
             document.getElementById("profile-avatar-large").src = getAvatar(loggedInUser.name, loggedInUser.profile_pic);
             
+            document.getElementById("profile-college").textContent = loggedInUser.college || "Nexus University";
             document.getElementById("profile-branch").textContent = loggedInUser.branch;
             document.getElementById("profile-year").textContent = loggedInUser.year;
             
@@ -783,8 +790,8 @@
                 });
             };
             
-            populateBadges("profile-strong-badges", loggedInUser.subjects_strong_in, "bg-secondary text-white");
-            populateBadges("profile-help-badges", loggedInUser.subjects_needing_help_in, "bg-[#d6e3ff] text-[#001b3d]");
+            populateBadges("profile-strong-badges", loggedInUser.subjects_strong_in, "bg-secondary text-on-secondary");
+            populateBadges("profile-help-badges", loggedInUser.subjects_needing_help_in, "bg-primary-fixed text-on-primary-fixed border border-outline-variant/20");
             populateBadges("profile-days-badges", loggedInUser.availability_days, "bg-surface-variant border border-outline-variant/30 text-primary");
             populateBadges("profile-times-badges", loggedInUser.preferred_study_time, "bg-surface-variant border border-outline-variant/30 text-primary");
         }
@@ -793,6 +800,24 @@
             // Update user details
             document.getElementById("user-display-name").textContent = loggedInUser.name;
             document.getElementById("user-avatar").src = getAvatar(loggedInUser.name, loggedInUser.profile_pic);
+
+            // Sync user profile from Firestore
+            if (window.db && loggedInUser && loggedInUser.student_id) {
+                try {
+                    const { doc, getDoc } = await import("https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js");
+                    const docRef = doc(window.db, "students", loggedInUser.student_id);
+                    const docSnap = await getDoc(docRef);
+                    if (docSnap.exists()) {
+                        const dbUser = docSnap.data();
+                        loggedInUser = dbUser;
+                        localStorage.setItem("logged_in_user", JSON.stringify(dbUser));
+                        document.getElementById("user-display-name").textContent = dbUser.name;
+                        document.getElementById("user-avatar").src = getAvatar(dbUser.name, dbUser.profile_pic);
+                    }
+                } catch (err) {
+                    console.error("Firestore user sync error:", err);
+                }
+            }
 
             // Handle hash routing
             const hash = window.location.hash.substring(1);
@@ -827,7 +852,7 @@
                             const base64Pic = event.target.result;
                             
                             try {
-                                const response = await fetch("/api/students/update-avatar", {
+                                const response = await fetch(window.getApiUrl("/api/students/update-avatar"), {
                                     method: "POST",
                                     headers: {
                                         "Content-Type": "application/json"
@@ -840,6 +865,17 @@
                                 
                                 if (response.ok) {
                                     const updatedStudent = await response.json();
+                                     
+                                    // Sync avatar update to Firestore
+                                    if (window.db) {
+                                        try {
+                                            const { doc, setDoc } = await import("https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js");
+                                            await setDoc(doc(window.db, "students", updatedStudent.student_id), updatedStudent);
+                                        } catch (fsErr) {
+                                            console.error("Firestore sync error:", fsErr);
+                                        }
+                                    }
+
                                     localStorage.setItem("logged_in_user", JSON.stringify(updatedStudent));
                                     loggedInUser.profile_pic = base64Pic; // update local session cache
                                     
@@ -864,7 +900,7 @@
 
             // Load metrics
             try {
-                const statRes = await fetch("/api/stats");
+                const statRes = await fetch(window.getApiUrl("/api/stats"));
                 if (statRes.ok) {
                     const stats = await statRes.json();
                     document.getElementById("stat-students").textContent = stats.total_students;
@@ -896,10 +932,27 @@
         async function loadDirectory() {
             const tbody = document.getElementById("directory-tbody");
             try {
-                const res = await fetch("/api/students");
+                const res = await fetch(window.getApiUrl("/api/students"));
                 if (res.ok) {
                     allStudentsList = await res.json();
                     renderTable(allStudentsList);
+                    
+                    // Seed existing profiles into Firestore if missing
+                    if (window.db && allStudentsList.length > 0) {
+                        try {
+                            const { doc, getDoc, setDoc } = await import("https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js");
+                            for (const s of allStudentsList) {
+                                const docRef = doc(window.db, "students", s.student_id);
+                                const docSnap = await getDoc(docRef);
+                                if (!docSnap.exists()) {
+                                    await setDoc(docRef, s);
+                                    console.log(`Seeded student ${s.student_id} to Firestore`);
+                                }
+                            }
+                        } catch (seedErr) {
+                            console.error("Error seeding directory to Firestore:", seedErr);
+                        }
+                    }
                 } else {
                     tbody.innerHTML = `<tr><td colspan="6" class="p-lg text-center text-red-500">Failed to fetch student list.</td></tr>`;
                 }
@@ -926,12 +979,12 @@
                 
                 // Strong tags
                 const strongTags = s.subjects_strong_in.map(subj => 
-                    `<span class="bg-[#d6e3ff] text-[#001b3d] px-2 py-0.5 rounded-full text-xs font-semibold mr-1 mb-1 inline-block">${subj}</span>`
+                    `<span class="bg-primary-fixed text-on-primary-fixed border border-outline-variant/20 px-2 py-0.5 rounded-full text-xs font-semibold mr-1 mb-1 inline-block">${subj}</span>`
                 ).join("");
                 
                 // Help tags
                 const helpTags = s.subjects_needing_help_in.map(subj => 
-                    `<span class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full text-xs font-semibold border border-outline-variant mr-1 mb-1 inline-block">${subj}</span>`
+                    `<span class="bg-surface-container-high text-on-surface-variant border border-outline-variant/30 px-2 py-0.5 rounded-full text-xs font-semibold mr-1 mb-1 inline-block">${subj}</span>`
                 ).join("");
 
                 // Study style icon
@@ -944,7 +997,7 @@
                 const goalDisplay = s.goal.charAt(0).toUpperCase() + s.goal.slice(1);
 
                 let avatarHTML = `
-                    <div class="w-8 h-8 rounded-full bg-[#d6e3ff] text-[#001b3d] flex items-center justify-center text-xs font-bold flex-shrink-0">
+                    <div class="w-8 h-8 rounded-full bg-primary-fixed text-on-primary-fixed border border-outline-variant/20 flex items-center justify-center text-xs font-bold flex-shrink-0">
                         ${initials}
                     </div>`;
                 if (s.profile_pic) {
@@ -967,6 +1020,7 @@
                         <div class="flex flex-col">
                             <span class="font-medium text-gray-900">${s.year}</span>
                             <span class="text-xs text-on-surface-variant font-semibold text-gray-500">${s.branch}</span>
+                            <span class="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">${s.college || 'Nexus University'}</span>
                         </div>
                     </td>
                     <td class="p-md max-w-[200px]">${strongTags}</td>
@@ -1039,7 +1093,7 @@
             if (!subject || !topic || !description) return;
             
             try {
-                const res = await fetch("/api/tickets", {
+                const res = await fetch(window.getApiUrl("/api/tickets"), {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -1067,7 +1121,7 @@
             grid.innerHTML = `<p class="col-span-full text-center text-gray-500 py-10">Loading bulletin board tickets...</p>`;
             
             try {
-                const res = await fetch("/api/tickets");
+                const res = await fetch(window.getApiUrl("/api/tickets"));
                 if (!res.ok) throw new Error("Status " + res.status);
                 const tickets = await res.json();
                 
@@ -1102,13 +1156,13 @@
                                         <span class="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">${ticket.student_id}</span>
                                     </div>
                                 </div>
-                                <span class="px-2 py-[2px] rounded text-[10px] font-bold uppercase tracking-wider ${isOpen ? 'bg-[#e2f7ed] text-[#006c49]' : 'bg-gray-100 text-gray-500'}">
+                                <span class="px-2 py-[2px] rounded text-[10px] font-bold uppercase tracking-wider ${isOpen ? 'bg-[#e2f7ed] text-[#006c49] dark:bg-secondary/20 dark:text-secondary border dark:border-secondary/20' : 'bg-gray-100 text-gray-500 dark:bg-surface-container-high dark:text-on-surface-variant border dark:border-outline-variant/20'}">
                                     ${ticket.status}
                                 </span>
                             </div>
                             
                             <div class="mt-xs">
-                                <span class="bg-[#d6e3ff] text-[#001b3d] px-2 py-0.5 rounded text-[10px] font-bold inline-block mb-1">${ticket.subject}</span>
+                                <span class="bg-primary-fixed text-on-primary-fixed border border-outline-variant/20 px-2 py-0.5 rounded text-[10px] font-bold inline-block mb-1">${ticket.subject}</span>
                                 <h4 class="font-bold text-primary text-base">${ticket.topic}</h4>
                                 <p class="text-xs text-on-surface-variant mt-sm leading-relaxed text-gray-600">${ticket.description}</p>
                             </div>
@@ -1118,7 +1172,7 @@
                             <span class="text-[10px] font-semibold text-gray-400">${dateStr}</span>
                             ${isOwnTicket 
                                 ? (isOpen 
-                                    ? `<button onclick="closeTicket('${ticket.ticket_id}')" class="bg-gray-100 hover:bg-gray-200 border border-outline-variant text-gray-700 text-xs font-bold px-md py-[6px] rounded transition-all">Close Request</button>`
+                                    ? `<button onclick="closeTicket('${ticket.ticket_id}')" class="bg-surface-container-high hover:bg-outline-variant/20 border border-outline-variant text-primary text-xs font-bold px-md py-[6px] rounded transition-all">Close Request</button>`
                                     : `<span class="text-xs text-gray-500 font-bold flex items-center gap-[2px]"><span class="material-symbols-outlined text-[16px] text-secondary">check_circle</span> Resolved</span>`
                                   )
                                 : (isOpen
@@ -1141,7 +1195,7 @@
         
         async function closeTicket(ticketId) {
             try {
-                const res = await fetch(`/api/tickets/${ticketId}/close`, {
+                const res = await fetch(window.getApiUrl(`/api/tickets/${ticketId}/close`), {
                     method: "POST",
                     headers: { "Content-Type": "application/json" }
                 });
@@ -1165,7 +1219,7 @@
             const messageContent = `Hi ${ticket.student_name}! I saw your help request on "${ticket.subject}: ${ticket.topic}" and would love to help you study this topic. Let's study together!`;
             
             try {
-                const res = await fetch(`/api/chats/${chatId}/messages`, {
+                const res = await fetch(window.getApiUrl(`/api/chats/${chatId}/messages`), {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -1198,7 +1252,7 @@
             chatsListContainer.innerHTML = `<p class="text-center text-gray-500 py-6 text-xs">Loading chats...</p>`;
             
             try {
-                const res = await fetch(`/api/chats?student_id=${loggedInUser.student_id}`);
+                const res = await fetch(window.getApiUrl(`/api/chats?student_id=${loggedInUser.student_id}`));
                 if (!res.ok) throw new Error("Status " + res.status);
                 allChatsList = await res.json();
                 renderChatsList(allChatsList);
@@ -1308,7 +1362,7 @@
         
         async function fetchMessages(chatId, isPolling = false) {
             try {
-                const res = await fetch(`/api/chats/${chatId}/messages`);
+                const res = await fetch(window.getApiUrl(`/api/chats/${chatId}/messages`));
                 if (!res.ok) return;
                 const messages = await res.json();
                 
@@ -1343,7 +1397,7 @@
                 
                 bubble.innerHTML = `
                     <span class="text-[10px] text-gray-400 font-semibold mb-1">${isOwn ? 'You' : msg.sender_name}</span>
-                    <div class="px-md py-sm rounded-2xl text-sm leading-relaxed ${isOwn ? 'bg-primary text-white rounded-tr-none' : 'bg-surface border border-outline-variant text-gray-900 rounded-tl-none'} shadow-[0px_2px_4px_rgba(0,0,0,0.02)]">
+                    <div class="px-md py-sm rounded-2xl text-sm leading-relaxed ${isOwn ? 'bg-primary text-on-primary rounded-tr-none' : 'bg-surface border border-outline-variant text-gray-900 rounded-tl-none'} shadow-[0px_2px_4px_rgba(0,0,0,0.02)]">
                         ${msg.content}
                     </div>
                     <span class="text-[9px] text-gray-400 mt-[2px] font-semibold">${timeStr}</span>
@@ -1363,7 +1417,7 @@
             input.value = "";
             
             try {
-                const res = await fetch(`/api/chats/${activeChatId}/messages`, {
+                const res = await fetch(window.getApiUrl(`/api/chats/${activeChatId}/messages`), {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -1398,7 +1452,7 @@
             partnerSelect.innerHTML = `<option value="">-- Choose a Match --</option>`;
             
             try {
-                const res = await fetch("/api/students");
+                const res = await fetch(window.getApiUrl("/api/students"));
                 if (res.ok) {
                     const students = await res.json();
                     students.forEach(s => {
@@ -1426,7 +1480,7 @@
             container.innerHTML = `<p class="text-center text-gray-500 py-10">Loading study sessions schedule...</p>`;
             
             try {
-                const res = await fetch(`/api/sessions?student_id=${loggedInUser.student_id}`);
+                const res = await fetch(window.getApiUrl(`/api/sessions?student_id=${loggedInUser.student_id}`));
                 if (!res.ok) throw new Error("Status " + res.status);
                 const sessions = await res.json();
                 
@@ -1499,7 +1553,7 @@
             if (!title || !date || !time) return;
             
             try {
-                const res = await fetch("/api/sessions", {
+                const res = await fetch(window.getApiUrl("/api/sessions"), {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({

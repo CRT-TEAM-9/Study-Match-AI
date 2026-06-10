@@ -6,10 +6,14 @@
     <title>How it Works - Nexus</title>
     <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+    <!-- Configuration Reference -->
+    <script src="/config.js"></script>
     <!-- Offline Connection Status Handler -->
     <script src="/offline-handler.js" defer></script>
     <!-- Firebase SDK Integration -->
-    <script src="/firebase-config.js"></script>
+    <script>
+      document.write('<script src="' + window.getApiUrl("/firebase-config.js") + '"><\/script>');
+    </script>
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
       import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
@@ -233,7 +237,7 @@
                     
                     <!-- Step 1 Card -->
                     <div class="bg-surface-bright border border-outline-variant p-lg rounded-xl shadow-[0px_4px_16px_rgba(0,0,0,0.01)] hover:shadow-[0px_8px_24px_rgba(0,33,71,0.03)] transition-all flex flex-col items-start gap-md relative">
-                        <div class="absolute -top-4 -left-2 bg-secondary text-white font-bold w-8 h-8 rounded-full flex items-center justify-center text-sm shadow-md">1</div>
+                        <div class="absolute -top-4 -left-2 bg-secondary text-on-secondary font-bold w-8 h-8 rounded-full flex items-center justify-center text-sm shadow-md">1</div>
                         <div class="w-12 h-12 bg-surface-container-high rounded flex items-center justify-center text-primary mt-sm">
                             <span class="material-symbols-outlined text-[24px]">forum</span>
                         </div>
@@ -246,7 +250,7 @@
 
                     <!-- Step 2 Card -->
                     <div class="bg-surface-bright border border-outline-variant p-lg rounded-xl shadow-[0px_4px_16px_rgba(0,0,0,0.01)] hover:shadow-[0px_8px_24px_rgba(0,33,71,0.03)] transition-all flex flex-col items-start gap-md relative">
-                        <div class="absolute -top-4 -left-2 bg-secondary text-white font-bold w-8 h-8 rounded-full flex items-center justify-center text-sm shadow-md">2</div>
+                        <div class="absolute -top-4 -left-2 bg-secondary text-on-secondary font-bold w-8 h-8 rounded-full flex items-center justify-center text-sm shadow-md">2</div>
                         <div class="w-12 h-12 bg-surface-container-high rounded flex items-center justify-center text-secondary mt-sm">
                             <span class="material-symbols-outlined text-[24px]">rule</span>
                         </div>
@@ -264,7 +268,7 @@
 
                     <!-- Step 3 Card -->
                     <div class="bg-surface-bright border border-outline-variant p-lg rounded-xl shadow-[0px_4px_16px_rgba(0,0,0,0.01)] hover:shadow-[0px_8px_24px_rgba(0,33,71,0.03)] transition-all flex flex-col items-start gap-md relative">
-                        <div class="absolute -top-4 -left-2 bg-secondary text-white font-bold w-8 h-8 rounded-full flex items-center justify-center text-sm shadow-md">3</div>
+                        <div class="absolute -top-4 -left-2 bg-secondary text-on-secondary font-bold w-8 h-8 rounded-full flex items-center justify-center text-sm shadow-md">3</div>
                         <div class="w-12 h-12 bg-surface-container-high rounded flex items-center justify-center text-primary mt-sm">
                             <span class="material-symbols-outlined text-[24px]">explore</span>
                         </div>
@@ -277,7 +281,7 @@
 
                     <!-- Step 4 Card -->
                     <div class="bg-surface-bright border border-outline-variant p-lg rounded-xl shadow-[0px_4px_16px_rgba(0,0,0,0.01)] hover:shadow-[0px_8px_24px_rgba(0,33,71,0.03)] transition-all flex flex-col items-start gap-md relative">
-                        <div class="absolute -top-4 -left-2 bg-secondary text-white font-bold w-8 h-8 rounded-full flex items-center justify-center text-sm shadow-md">4</div>
+                        <div class="absolute -top-4 -left-2 bg-secondary text-on-secondary font-bold w-8 h-8 rounded-full flex items-center justify-center text-sm shadow-md">4</div>
                         <div class="w-12 h-12 bg-surface-container-high rounded flex items-center justify-center text-secondary mt-sm">
                             <span class="material-symbols-outlined text-[24px]">diversity_3</span>
                         </div>

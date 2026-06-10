@@ -6,15 +6,21 @@
     <title>Matchmaker Chat - Nexus</title>
     <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+    <!-- Configuration Reference -->
+    <script src="/config.js"></script>
     <!-- Offline Connection Status Handler -->
     <script src="/offline-handler.js" defer></script>
     <!-- Firebase SDK Integration -->
-    <script src="/firebase-config.js"></script>
+    <script>
+      document.write('<script src="' + window.getApiUrl("/firebase-config.js") + '"><\/script>');
+    </script>
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
       import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
+      import { getFirestore } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
       const app = initializeApp(window.firebaseConfig);
       const analytics = getAnalytics(app);
+      window.db = getFirestore(app);
     </script>
     <!-- Load Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -216,7 +222,6 @@
                 <span class="material-symbols-outlined text-[20px]" id="theme-icon">desktop_windows</span>
                 <span class="text-xs font-semibold" id="theme-text">System</span>
             </button>
-            <a href="/register.html" class="hidden md:flex bg-primary text-on-primary px-lg py-[10px] rounded hover:opacity-90 transition-all text-sm items-center gap-sm font-bold">Create Profile</a>
             <div class="flex items-center gap-sm">
                 <span id="user-display-name" class="text-sm font-semibold text-primary hidden md:inline">Student</span>
                 <div class="w-10 h-10 rounded-full bg-surface-variant border border-outline-variant overflow-hidden flex-shrink-0">
@@ -251,22 +256,7 @@
                     </nav>
                 </div>
 
-                <!-- Chat Objective select section -->
-                <div class="flex flex-col gap-xs border-t border-outline-variant/50 pt-md">
-                    <span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider px-sm mb-xs text-gray-500">Objective</span>
-                    <div class="space-y-sm">
-                        <!-- Option 1 -->
-                        <label class="flex items-center gap-sm p-sm rounded hover:bg-surface-variant cursor-pointer transition-colors">
-                            <input type="radio" id="obj-matchmaker" name="objective-choice" value="matchmaker" checked class="text-primary focus:ring-primary border-outline-variant w-4 h-4 cursor-pointer" />
-                            <span class="text-sm text-gray-700 font-semibold cursor-pointer select-none">Find Study Partner</span>
-                        </label>
-                        <!-- Option 2 -->
-                        <label class="flex items-center gap-sm p-sm rounded hover:bg-surface-variant cursor-pointer transition-colors">
-                            <input type="radio" id="obj-registration" name="objective-choice" value="registration" class="text-primary focus:ring-primary border-outline-variant w-4 h-4 cursor-pointer" />
-                            <span class="text-sm text-gray-700 cursor-pointer select-none">Register My Profile</span>
-                        </label>
-                    </div>
-                </div>
+
 
                 <!-- Actions section -->
                 <div class="flex flex-col gap-xs border-t border-outline-variant/50 pt-md">
@@ -277,9 +267,6 @@
                     </button>
                 </div>
 
-                <div class="pt-sm border-t border-outline-variant/30">
-                    <a href="/register.html" class="mt-sm bg-transparent border border-primary text-primary px-md py-[10px] rounded-xl hover:bg-surface-variant transition-colors text-sm font-bold w-full flex justify-center items-center gap-sm">Register Profile</a>
-                </div>
             </div>
 
             <!-- Bottom Sidebar Links -->
@@ -360,12 +347,7 @@
             document.getElementById("user-display-name").textContent = loggedInUser.name;
             document.getElementById("user-avatar").src = getAvatar(loggedInUser.name, loggedInUser.profile_pic);
 
-            // Set up objective choice listeners
-            const matchRadio = document.getElementById("obj-matchmaker");
-            const regRadio = document.getElementById("obj-registration");
 
-            matchRadio.addEventListener("change", () => toggleObjective("matchmaker"));
-            regRadio.addEventListener("change", () => toggleObjective("registration"));
 
             // Initialize chat
             initializeChat();
@@ -458,7 +440,7 @@
             const btnDiv = document.createElement("div");
             btnDiv.className = "w-full max-w-lg self-start pl-10 mt-sm";
             btnDiv.innerHTML = `
-                <button onclick="runMatchingEngine()" class="w-full bg-secondary text-on-secondary hover:opacity-95 py-sm rounded-lg font-semibold text-sm shadow-md flex justify-center items-center gap-xs h-10 text-white font-bold">
+                <button onclick="runMatchingEngine()" class="w-full bg-secondary text-on-secondary hover:opacity-95 py-sm rounded-lg font-semibold text-sm shadow-md flex justify-center items-center gap-xs h-10 font-bold">
                     🔍 Run Matching Engine Now
                 </button>
             `;
@@ -495,7 +477,7 @@
 
         async function sendMatchmakerChat(msgText) {
             try {
-                const res = await fetch("/api/chat", {
+                const res = await fetch(window.getApiUrl("/api/chat"), {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
@@ -533,7 +515,7 @@
 
         async function sendRegistrationChat(msgText) {
             try {
-                const res = await fetch("/api/chat/register-step", {
+                const res = await fetch(window.getApiUrl("/api/chat/register-step"), {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
@@ -555,6 +537,17 @@
                         
                         if (data.complete) {
                             const savedProfile = data.profile;
+                            
+                            // Sync profile to Firestore
+                            if (window.db) {
+                                try {
+                                    const { doc, setDoc } = await import("https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js");
+                                    await setDoc(doc(window.db, "students", savedProfile.student_id), savedProfile);
+                                } catch (fsErr) {
+                                    console.error("Firestore sync error:", fsErr);
+                                }
+                            }
+
                             loggedInUser = savedProfile;
                             localStorage.setItem("logged_in_user", JSON.stringify(savedProfile));
                             
@@ -562,9 +555,7 @@
                             chatHistory.push(botMsg);
                             renderMessage(botMsg);
                             
-                            // Auto reset to matchmaker screen after 4s
                             setTimeout(() => {
-                                document.getElementById("obj-matchmaker").checked = true;
                                 toggleObjective("matchmaker");
                             }, 4500);
                         } else {
@@ -678,7 +669,7 @@
             card.className = "bg-surface-container border border-outline-variant rounded-xl p-md shadow-sm mb-lg text-on-surface w-full text-left max-w-3xl mt-md flex flex-col gap-sm";
             card.innerHTML = `
                 <div class="flex items-center gap-md">
-                    <div class="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-on-secondary shadow-sm text-white">
+                    <div class="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-on-secondary shadow-sm">
                         <span class="material-symbols-outlined">diversity_3</span>
                     </div>
                     <div>

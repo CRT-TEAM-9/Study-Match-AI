@@ -132,6 +132,12 @@ REGISTRATION_FIELDS: list[dict] = [
         "validation": None,
     },
     {
+        "key": "college",
+        "prompt": "Which college or university do you attend?",
+        "type": "text",
+        "validation": None,
+    },
+    {
         "key": "year",
         "prompt": "What year are you in?",
         "type": "choice",

@@ -6,6 +6,7 @@ for the database, matching engine, and LLM chatbot operations.
 """
 
 from flask import Flask, jsonify, request, send_from_directory
+from flask_cors import CORS
 import os
 import re
 from pathlib import Path
@@ -32,6 +33,7 @@ load_dotenv()
 # Initialize Flask app
 # Flask will serve files directly from the nexus directory as static assets
 app = Flask(__name__, static_folder='nexus', static_url_path='')
+CORS(app)
 
 # Initialize LLM Orchestrator safely
 try:
@@ -157,6 +159,7 @@ def api_register_student():
         # Extract fields
         name = data.get("name", "").strip()
         email = data.get("email", "").strip()
+        college = data.get("college", "").strip()
         year = data.get("year", "").strip()
         branch = data.get("branch", "").strip()
         subjects_strong_in = data.get("subjects_strong_in", [])
@@ -169,7 +172,7 @@ def api_register_student():
         profile_pic = data.get("profile_pic", "").strip()
         
         # Validation
-        if not name or not email or not year or not branch or not study_style or not goal or not communication_preference:
+        if not name or not email or not college or not year or not branch or not study_style or not goal or not communication_preference:
             return jsonify({"detail": "Please fill out all required personal and academic details."}), 400
             
         if not subjects_strong_in or not subjects_needing_help_in:
@@ -184,6 +187,7 @@ def api_register_student():
             "student_id": new_id,
             "name": name,
             "email": email,
+            "college": college,
             "year": year,
             "branch": branch,
             "subjects_strong_in": subjects_strong_in,
@@ -577,5 +581,8 @@ def api_close_ticket(ticket_id):
 
 
 if __name__ == "__main__":
-    # Start the Flask development server on port 5000
-    app.run(host="localhost", port=5000, debug=True)
+    # Bind dynamically to the port provided by Cloud Run, fallback to 5000 for local runs
+    port = int(os.environ.get("PORT", 5000))
+    # Bind to 0.0.0.0 in production containers to accept incoming routing requests
+    host = "0.0.0.0" if os.environ.get("PORT") else "localhost"
+    app.run(host=host, port=port, debug=True)

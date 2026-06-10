@@ -44,6 +44,9 @@ def load_students() -> list[dict]:
                 data = json.load(f)
             if not isinstance(data, list):
                 return []
+            for student in data:
+                if "college" not in student:
+                    student["college"] = "Nexus University"
             return data
         except (json.JSONDecodeError, IOError):
             return []
@@ -209,6 +212,7 @@ def delete_student(student_id: str) -> bool:
 _REQUIRED_FIELDS = [
     "student_id",
     "name",
+    "college",
     "year",
     "branch",
     "subjects_needing_help_in",
@@ -231,6 +235,9 @@ def _validate_profile(profile: dict) -> None:
     if not isinstance(profile, dict):
         raise ValueError("Profile must be a dictionary.")
 
+    if "college" not in profile or not profile["college"]:
+        profile["college"] = "Nexus University"
+
     missing = [field for field in _REQUIRED_FIELDS if field not in profile]
     if missing:
         raise ValueError(
@@ -249,7 +256,7 @@ def _validate_profile(profile: dict) -> None:
             raise ValueError(f"Field '{field}' must be a list.")
 
     # Validate non-empty strings
-    string_fields = ["student_id", "name", "year", "branch", "study_style", "goal", "communication_preference"]
+    string_fields = ["student_id", "name", "college", "year", "branch", "study_style", "goal", "communication_preference"]
     for field in string_fields:
         val = profile.get(field)
         if not isinstance(val, str) or not val.strip():

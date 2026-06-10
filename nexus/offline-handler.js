@@ -57,7 +57,8 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 3000); // 3s timeout
-            const res = await fetch("/api/stats", { signal: controller.signal });
+            const apiUrl = window.getApiUrl ? window.getApiUrl("/api/stats") : "/api/stats";
+            const res = await fetch(apiUrl, { signal: controller.signal });
             clearTimeout(timeoutId);
             if (res.ok) {
                 setOfflineState(false);
